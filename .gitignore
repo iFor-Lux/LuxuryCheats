@@ -1,0 +1,36 @@
+# Gradle files
+.gradle/
+build/
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Local configuration files
+local.properties
+
+# Android Studio captures and logs
+captures/
+
+# Built variants and caches
+app/build/
+**/build/
+
+# Sensitive files
+google-services.json
+*.jks
+*.keystore
+*.p12
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Kotlin specific
+.kotlin/
+
+# Secrets-gradle-plugin
+secrets.properties

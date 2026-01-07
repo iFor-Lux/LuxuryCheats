@@ -1,0 +1,106 @@
+---
+alwaysApply: true
+---
+
+# Luxury Cheats - Project Rules
+
+## CRITICAL: Follow AGENTS.md Strictly
+- Read and follow AGENTS.md before making any architectural decisions
+- Consult PROJECT_MEMORY.md before implementing features
+- Update ARCHITECTURE.md when project structure changes
+- Never ignore previously documented decisions
+
+## Architecture & Code Organization
+
+### MVVM Pattern (Screen Level Only)
+- Each screen MUST have:
+  - ViewModel (in `logic/` folder)
+  - UI State (in `logic/` folder)
+  - UI Actions/Events (in `logic/` folder)
+  - Screen composable (in `ui/` folder)
+- ViewModels handle ALL logic and state
+- Composables ONLY render state - NO business logic
+- Backend operations (Firebase/Dashboard) belong in ViewModels or data layers, NEVER in UI
+
+### UI Structure
+- Each screen is fully self-contained
+- UI sections are screen-scoped ONLY (not reusable by default)
+- Sections exist for readability, not abstraction
+- Avoid shared/generic UI components unless duplication becomes harmful
+- NO XML layouts - Jetpack Compose only
+
+### Code Separation
+- Keep UI and logic in separate files/folders
+- Logic goes in `logic/` folder
+- UI goes in `ui/` folder
+- Configuration classes (like WebView config) belong in `logic/` folder
+- Never mix JavaScript/Kotlin code - use separate files
+
+## Code Quality
+
+### Clarity & Simplicity
+- Prefer simple, direct solutions
+- Use `when` instead of nested `if/else`
+- Early returns for clarity
+- Small, focused functions
+- Readability over micro-optimizations
+- Avoid clever or overly abstract code
+
+### Best Practices
+- Respect Detekt and Ktlint rules at all times
+- Follow Kotlin and Jetpack Compose best practices
+- State handled using StateFlow
+- Prefer unidirectional data flow
+
+## Documentation Requirements
+
+### PROJECT_MEMORY.md
+- MUST actively record important decisions
+- Record when:
+  - Firebase usage changes
+  - Dashboard integrations evolve
+  - Data flow or threading decisions are made
+  - Architecture decisions are made
+  - UI flow changes
+  - Security strategy changes
+- Do NOT record trivial implementation details
+- Consult before making architectural decisions
+
+### ARCHITECTURE.md
+- MUST maintain up-to-date project structure
+- Use ASCII tree format
+- Update ONLY when:
+  - Folders are added/removed
+  - Files are added/removed
+  - Project structure is reorganized
+
+## What NOT to Do
+- Do NOT introduce XML layouts
+- Do NOT create generic/reusable UI components by default
+- Do NOT enforce Google Play Store constraints
+- Do NOT add libraries without explicit intent
+- Do NOT refactor unrelated code
+- Do NOT ignore previously documented decisions
+- Do NOT mix business logic in Composables
+- Do NOT hardcode sensitive strings (use StringProtector)
+
+## Backend Context
+- Assume Firebase and external Dashboard as data sources
+- Network operations are asynchronous
+- Threading (coroutines, dispatchers) must be clearly handled
+- Be explicit about Firebase/Dashboard dependencies
+
+## Security
+- Assume app will be reverse engineered
+- Pay attention to backend-related logic
+- Use StringProtector for sensitive text
+- Minimize exposed internal logic
+- Defensive and conscious design
+
+## UI Design Philosophy
+- Premium, minimalist, intentional
+- Inspired by Apple UI philosophy (not direct iOS patterns)
+- Material Design 3 as base, not constraint
+- Full Dark/Light mode support
+- Focus on spacing, hierarchy, typography
+- Avoid visual noise

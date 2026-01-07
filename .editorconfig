@@ -1,0 +1,64 @@
+# EditorConfig: https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+indent_size = 4
+max_line_length = 120
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+
+# Imports
+ij_kotlin_packages_to_use_import_on_demand = unset
+ij_kotlin_name_count_to_use_star_import = 999
+ij_kotlin_name_count_to_use_star_import_for_members = 999
+
+# Blank lines
+ij_kotlin_blank_lines_around_block_when_branches = 0
+
+# Wrapping
+ij_kotlin_line_break_after_multiline_when_entry = true
+
+# Code style
+ktlint_standard_no-wildcard-imports = enabled
+ktlint_standard_filename = enabled
+ktlint_standard_import-ordering = enabled
+ktlint_standard_no-consecutive-blank-lines = enabled
+ktlint_standard_no-blank-line-before-rbrace = enabled
+ktlint_standard_no-trailing-spaces = enabled
+ktlint_standard_no-unit-return = enabled
+ktlint_standard_no-semi = enabled
+ktlint_standard_no-multi-spaces = enabled
+ktlint_standard_no-unused-imports = enabled
+ktlint_standard_string-template = enabled
+
+# Experimental rules
+ktlint_experimental_function-signature = enabled
+ktlint_experimental_multiline-expression-wrapping = disabled
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[*.xml]
+indent_size = 4
+
+[*.gradle]
+indent_size = 4
+
+[*.gradle.kts]
+indent_size = 4
+
+[*.properties]
+indent_size = 4
+
