@@ -32,7 +32,7 @@ The project follows a self-contained screen-level structure:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/LuxuryCheats.git
+   git clone https://github.com/iFor-Lux/LuxuryCheats.git
    ```
 2. **Firebase Setup**:
    - Add your `google-services.json` to the `app/` directory.
