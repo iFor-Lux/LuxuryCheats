@@ -66,11 +66,11 @@ fun PersistentLogo(
         label = "logo_visibility_alpha"
     )
 
-    // Si no es visible, no debería bloquear NADA
+    // Si no es visible ni está animando, no renderizamos nada para no bloquear la pantalla
+    if (!isVisibleRoute && logoAlpha == 0f) return
+
     BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-            .tileTouches(isVisibleRoute) // Extension o lógica para no bloquear si no es visible
+        modifier = modifier.fillMaxSize()
     ) {
         val animatedOffsetY = calculateLogoOffset(currentRoute, maxHeight, LOGO_BASE_SIZE_DP)
 
@@ -87,8 +87,6 @@ fun PersistentLogo(
     }
 }
 
-// Helper para no bloquear toques si no es visible
-private fun Modifier.tileTouches(enabled: Boolean): Modifier = if (enabled) this else this
 
 @Composable
 private fun calculateLogoOffset(

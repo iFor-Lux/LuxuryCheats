@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.features.home.logic.HomeAction
 import com.luxury.cheats.features.home.logic.HomeViewModel
@@ -33,6 +34,7 @@ private object HomeUIConstants {
  */
 @Composable
 fun HomeScreen(
+    navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -47,7 +49,7 @@ fun HomeScreen(
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
     val density = androidx.compose.ui.platform.LocalDensity.current
- 
+
     androidx.compose.runtime.LaunchedEffect(uiState.isConsoleExpanded) {
         if (uiState.isConsoleExpanded) {
             scrollState.animateScrollTo(
@@ -56,9 +58,9 @@ fun HomeScreen(
             )
         }
     }
- 
+
     Box(modifier = modifier.fillMaxSize()) {
-        HomeSectionsList(uiState, scrollState, viewModel)
+        HomeSectionsList(uiState, scrollState, viewModel, navController)
 
         com.luxury.cheats.core.ui.AppToast(
             notifications = uiState.notifications,
@@ -66,7 +68,7 @@ fun HomeScreen(
                 .align(Alignment.TopCenter)
                 .padding(top = HomeUIConstants.TOAST_TOP_PADDING.dp)
         )
-        
+
         uiState.notifications.forEach { notification ->
             androidx.compose.runtime.LaunchedEffect(notification.id) {
                 kotlinx.coroutines.delay(HomeUIConstants.NOTIFICATION_DELAY)
@@ -80,7 +82,8 @@ fun HomeScreen(
 private fun HomeSectionsList(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     scrollState: androidx.compose.foundation.ScrollState,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    navController: NavHostController
 ) {
     Column(
         modifier = Modifier
@@ -92,6 +95,10 @@ private fun HomeSectionsList(
     ) {
         HomeImagenSection()
         HomeSaludoSection(uiState.userName, uiState.greeting, uiState.greetingSubtitle)
+
+        // Sección de Pruebas solicitada (Solo para Test)
+        HomeTestSection(navController = navController)
+
         HomeSeguridadSection(uiState.isSeguridadUnlocked, onClick = { viewModel.onAction(HomeAction.ToggleSeguridad) })
 
         if (uiState.isSeguridadUnlocked) {

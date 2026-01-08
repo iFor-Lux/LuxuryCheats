@@ -40,6 +40,26 @@
   - LÃ­mite de puntos (150x150 mÃ¡ximo) para control de rendimiento
 - **Resultado**: Background estable sin crashes, manteniendo efecto visual deseado
 
+### Alineación Universal Material You - Update Section
+**Fecha**: Enero 2026
+
+- **Contexto**: La `UpdateSection` todavía utilizaba colores fijos (Verde neón, Blanco) que no se adaptaban al sistema Material You.
+- **Decisión**: Eliminar `GREEN_STATUS_HEX` y referencias a `Color.White` en favor de tokens semánticos de `MaterialTheme.colorScheme`.
+- **Implementación**:
+    - Se sustituyó el color de estado por `MaterialTheme.colorScheme.tertiary`, que en el esquema "Onyx Luxury" es naranja pero se adapta dinámicamente con Material You.
+    - Los bordes y textos ahora usan `outline` y `onSurface` respectivamente.
+- **Resultado**: Coherencia visual total con el resto de la aplicación y soporte completo para personalización de colores del sistema.
+
+### Alineación Material You y Estabilidad de Preview - UpdateAnuncioSection
+**Fecha**: Enero 2026
+
+- **Contexto**: `UpdateAnuncioSection` no se visualizaba en el preview y tenía colores fijos en los bordes.
+- **Decisión**: Eliminar el uso de `Color.White` en bordes y limpiar los wrappers de `Surface` en los previews para usar el esquema de colores dinámico.
+- **Implementación**:
+    - Sustitución de `Color.White` por `MaterialTheme.colorScheme.outline`.
+    - Actualización de `UpdateAnuncioSectionPreviewDark/Light` para usar `MaterialTheme.colorScheme.background`.
+- **Resultado**: El componente ahora es totalmente adaptativo y visible establemente en el IDE.
+
 ### Estructura de Assets para WebView
 **Fecha**: Diciembre 2025
 
@@ -483,3 +503,29 @@
   - `LuxuryApp.kt`: Habilitación de persistencia global.
   - `AuthService.kt`: Aplicación de `keepSynced(true)` al inicializar la referencia de la base de datos.
 - **Resultado**: Login ultra rápido incluso con conexiones inestables una vez realizada la primera sincronización.
+
+## 2026-01-07: Sistema de Actualización y Panel de Pruebas
+- **Contexto**: Se requería mejorar la estabilidad de los Previews en `UpdateSection` y `UpdateAnuncioSection`, y conectar el flujo de actualizaciones.
+- **Decisiones**:
+  - **Estabilidad de Preview**: Se implementó `LocalInspectionMode.current` en `DownloadWebLogo` (para evitar fallos de `WebView`) y en `UpdateBanner` (para evitar fallos de renderizado del formato AVIF en el IDE). Se utilizan placeholders (iconos y colores sólidos) en tiempo de diseño.
+  - **Material You**: Se reemplazaron colores hardcoded por tokens temáticos (`primary`, `surface`, `outline`, etc.) asegurando que la UI de actualización se adapte dinámicamente al sistema.
+  - **Navegación**: 
+    - Se registró la ruta `UPDATE` en `NavRoutes.kt` y `AppNavHost.kt`.
+    - Se conectó el botón del anuncio con la pantalla de descarga.
+    - Se conectó el botón de "Descargar" en `UpdateSection` con el `DownloadArchivoBottomSheet` usando un estado de visibilidad local.
+  - **Infraestructura de Pruebas**: Se creó `HomeTestSection` en `HomeTest.kt` como un panel efímero integrado en la `HomeScreen`. Este permite disparar el anuncio de actualización mediante un diálogo para verificar el flujo completo de navegación sin depender de eventos de backend todavía.
+- **Archivos Clave**:
+  - `UpdateSection.kt`, `UpdateAnuncioSection.kt`, `HomeTest.kt`.
+  - `AppNavHost.kt`, `NavRoutes.kt`.
+
+### Refactor MVVM - Update Section e Integración de Descarga
+**Fecha**: Enero 2026
+
+- **Contexto**: La `UpdateSection` manejaba el estado de la hoja de descarga localmente y carecía de una estructura MVVM completa.
+- **Decisión**: Implementar `UpdateViewModel`, `UpdateState` y `UpdateAction` para centralizar la lógica de la pantalla de actualización.
+- **Implementación**:
+    - Se crearon `UpdateState.kt`, `UpdateAction.kt` y `UpdateViewModel.kt` en el paquete `logic`.
+    - `DownloadUpdateScreen` ahora recibe el `UpdateViewModel` y observa su estado.
+    - El botón "DESCARGAR" dispara la acción `UpdateAction.DownloadClicked`.
+    - La visibilidad de `DownloadArchivoBottomSheet` (en `DownloadArchivoSection.kt`) está vinculada al estado del ViewModel.
+- **Resultado**: Código más limpio, siguiendo la arquitectura del proyecto y facilitando la expansión futura de la lógica de descarga.

@@ -17,6 +17,7 @@ import com.luxury.cheats.features.welcome.page1.bienvenida.ui.WelcomePage1Screen
 import com.luxury.cheats.features.welcome.page2.permisos.ui.WelcomePage2Screen
 import com.luxury.cheats.features.welcome.page3.shizuku.ui.WelcomePage3Screen
 import com.luxury.cheats.features.welcome.splash.ui.WelcomeSplashScreen
+import com.luxury.cheats.features.update.ui.DownloadUpdateScreen
 
 private const val TRANSITION_DURATION = 400
 
@@ -105,10 +106,16 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
     }
 
     composable(NavRoutes.HOME) {
-        HomeScreen()
+        HomeScreen(navController = navController)
     }
 
     composable(NavRoutes.PERFIL) {
         PerfilScreen()
+    }
+
+    composable(NavRoutes.UPDATE) {
+        DownloadUpdateScreen(
+            onBackClick = { navController.popBackStack() }
+        )
     }
 }

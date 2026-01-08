@@ -21,8 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,7 +49,7 @@ fun UpdateAnuncioSection(
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.46f),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.46f),
                 shape = RoundedCornerShape(30.dp)
             )
             .padding(24.dp),
@@ -70,18 +70,36 @@ fun UpdateAnuncioSection(
 
 @Composable
 private fun UpdateBanner() {
+    val isPreview = LocalInspectionMode.current
     Box(
         modifier = Modifier
             .size(width = 300.dp, height = 140.dp)
             .clip(RoundedCornerShape(25.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.sprit1),
-            contentDescription = "Update Banner",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+        if (isPreview) {
+            // Placeholder para evitar errores de renderizado con AVIF en el Preview
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Banner Placeholder",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.sprit1),
+                contentDescription = "Update Banner",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
     }
 }
 
@@ -135,7 +153,7 @@ private fun UpdateButton(onClick: () -> Unit) {
 @Composable
 fun UpdateAnuncioSectionPreviewDark() {
     LuxuryCheatsTheme(darkTheme = true) {
-        Surface(color = Color.Black) {
+        Surface(color = MaterialTheme.colorScheme.background) {
             Box(Modifier.padding(20.dp)) {
                 UpdateAnuncioSection()
             }
@@ -148,7 +166,7 @@ fun UpdateAnuncioSectionPreviewDark() {
 @Composable
 fun UpdateAnuncioSectionPreviewLight() {
     LuxuryCheatsTheme(darkTheme = false) {
-        Surface(color = Color.White) {
+        Surface(color = MaterialTheme.colorScheme.background) {
             Box(Modifier.padding(20.dp)) {
                 UpdateAnuncioSection()
             }

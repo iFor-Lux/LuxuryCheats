@@ -24,8 +24,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,27 +36,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.luxury.cheats.BuildConfig
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.core.ui.LogoWebViewManager
+import com.luxury.cheats.features.update.logic.UpdateAction
+import com.luxury.cheats.features.update.logic.UpdateViewModel
+import com.luxury.cheats.features.widgets.DownloadArchivoBottomSheet
 
-private val GREEN_STATUS_HEX = Color(0xFF00FF00)
 private const val NEWS_REPEAT_COUNT = 4
 
 /**
  * Pantalla completa de descarga de actualización.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DownloadUpdateScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
-    onDownloadClick: () -> Unit = {}
+    viewModel: UpdateViewModel = viewModel()
 ) {
+    val uiState = viewModel.uiState.collectAsState().value
     val scrollState = rememberScrollState()
 
     Column(
@@ -68,10 +78,18 @@ fun DownloadUpdateScreen(
     ) {
         DownloadHeader(onBackClick)
         Spacer(modifier = Modifier.height(20.dp))
-        DownloadMainCard(onDownloadClick)
+        DownloadMainCard(onDownloadClick = {
+            viewModel.onAction(UpdateAction.DownloadClicked)
+        })
         Spacer(modifier = Modifier.height(32.dp))
         DownloadNewsSection()
         Spacer(modifier = Modifier.height(32.dp))
+    }
+
+    if (uiState.showDownloadSheet) {
+        DownloadArchivoBottomSheet(
+            onDismissRequest = { viewModel.onAction(UpdateAction.DismissDownloadSheet) }
+        )
     }
 }
 
@@ -105,18 +123,22 @@ private fun DownloadHeader(onBackClick: () -> Unit) {
 private fun DownloadMainCard(onDownloadClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(width = 350.dp, height = 521.dp)
+            .fillMaxWidth()
+            .height(521.dp)
             .clip(RoundedCornerShape(50.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.46f),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.46f),
                 shape = RoundedCornerShape(50.dp)
             )
             .padding(24.dp),
         contentAlignment = Alignment.TopCenter
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             DownloadWebLogo()
             Spacer(modifier = Modifier.height(24.dp))
             DownloadVersionInfo()
@@ -125,40 +147,57 @@ private fun DownloadMainCard(onDownloadClick: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
             DownloadStatusInfo()
             Spacer(modifier = Modifier.weight(1f))
-            DownloadActionButton(onDownloadClick)
+            DownloadActionButton(onClick = onDownloadClick)
         }
     }
 }
 
 @Composable
 private fun DownloadWebLogo() {
+    val isPreview = LocalInspectionMode.current
     Box(
         modifier = Modifier
             .size(100.dp)
             .clip(CircleShape)
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
     ) {
-        AndroidView(
-            factory = { ctx ->
-                LogoWebViewManager.getOrCreateWebView(ctx).apply {
-                    (parent as? ViewGroup)?.removeView(this)
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    setBackgroundColor(0x00000000)
-                }
-            },
-            modifier = Modifier.fillMaxSize()
+        // Ícono de respaldo (visible en Preview y como fallback en dispositivo)
+        Icon(
+            imageVector = Icons.Default.Verified,
+            contentDescription = null,
+            modifier = Modifier.size(50.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
         )
+
+        if (!isPreview) {
+            AndroidView(
+                factory = { ctx ->
+                    LogoWebViewManager.getOrCreateWebView(ctx).apply {
+                        (parent as? ViewGroup)?.removeView(this)
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                        setBackgroundColor(0x00000000)
+                        // IMPORTANTE: Asegurar que NO consuma toques aquí para no obstruir
+                        setOnTouchListener(null)
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
 
 @Composable
 private fun DownloadVersionInfo() {
+
+    val appVersion = BuildConfig.VERSION_NAME
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = "v1.2.0",
+            text = "v$appVersion",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -188,24 +227,24 @@ private fun DownloadStatusInfo() {
             imageVector = Icons.Default.Update,
             contentDescription = null,
             modifier = Modifier.size(30.dp),
-            tint = GREEN_STATUS_HEX
+            tint = MaterialTheme.colorScheme.tertiary
         )
         Text(
             text = "Actualizacion disponible",
-            color = GREEN_STATUS_HEX,
+            color = MaterialTheme.colorScheme.tertiary,
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Version 2.0.0",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )
         Text(
             text = "Release 2026-01-02",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
         )
@@ -245,7 +284,8 @@ private fun DownloadNewsSection() {
         )
         Box(
             modifier = Modifier
-                .size(width = 360.dp, height = 100.dp)
+                .fillMaxWidth()
+                .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(16.dp)

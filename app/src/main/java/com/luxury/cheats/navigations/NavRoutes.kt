@@ -11,4 +11,5 @@ object NavRoutes {
     const val LOGIN = "login"
     const val HOME = "home"
     const val PERFIL = "perfil"
+    const val UPDATE = "update"
 }
