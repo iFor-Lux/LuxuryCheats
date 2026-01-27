@@ -529,3 +529,54 @@
     - El botón "DESCARGAR" dispara la acción `UpdateAction.DownloadClicked`.
     - La visibilidad de `DownloadArchivoBottomSheet` (en `DownloadArchivoSection.kt`) está vinculada al estado del ViewModel.
 - **Resultado**: Código más limpio, siguiendo la arquitectura del proyecto y facilitando la expansión futura de la lógica de descarga.
+
+### Simplificación UI Update Section - Eliminación de Logo
+**Fecha**: Enero 2026
+
+- **Contexto**: El logo de WebView en la pantalla de actualización ya no es necesario y causaba ruido visual innecesario.
+- **Decisión**: Eliminar el componente `DownloadWebLogo` y su uso en `UpdateSection.kt`, manteniendo solo el icono estático de la aplicación.
+- **Implementación**:
+    - Se eliminó la función `DownloadWebLogo` que encapsulaba el WebView del logo.
+    - Se implementó `DownloadAppIcon` para mostrar el icono `Verified` de forma estática, manteniendo la coherencia visual sin la carga del WebView.
+    - Se eliminaron las dependencias de WebView en `UpdateSection.kt` (Manager de WebView, AndroidView, etc.).
+- **Resultado**: Interfaz de actualización más limpia, rápida y enfocada, preservando la identidad visual con el icono estático.
+
+### Widget Informativo: InfoActivationSection
+**Fecha**: Enero 2026
+
+- **Contexto**: Necesidad de una guía visual rápida para los usuarios sobre cómo activar las funciones de la app.
+- **Decisión**: Crear un Bottom Sheet modal con un diseño de "stacked card" de dimensiones fijas (360x388).
+- **Implementación**:
+    - `InfoActivationSection.kt`: Contiene el Bottom Sheet y el contenido de la tarjeta.
+    - Diseño: Header destacado, imagen ilustrativa generada por IA (`info_activation_guide`), descripción concisa y botones de acción (Continuar/Cancelar).
+    - Estilo: Bordes muy redondeados (40.dp) y colores adaptativos Material You.
+    - **Integración**: Conectado al "TEST BUTTON 2" en el `HomeTestSection` para facilitar pruebas de UI sin disparadores de backend.
+- **Resultado**: Un componente de ayuda premium y coherente con el lenguaje visual de la aplicación, fácilmente accesible para pruebas.
+
+### Widget de Mensaje: InfoMessageSection
+**Fecha**: Enero 2026
+
+- **Contexto**: Necesidad de un widget estructurado para mostrar mensajes importantes con jerarquía visual clara.
+- **Decisión**: Implementar un diseño de tarjeta con cabecera flotante y cuerpo de dimensiones fijas (350x439) sobre un contenedor total de 350x472.
+- **Implementación**:
+    - `InfoMessageSection.kt`: Widget principal con estructura de tres capas (Cabecera, Cuerpo, Contenido Interno).
+    - Diseño Interno: Box de 308x281 para el contenido del texto (con avatar) e imagen de 288x123.
+    - Estilo: Uso de etiquetas ("Recurrente"), tipografía adaptativa y botones de acción Material You.
+    - **Estética Adaptive**: 
+        - Soporte para Tema Claro/Oscuro y Material You dinámico.
+        - Bordes (Strokes) Blancos: Exterior (46% alpha), Cuerpo (20% alpha).
+        - **Refinamientos**: Cabecera a la izquierda (30% alpha), botón de acción compactado (100x37) y alineación de etiquetas optimizada.
+    - **Integración**: Conectado al "TEST BUTTON 3" en el `HomeTestSection`.
+## MalSection Widget (Error Feedback)
+- **Propósito**: Proporcionar retroalimentación visual inmediata tras un error en la instalación o proceso.
+- **Ubicación**: `com.luxury.cheats.features.widgets.MalSection.kt`
+- **Diseño**:
+    - **Aura de Error**: Red RadialGradient (200x200, ~15-40% alpha).
+    - **Icono**: Close (X) en color rojo.
+    - **Tipografía**: Título "INCORRECTO" (24sp, Bold), Mensaje "Tuvimos problema con la instalacion" (12sp).
+    - **Acciones**: Botón "Ver problemas" (estilo errorContainer) y Botón "SALIR" (TextButton rojo).
+- **Integración**: Conectado al "TEST BUTTON 5" en el `HomeTest`.
+
+---
+
+- **Resultado**: Sistema de feedback binario (Éxito/Error) completo y consistente.

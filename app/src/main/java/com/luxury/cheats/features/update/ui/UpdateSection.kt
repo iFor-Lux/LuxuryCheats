@@ -1,6 +1,5 @@
 package com.luxury.cheats.features.update.ui
 
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,17 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.luxury.cheats.BuildConfig
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
-import com.luxury.cheats.core.ui.LogoWebViewManager
 import com.luxury.cheats.features.update.logic.UpdateAction
 import com.luxury.cheats.features.update.logic.UpdateViewModel
 import com.luxury.cheats.features.widgets.DownloadArchivoBottomSheet
@@ -139,7 +135,7 @@ private fun DownloadMainCard(onDownloadClick: () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DownloadWebLogo()
+            DownloadAppIcon()
             Spacer(modifier = Modifier.height(24.dp))
             DownloadVersionInfo()
             Spacer(modifier = Modifier.height(24.dp))
@@ -153,8 +149,7 @@ private fun DownloadMainCard(onDownloadClick: () -> Unit) {
 }
 
 @Composable
-private fun DownloadWebLogo() {
-    val isPreview = LocalInspectionMode.current
+private fun DownloadAppIcon() {
     Box(
         modifier = Modifier
             .size(100.dp)
@@ -162,33 +157,15 @@ private fun DownloadWebLogo() {
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
-        // Ícono de respaldo (visible en Preview y como fallback en dispositivo)
         Icon(
             imageVector = Icons.Default.Verified,
             contentDescription = null,
             modifier = Modifier.size(50.dp),
             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
         )
-
-        if (!isPreview) {
-            AndroidView(
-                factory = { ctx ->
-                    LogoWebViewManager.getOrCreateWebView(ctx).apply {
-                        (parent as? ViewGroup)?.removeView(this)
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        setBackgroundColor(0x00000000)
-                        // IMPORTANTE: Asegurar que NO consuma toques aquí para no obstruir
-                        setOnTouchListener(null)
-                    }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
     }
 }
+
 
 @Composable
 private fun DownloadVersionInfo() {
