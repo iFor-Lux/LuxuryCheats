@@ -598,3 +598,12 @@
 - **Decisión**: Eliminar `HomeTest.kt` y su integración en `HomeScreen.kt`.
 - **Razón**: Limpiar el código de producción de herramientas efímeras y centrar el desarrollo en la vinculación real con Firebase y el Dashboard.
 - **Resultado**: `HomeScreen.kt` ahora solo contiene las secciones funcionales finales, reduciendo el ruido visual y la complejidad del archivo.
+
+### Sincronización de Actualizaciones APK con Firebase (Enero 2026)
+- **Contexto**: El usuario debe ser notificado de nuevas actualizaciones disponibles de forma dinámica.
+- **Decisión**: Vincular `UpdateAnuncioSection` directamente con el nodo `app_update` de Firebase Realtime Database.
+- **Implementación**:
+    - `UpdateService.kt`: Servicio para recuperar datos de `app_update` (active, title, description, url, version).
+    - `HomeViewModel.kt`: Ejecuta la comprobación al iniciar la pantalla Home y gestiona la desestimación.
+    - `HomeScreen.kt`: Muestra `UpdateAnuncioSection` dentro de un `androidx.compose.ui.window.Dialog`.
+- **Resultado**: El anuncio de actualización aparece como un popup (Dialog) sobre Home. Se refinó el diseño para que la descripción esté alineada a la izquierda y el título use colores primarios de Material You, asegurando que sea llamativo y legible incluso con descripciones largas.

@@ -17,7 +17,9 @@ import androidx.lifecycle.viewModelScope
 class HomeViewModel(
     private val preferencesService: com.luxury.cheats.services.UserPreferencesService,
     private val ffApiService: com.luxury.cheats.services.FreeFireApiService = 
-        com.luxury.cheats.services.FreeFireApiService.create()
+        com.luxury.cheats.services.FreeFireApiService.create(),
+    private val updateService: com.luxury.cheats.features.update.service.UpdateService = 
+        com.luxury.cheats.features.update.service.UpdateService()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -45,6 +47,7 @@ class HomeViewModel(
 
     init {
         updateGreeting()
+        checkForUpdates()
         val savedId = preferencesService.accessPlayerId()
         _uiState.update { 
             it.copy(
@@ -53,6 +56,19 @@ class HomeViewModel(
                 isOpcionesVisible = false,
                 idValue = savedId ?: it.idValue
             ) 
+        }
+    }
+
+    private fun checkForUpdates() {
+        viewModelScope.launch {
+            try {
+                val update = updateService.getAppUpdate()
+                if (update.active) {
+                    _uiState.update { it.copy(appUpdate = update) }
+                }
+            } catch (ignored: Exception) {
+                // Silently ignore update check errors for Home
+            }
         }
     }
 
@@ -178,7 +194,12 @@ class HomeViewModel(
             HomeAction.ToggleConsoleExpansion -> handleToggleConsoleExpansion()
             HomeAction.SaveId -> handleSaveId()
             is HomeAction.RemoveNotification -> handleRemoveNotification(action.notificationId)
+            HomeAction.DismissUpdateAnuncio -> handleDismissUpdateAnuncio()
         }
+    }
+
+    private fun handleDismissUpdateAnuncio() {
+        _uiState.update { it.copy(appUpdate = null) }
     }
 
     private fun handleToggleSeguridad() {

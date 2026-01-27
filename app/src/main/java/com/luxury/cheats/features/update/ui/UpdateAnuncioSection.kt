@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,11 +43,16 @@ import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 @Composable
 fun UpdateAnuncioSection(
     modifier: Modifier = Modifier,
+    title: String = "NUEVA ACTUALIZACION",
+    description: String = "Actualiza la aplicación hoy mismo para desbloquear funciones increíbles, " +
+        "disfrutar de mejoras significativas en el rendimiento y descubrir una " +
+        "experiencia de usuario optimizada en toda la plataforma.",
     onUpdateClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
-            .size(width = 350.dp, height = 394.dp)
+            .width(350.dp)
+            .heightIn(min = 394.dp)
             .clip(RoundedCornerShape(30.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .border(
@@ -56,13 +64,14 @@ fun UpdateAnuncioSection(
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
+            modifier = Modifier.padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             UpdateBanner()
-            UpdateTitle()
-            UpdateDescription()
-            Spacer(modifier = Modifier.weight(1f))
+            UpdateTitle(title)
+            UpdateDescription(description)
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
             UpdateButton(onUpdateClick)
         }
     }
@@ -104,27 +113,28 @@ private fun UpdateBanner() {
 }
 
 @Composable
-private fun UpdateTitle() {
+private fun UpdateTitle(title: String) {
     Text(
-        text = "NUEVA ACTUALIZACION",
-        color = MaterialTheme.colorScheme.onSurface,
+        text = title.uppercase(),
+        color = MaterialTheme.colorScheme.primary, // Material You impact
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
 @Composable
-private fun UpdateDescription() {
+private fun UpdateDescription(description: String) {
     Text(
-        text = "Actualiza la aplicación hoy mismo para desbloquear funciones increíbles, " +
-            "disfrutar de mejoras significativas en el rendimiento y descubrir una " +
-            "experiencia de usuario optimizada en toda la plataforma.",
+        text = description,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
         lineHeight = 18.sp,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.padding(horizontal = 8.dp)
+        textAlign = TextAlign.Start, // Align to left
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp)
     )
 }
 

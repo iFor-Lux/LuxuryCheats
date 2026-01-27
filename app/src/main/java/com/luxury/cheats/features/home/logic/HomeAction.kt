@@ -20,4 +20,6 @@ sealed class HomeAction {
     data class RemoveNotification(val notificationId: Long) : HomeAction()
     /** Acción para desbloquear las secciones (al presionar Seguridad). */
     object ToggleSeguridad : HomeAction()
+    /** Acción para cerrar el anuncio de actualización. */
+    object DismissUpdateAnuncio : HomeAction()
 }

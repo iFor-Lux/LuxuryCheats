@@ -21,6 +21,8 @@ import com.luxury.cheats.features.home.logic.HomeAction
 import com.luxury.cheats.features.home.logic.HomeViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
+import com.luxury.cheats.navigations.NavRoutes
 
 const val HOME_ROUTE = "home_screen"
 
@@ -75,6 +77,21 @@ fun HomeScreen(
                 viewModel.onAction(HomeAction.RemoveNotification(notification.id))
             }
         }
+
+        uiState.appUpdate?.let { update ->
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { viewModel.onAction(HomeAction.DismissUpdateAnuncio) }
+            ) {
+                UpdateAnuncioSection(
+                    title = update.title,
+                    description = update.description,
+                    onUpdateClick = {
+                        viewModel.onAction(HomeAction.DismissUpdateAnuncio)
+                        navController.navigate(NavRoutes.UPDATE)
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -95,8 +112,7 @@ private fun HomeSectionsList(
     ) {
         HomeImagenSection()
         HomeSaludoSection(uiState.userName, uiState.greeting, uiState.greetingSubtitle)
-
-
+        
         HomeSeguridadSection(uiState.isSeguridadUnlocked, onClick = { viewModel.onAction(HomeAction.ToggleSeguridad) })
 
         if (uiState.isSeguridadUnlocked) {
