@@ -62,12 +62,27 @@ android {
         checkReleaseBuilds = false // Deshabilitado por bug de compatibilidad en Kotlin 2.1
         disable += "NullSafeMutableLiveData"
     }
+
+    packaging {
+        resources {
+            excludes += "**/.agent/**"
+            excludes += "**/.agents/**"
+            excludes += "**/.cursor/**"
+            excludes += "**/agents.md"
+            excludes += "**/architecture.md"
+            excludes += "**/firebase.md"
+            excludes += "**/project_memory.md"
+            excludes += "**/readme.md"
+            excludes += "**/license"
+            excludes += "**/gradlew-fix.ps1"
+        }
+    }
 }
 
 detekt {
     buildUponDefaultConfig = true
-    allRules = false
-    autoCorrect = false
+    allRules = true
+    autoCorrect = true
 
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
 

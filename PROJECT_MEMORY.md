@@ -580,3 +580,15 @@
 ---
 
 - **Resultado**: Sistema de feedback binario (Éxito/Error) completo y consistente.
+
+### Exclusión de Archivos de Desarrollo en Release (Enero 2026)
+- **Contexto**: Archivos de configuración de IA (.agent, .cursor) y documentación sensible (.md, license) no deben incluirse en el APK final por seguridad y optimización.
+- **Decisión**: Usar el bloque `packaging { resources { excludes += ... } }` en `app/build.gradle.kts` para filtrar estos archivos.
+- **Implementación**: Se añadieron patrones de exclusión para carpetas `.agent`, `.agents`, `.cursor` y archivos como `project_memory.md`, `architecture.md`, entre otros.
+- **Resultado**: Un APK más limpio, ligero y con menor exposición de la estructura interna del proyecto.
+
+### Integración Formal de Skills en AGENTS.md (Enero 2026)
+- **Contexto**: Se han incluido 22 habilidades especializadas en `.agent/skills/` para potenciar las capacidades de la IA.
+- **Decisión**: Actualizar `AGENTS.md` para hacer obligatorio el uso y consulta de estos skills ante tareas complejas.
+- **Implementación**: Añadida la sección "Skills & Specialized Capabilities" detallando la obligación de leer el `SKILL.md` correspondiente antes de ejecutar cambios en áreas como Seguridad, UI/UX o Firebase.
+- **Resultado**: Garantiza que el asistente use siempre las mejores prácticas y metodologías avanzadas definidas para el proyecto.

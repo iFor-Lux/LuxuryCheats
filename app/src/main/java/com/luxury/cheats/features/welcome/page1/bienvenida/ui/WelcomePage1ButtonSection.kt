@@ -1,24 +1,14 @@
-package com.luxury.cheats.features.welcome.page1.bienvenida.ui
+import androidx.compose.ui.res.stringResource
+import com.luxury.cheats.R
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.getValue
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+private object ButtonConstants {
+    val HEIGHT = 66.dp
+    val HORIZONTAL_PADDING = 32.dp
+    val PRESSED_RADIUS = 16.dp
+    val DEFAULT_RADIUS = 30.dp
+    val BORDER_WIDTH = 1.dp
+    val FONT_SIZE = 24.sp
+}
 
 /**
  * Sección del botón principal de la primera página de bienvenida.
@@ -35,7 +25,7 @@ fun WelcomePage1ButtonSection(
     val pressed by interactionSource.collectIsPressedAsState()
 
     val radius by animateDpAsState(
-        if (pressed) 16.dp else 30.dp,
+        if (pressed) ButtonConstants.PRESSED_RADIUS else ButtonConstants.DEFAULT_RADIUS,
         label = "radius"
     )
 
@@ -44,18 +34,18 @@ fun WelcomePage1ButtonSection(
         interactionSource = interactionSource,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp)
-            .height(66.dp),
+            .padding(horizontal = ButtonConstants.HORIZONTAL_PADDING)
+            .height(ButtonConstants.HEIGHT),
         shape = RoundedCornerShape(radius),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+        border = BorderStroke(ButtonConstants.BORDER_WIDTH, MaterialTheme.colorScheme.tertiary)
     ) {
         Text(
-            text = "Comenzar",
-            fontSize = 24.sp,
+            text = stringResource(R.string.welcome_page1_start),
+            fontSize = ButtonConstants.FONT_SIZE,
             fontWeight = FontWeight.SemiBold
         )
     }

@@ -139,9 +139,14 @@ This project relies heavily on AI assistance and long-term context retention.
 - Use ASCII tree symbols to represent folders and files
 - The structure must reflect the real project layout
 - Update this file **only when**:
-  - folders are added or removed
   - files are added or removed
   - project structure is reorganized
+
+## Skills & Specialized Capabilities
+This project includes a library of specialized "skills" located in `.agent/skills/`.
+- Each skill is a folder containing a `SKILL.md` file with detailed instructions.
+- The AI **MUST** browse and consult the relevant `SKILL.md` before performing complex tasks in those areas (e.g., Security, UI/UX, Architecture, Firebase).
+- These skills extend the AI's capabilities and must be followed as part of the project's standard operating procedure.
 
 ## What NOT to do
 - Do not introduce XML layouts

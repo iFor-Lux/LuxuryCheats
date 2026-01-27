@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">LuxuryCheats</string>
+    
+    <!-- Welcome Page 1 -->
+    <string name="welcome_page1_language">Lenguaje</string>
+    <string name="welcome_page1_spanish">Español</string>
+    <string name="welcome_page1_english">Inglés</string>
+    <string name="welcome_page1_select_language">Seleccionar idioma</string>
+    <string name="welcome_page1_title">Bienvenido a\nLuxury.Reg !!!</string>
+    <string name="welcome_page1_subtitle">La mejor herramienta para dominar Free Fire\n con cheats avanzados y seguros</string>
+    <string name="welcome_page1_start">Comenzar</string>
 </resources>

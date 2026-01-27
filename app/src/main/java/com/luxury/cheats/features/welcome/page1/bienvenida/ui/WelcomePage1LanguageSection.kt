@@ -30,16 +30,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.luxury.cheats.R
 
 /**
  * Botón de Lenguaje (Top Right) usando Material Design 3 Expressive (Variant 2)
- * - Optimizado para rendimiento: Animaciones lineares rápidas y colores fijos.
- * - Sigue exactamente el diseño oficial M3 Expressive.
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -47,7 +47,7 @@ fun WelcomePage1LanguageSection(
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedLanguage by remember { mutableStateOf("Lenguaje") }
+    var selectedLanguage by remember { mutableStateOf(stringResource(R.string.welcome_page1_language)) }
 
     val containerColor = MaterialTheme.colorScheme.surfaceContainer
     val contentColor = MaterialTheme.colorScheme.onSurface
@@ -150,7 +150,7 @@ private fun LanguageTrailingButton(
                     .graphicsLayer {
                         this.rotationZ = rotation
                     },
-                contentDescription = "Seleccionar idioma",
+                contentDescription = stringResource(R.string.welcome_page1_select_language),
             )
         }
     )
@@ -168,14 +168,17 @@ private fun LanguageDropdownMenu(
         onDismissRequest = onDismissRequest,
         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
     ) {
+        val spanish = stringResource(R.string.welcome_page1_spanish)
+        val english = stringResource(R.string.welcome_page1_english)
+
         DropdownMenuItem(
-            text = { Text("Español", color = contentColor) },
-            onClick = { onLanguageSelected("Español") }
+            text = { Text(spanish, color = contentColor) },
+            onClick = { onLanguageSelected(spanish) }
         )
         HorizontalDivider(color = contentColor.copy(alpha = 0.1f))
         DropdownMenuItem(
-            text = { Text("Inglés", color = contentColor) },
-            onClick = { onLanguageSelected("Inglés") }
+            text = { Text(english, color = contentColor) },
+            onClick = { onLanguageSelected(english) }
         )
     }
 }

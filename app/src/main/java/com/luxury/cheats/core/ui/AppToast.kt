@@ -56,9 +56,14 @@ private object ToastConstants {
 }
 
 /**
- * Componente Toast genérico para mostrar notificaciones en la app
- * Muestra hasta 4 notificaciones apiladas con efecto de profundidad
+ * Theme configuration for different notification types.
  */
+private data class ToastTheme(
+    val containerColor: Color,
+    val contentColor: Color,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
+
 @Composable
 fun AppToast(
     notifications: List<AppNotification>,
@@ -107,9 +112,8 @@ private fun ToastCard(
     isTop: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val (containerColor, contentColor, icon) = getNotificationTheme(notification.type)
-    val strokeAlpha = ToastConstants.STROKE_ALPHA
-    val strokeColor = contentColor.copy(alpha = strokeAlpha)
+    val theme = getNotificationTheme(notification.type)
+    val strokeColor = theme.contentColor.copy(alpha = ToastConstants.STROKE_ALPHA)
     val shape = RoundedCornerShape(32.dp)
 
     Surface(
@@ -120,42 +124,37 @@ private fun ToastCard(
                 this.shape = shape
                 this.clip = true
             },
-        color = containerColor,
-        contentColor = contentColor,
+        color = theme.containerColor,
+        contentColor = theme.contentColor,
         shape = shape,
         border = BorderStroke(1.dp, strokeColor),
         shadowElevation = 4.dp
     ) {
-        ToastCardContent(notification.message, icon, isTop)
+        ToastCardContent(notification.message, theme.icon, isTop)
     }
 }
 
 @Composable
-private fun getNotificationTheme(
-    type: NotificationType
-): Triple<Color, Color, androidx.compose.ui.graphics.vector.ImageVector> {
+private fun getNotificationTheme(type: NotificationType): ToastTheme {
     val containerColor = when (type) {
         NotificationType.ERROR -> Color(ToastConstants.RED_LIGHT)
         NotificationType.WARNING -> Color(ToastConstants.YELLOW_LIGHT)
-        NotificationType.INFO -> Color(ToastConstants.GREEN_LIGHT)
-        NotificationType.SUCCESS -> Color(ToastConstants.GREEN_LIGHT)
+        NotificationType.INFO, NotificationType.SUCCESS -> Color(ToastConstants.GREEN_LIGHT)
     }
     
     val contentColor = when (type) {
         NotificationType.ERROR -> Color(ToastConstants.RED_DARK)
         NotificationType.WARNING -> Color(ToastConstants.YELLOW_DARK)
-        NotificationType.INFO -> Color(ToastConstants.GREEN_DARK)
-        NotificationType.SUCCESS -> Color(ToastConstants.GREEN_DARK)
+        NotificationType.INFO, NotificationType.SUCCESS -> Color(ToastConstants.GREEN_DARK)
     }
 
     val icon = when (type) {
         NotificationType.ERROR -> Icons.Default.Warning
-        NotificationType.WARNING -> Icons.Default.Info
-        NotificationType.INFO -> Icons.Default.Info
+        NotificationType.WARNING, NotificationType.INFO -> Icons.Default.Info
         NotificationType.SUCCESS -> Icons.Default.CheckCircle
     }
     
-    return Triple(containerColor, contentColor, icon)
+    return ToastTheme(containerColor, contentColor, icon)
 }
 
 @Composable
