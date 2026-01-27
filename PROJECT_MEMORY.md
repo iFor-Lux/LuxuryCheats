@@ -592,3 +592,9 @@
 - **Decisión**: Actualizar `AGENTS.md` para hacer obligatorio el uso y consulta de estos skills ante tareas complejas.
 - **Implementación**: Añadida la sección "Skills & Specialized Capabilities" detallando la obligación de leer el `SKILL.md` correspondiente antes de ejecutar cambios en áreas como Seguridad, UI/UX o Firebase.
 - **Resultado**: Garantiza que el asistente use siempre las mejores prácticas y metodologías avanzadas definidas para el proyecto.
+
+### Eliminación del Panel de Pruebas (Enero 2026)
+- **Contexto**: Las pruebas de UI y flujo de navegación han concluido satisfactoriamente.
+- **Decisión**: Eliminar `HomeTest.kt` y su integración en `HomeScreen.kt`.
+- **Razón**: Limpiar el código de producción de herramientas efímeras y centrar el desarrollo en la vinculación real con Firebase y el Dashboard.
+- **Resultado**: `HomeScreen.kt` ahora solo contiene las secciones funcionales finales, reduciendo el ruido visual y la complejidad del archivo.

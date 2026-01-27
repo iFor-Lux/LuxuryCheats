@@ -96,8 +96,6 @@ private fun HomeSectionsList(
         HomeImagenSection()
         HomeSaludoSection(uiState.userName, uiState.greeting, uiState.greetingSubtitle)
 
-        // Sección de Pruebas solicitada (Solo para Test)
-        HomeTestSection(navController = navController)
 
         HomeSeguridadSection(uiState.isSeguridadUnlocked, onClick = { viewModel.onAction(HomeAction.ToggleSeguridad) })
 
