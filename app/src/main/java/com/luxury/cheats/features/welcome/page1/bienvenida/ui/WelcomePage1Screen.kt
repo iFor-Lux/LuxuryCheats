@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.core.ui.DotPatternBackground
 import com.luxury.cheats.core.ui.WelcomeEclipseSection
@@ -39,9 +40,10 @@ fun WelcomePage1Screen(
         DotPatternBackground()
         WelcomeEclipseSection()
         WelcomePage1LanguageSection(
-            modifier = Modifier.align(Alignment.TopEnd)
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .zIndex(1f)
         )
-        WelcomePage1LogoSection()
 
         Column(
             modifier = Modifier
@@ -50,6 +52,7 @@ fun WelcomePage1Screen(
                 .padding(bottom = 120.dp), // Espacio base para el contenido inferior
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            WelcomePage1LogoSection()
             // Empujamos el contenido hacia abajo con un peso flexible
             Spacer(modifier = Modifier.weight(1f))
 

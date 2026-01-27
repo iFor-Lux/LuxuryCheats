@@ -41,20 +41,33 @@ import com.luxury.cheats.R
 /**
  * Botón de Lenguaje (Top Right) usando Material Design 3 Expressive (Variant 2)
  */
+private object LanguageConstants {
+    val TOP_PADDING = 60.dp
+    val HORIZONTAL_PADDING = 16.dp
+    val ICON_ROTATION_DURATION = 150
+    val FONT_SIZE = 14.sp
+    val DIVIDER_ALPHA = 0.1f
+}
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WelcomePage1LanguageSection(
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedLanguage by remember { mutableStateOf(stringResource(R.string.welcome_page1_language)) }
+    val initialLanguage = stringResource(R.string.welcome_page1_language)
+    var selectedLanguage by remember { mutableStateOf(initialLanguage) }
 
     val containerColor = MaterialTheme.colorScheme.surfaceContainer
     val contentColor = MaterialTheme.colorScheme.onSurface
 
     Box(
         modifier = modifier
-            .padding(top = 60.dp, start = 16.dp, end = 16.dp)
+            .padding(
+                top = LanguageConstants.TOP_PADDING,
+                start = LanguageConstants.HORIZONTAL_PADDING,
+                end = LanguageConstants.HORIZONTAL_PADDING
+            )
             .wrapContentSize(),
         contentAlignment = Alignment.TopEnd
     ) {
@@ -112,7 +125,7 @@ private fun LanguageLeadingButton(
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text(
                 text = selectedLanguage,
-                fontSize = 14.sp,
+                fontSize = LanguageConstants.FONT_SIZE,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -140,7 +153,7 @@ private fun LanguageTrailingButton(
         content = {
             val rotation: Float by animateFloatAsState(
                 targetValue = if (isExpanded) 180f else 0f,
-                animationSpec = tween(durationMillis = 150),
+                animationSpec = tween(durationMillis = LanguageConstants.ICON_ROTATION_DURATION),
                 label = "Trailing Icon Rotation",
             )
             Icon(
@@ -175,7 +188,7 @@ private fun LanguageDropdownMenu(
             text = { Text(spanish, color = contentColor) },
             onClick = { onLanguageSelected(spanish) }
         )
-        HorizontalDivider(color = contentColor.copy(alpha = 0.1f))
+        HorizontalDivider(color = contentColor.copy(alpha = LanguageConstants.DIVIDER_ALPHA))
         DropdownMenuItem(
             text = { Text(english, color = contentColor) },
             onClick = { onLanguageSelected(english) }

@@ -38,17 +38,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
-private const val AURA_INNER_ALPHA = 0.40f
-private const val AURA_OUTER_ALPHA = 0.10f
-private const val ICON_SIZE_LARGE = 64
-private const val TITLE_FONT_SIZE = 24
-private const val SUBTITLE_FONT_SIZE = 12
-private const val SMALL_BUTTON_WIDTH = 70
-private const val SMALL_BUTTON_HEIGHT = 30
-private const val SMALL_BUTTON_FONT_SIZE = 8
-private const val LARGE_BUTTON_WIDTH = 250
-private const val LARGE_BUTTON_HEIGHT = 50
-private const val LARGE_BUTTON_FONT_SIZE = 16
+private const val AURA_INNER_ALPHA = 0.25f
+private const val AURA_OUTER_ALPHA = 0.05f
+private const val ICON_SIZE_LARGE = 60
+private const val TITLE_FONT_SIZE = 28
+private const val SUBTITLE_FONT_SIZE = 14
+private const val SMALL_BUTTON_HEIGHT = 36
+private const val BUTTON_WIDTH = 250
+private const val BUTTON_HEIGHT = 50
+private const val BUTTON_FONT_SIZE = 16
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,24 +59,10 @@ fun MalBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        dragHandle = {
-            // Drag Handle: Purely visual
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 8.dp)
-                    .clearAndSetSemantics { },
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(width = 32.dp, height = 4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
-                )
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        dragHandle = null, // Remove official interactive handle
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 8.dp,
+        scrimColor = Color.Black.copy(alpha = 0.6f)
     ) {
         MalContent(
             onViewProblemsClick = onViewProblemsClick,
@@ -99,14 +83,23 @@ fun MalContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(24.dp)
-            .padding(bottom = 32.dp),
+            .padding(horizontal = 32.dp)
+            .padding(bottom = 40.dp), // Increased bottom padding to avoid "too low" feel
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Error Icon & Aura Section - Using Red RadialGradient
+        // Visual handle - Internal to content, not interactive
         Box(
             modifier = Modifier
-                .size(200.dp),
+                .padding(top = 16.dp, bottom = 8.dp)
+                .size(width = 40.dp, height = 4.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+        )
+
+        // Error Icon & Aura Section - Reduced container size to lift content
+        Box(
+            modifier = Modifier
+                .size(160.dp), // Reduced from 180dp
             contentAlignment = Alignment.Center
         ) {
             // Layer 1: The Aura (Red Radial Gradient)
@@ -116,8 +109,8 @@ fun MalContent(
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                Color(0xFFF44336).copy(alpha = AURA_INNER_ALPHA),
-                                Color(0xFFF44336).copy(alpha = AURA_OUTER_ALPHA),
+                                Color(0xFFFF4D4D).copy(alpha = AURA_INNER_ALPHA),
+                                Color(0xFFFF4D4D).copy(alpha = AURA_OUTER_ALPHA),
                                 Color.Transparent
                             )
                         )
@@ -127,72 +120,73 @@ fun MalContent(
             // Layer 2: The Icon (Solid Close X)
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Error",
+                contentDescription = null,
                 modifier = Modifier.size(ICON_SIZE_LARGE.dp),
-                tint = Color(0xFFF44336)
+                tint = Color(0xFFFF4D4D)
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Title: INCORRECTO
         Text(
             text = "INCORRECTO",
             fontSize = TITLE_FONT_SIZE.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            letterSpacing = (-0.5).sp
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Subtitle
         Text(
-            text = "Tuvimos problema con la instalacion",
+            text = "Tuvimos un problema con la instalación",
             fontSize = SUBTITLE_FONT_SIZE.sp,
-            fontWeight = FontWeight.Normal,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Action Button: Ver problemas (Now secondary)
+        // Action Button: Ver problemas (Secondary/Chip style)
         Button(
             onClick = onViewProblemsClick,
-            modifier = Modifier
-                .width(SMALL_BUTTON_WIDTH.dp)
-                .height(SMALL_BUTTON_HEIGHT.dp),
-            shape = RoundedCornerShape(24.dp),
-            contentPadding = PaddingValues(0.dp), // Important for very small buttons
+            modifier = Modifier.height(SMALL_BUTTON_HEIGHT.dp),
+            shape = RoundedCornerShape(12.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            ),
+            elevation = null
         ) {
             Text(
                 text = "Ver problemas",
-                fontSize = SMALL_BUTTON_FONT_SIZE.sp,
-                fontWeight = FontWeight.Normal
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // Action Button: SALIR (Now primary/red)
+        // Action Button: SALIR (Primary/Red)
         Button(
             onClick = onExitClick,
             modifier = Modifier
-                .width(LARGE_BUTTON_WIDTH.dp)
-                .height(LARGE_BUTTON_HEIGHT.dp),
+                .width(BUTTON_WIDTH.dp)
+                .height(BUTTON_HEIGHT.dp),
             shape = RoundedCornerShape(24.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Text(
-                text = "SALIR",
-                fontSize = LARGE_BUTTON_FONT_SIZE.sp,
-                fontWeight = FontWeight.Bold
+                text = "Salir",
+                fontSize = BUTTON_FONT_SIZE.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }

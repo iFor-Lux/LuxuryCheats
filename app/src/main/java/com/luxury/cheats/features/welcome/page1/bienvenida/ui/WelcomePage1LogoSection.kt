@@ -19,7 +19,7 @@ fun WelcomePage1LogoSection(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         contentAlignment = Alignment.TopCenter
     ) {
         // Reservar espacio para el logo (500dp base)
