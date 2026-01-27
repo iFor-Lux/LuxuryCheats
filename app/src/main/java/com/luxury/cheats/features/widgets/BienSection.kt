@@ -1,30 +1,50 @@
 package com.luxury.cheats.features.widgets
 
-import android.os.Build
 import android.content.res.Configuration
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+
+private const val AURA_INNER_ALPHA = 0.45f
+private const val AURA_OUTER_ALPHA = 0.15f
+private const val ICON_SIZE_LARGE = 64
+private const val TITLE_FONT_SIZE = 24
+private const val SUBTITLE_FONT_SIZE = 12
+private const val BUTTON_WIDTH = 250
+private const val BUTTON_HEIGHT = 50
+private const val BUTTON_FONT_SIZE = 16
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +62,7 @@ fun BienBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp, bottom = 8.dp)
-                    .clearAndSetSemantics { }, // Removes "Drag Handle" accessibility text and interaction feedback
+                    .clearAndSetSemantics { }, // Removes accessibility text and interaction feedback
                 contentAlignment = Alignment.Center
             ) {
                 Box(
@@ -83,15 +103,14 @@ fun BienContent(
             contentAlignment = Alignment.Center
         ) {
             // Layer 1: The Aura (Radial Gradient)
-            // This is perfectly circular and avoids any "cross lines" or clipping artifacts
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                        brush = Brush.radialGradient(
                             colors = listOf(
-                                Color(0xFF4CAF50).copy(alpha = 0.45f),
-                                Color(0xFF4CAF50).copy(alpha = 0.15f),
+                                Color(0xFF4CAF50).copy(alpha = AURA_INNER_ALPHA),
+                                Color(0xFF4CAF50).copy(alpha = AURA_OUTER_ALPHA),
                                 Color.Transparent
                             )
                         )
@@ -102,27 +121,27 @@ fun BienContent(
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = "Success",
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(ICON_SIZE_LARGE.dp),
                 tint = Color(0xFF4CAF50)
             )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Title: Correcto (24sp, Bolt)
+        // Title: Correcto
         Text(
             text = "Correcto",
-            fontSize = 24.sp,
+            fontSize = TITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Subtitle: Felicidades la instalacion fue todo un exito (12sp)
+        // Subtitle
         Text(
             text = "Felicidades la instalacion fue todo un exito",
-            fontSize = 12.sp,
+            fontSize = SUBTITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -133,8 +152,8 @@ fun BienContent(
         Button(
             onClick = onContinueClick,
             modifier = Modifier
-                .width(250.dp)
-                .height(50.dp),
+                .width(BUTTON_WIDTH.dp)
+                .height(BUTTON_HEIGHT.dp),
             shape = RoundedCornerShape(24.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -143,7 +162,7 @@ fun BienContent(
         ) {
             Text(
                 text = "Continuar",
-                fontSize = 16.sp,
+                fontSize = BUTTON_FONT_SIZE.sp,
                 fontWeight = FontWeight.SemiBold
             )
         }

@@ -2,15 +2,34 @@ package com.luxury.cheats.features.widgets
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +37,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+
+private const val AURA_INNER_ALPHA = 0.40f
+private const val AURA_OUTER_ALPHA = 0.10f
+private const val ICON_SIZE_LARGE = 64
+private const val TITLE_FONT_SIZE = 24
+private const val SUBTITLE_FONT_SIZE = 12
+private const val SMALL_BUTTON_WIDTH = 70
+private const val SMALL_BUTTON_HEIGHT = 30
+private const val SMALL_BUTTON_FONT_SIZE = 8
+private const val LARGE_BUTTON_WIDTH = 250
+private const val LARGE_BUTTON_HEIGHT = 50
+private const val LARGE_BUTTON_FONT_SIZE = 16
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,10 +114,10 @@ fun MalContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                        brush = Brush.radialGradient(
                             colors = listOf(
-                                Color(0xFFF44336).copy(alpha = 0.40f), // Red 400
-                                Color(0xFFF44336).copy(alpha = 0.10f),
+                                Color(0xFFF44336).copy(alpha = AURA_INNER_ALPHA),
+                                Color(0xFFF44336).copy(alpha = AURA_OUTER_ALPHA),
                                 Color.Transparent
                             )
                         )
@@ -97,27 +128,27 @@ fun MalContent(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = "Error",
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(ICON_SIZE_LARGE.dp),
                 tint = Color(0xFFF44336)
             )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Title: INCORRECTO (24sp, Bold)
+        // Title: INCORRECTO
         Text(
             text = "INCORRECTO",
-            fontSize = 24.sp,
+            fontSize = TITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Subtitle: Tuvimos problema con la instalacion (12sp)
+        // Subtitle
         Text(
             text = "Tuvimos problema con la instalacion",
-            fontSize = 12.sp,
+            fontSize = SUBTITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -128,8 +159,8 @@ fun MalContent(
         Button(
             onClick = onViewProblemsClick,
             modifier = Modifier
-                .width(70.dp)
-                .height(30.dp),
+                .width(SMALL_BUTTON_WIDTH.dp)
+                .height(SMALL_BUTTON_HEIGHT.dp),
             shape = RoundedCornerShape(24.dp),
             contentPadding = PaddingValues(0.dp), // Important for very small buttons
             colors = ButtonDefaults.buttonColors(
@@ -139,7 +170,7 @@ fun MalContent(
         ) {
             Text(
                 text = "Ver problemas",
-                fontSize = 8.sp,
+                fontSize = SMALL_BUTTON_FONT_SIZE.sp,
                 fontWeight = FontWeight.Normal
             )
         }
@@ -150,8 +181,8 @@ fun MalContent(
         Button(
             onClick = onExitClick,
             modifier = Modifier
-                .width(250.dp)
-                .height(50.dp),
+                .width(LARGE_BUTTON_WIDTH.dp)
+                .height(LARGE_BUTTON_HEIGHT.dp),
             shape = RoundedCornerShape(24.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -160,7 +191,7 @@ fun MalContent(
         ) {
             Text(
                 text = "SALIR",
-                fontSize = 16.sp,
+                fontSize = LARGE_BUTTON_FONT_SIZE.sp,
                 fontWeight = FontWeight.Bold
             )
         }

@@ -14,13 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,13 +32,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.luxury.cheats.R
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+
+private const val PARAGRAPH_COUNT = 3
 
 /**
  * Dialog wrapper for the InfoMessageContent for testing and easy usage.
@@ -86,7 +85,7 @@ fun InfoMessageSection(
             horizontalArrangement = Arrangement.Start
         ) {
             Icon(
-                imageVector = Icons.Default.Message,
+                imageVector = Icons.AutoMirrored.Filled.Message,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                 modifier = Modifier.size(16.dp)
@@ -191,7 +190,7 @@ fun InfoMessageSection(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                repeat(3) { index ->
+                                repeat(PARAGRAPH_COUNT) { index ->
                                     Text(
                                         text = getDummyParagraph(index),
                                         fontSize = 11.sp,
@@ -251,9 +250,12 @@ fun InfoMessageSection(
 
 private fun getDummyParagraph(index: Int): String {
     return when (index) {
-        0 -> "Mantenemos nuestros servicios actualizados diariamente para garantizar la mejor seguridad y rendimiento en todos tus juegos favoritos."
-        1 -> "Recuerda siempre verificar el estado del servidor antes de iniciar una sesión larga para evitar interrupciones o detecciones innecesarias."
-        2 -> "Gracias por confiar en Luxury Cheats. Estamos comprometidos con brindarte la experiencia de juego más exclusiva y potente del mercado."
+        0 -> "Mantenemos nuestros servicios actualizados diariamente para garantizar la mejor " +
+            "seguridad y rendimiento en todos tus juegos favoritos."
+        1 -> "Recuerda siempre verificar el estado del servidor antes de iniciar una sesión " +
+            "larga para evitar interrupciones o detecciones innecesarias."
+        2 -> "Gracias por confiar en Luxury Cheats. Estamos comprometidos con brindarte la " +
+            "experiencia de juego más exclusiva y potente del mercado."
         else -> ""
     }
 }

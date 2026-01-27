@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -133,7 +132,8 @@ fun InfoActivationContent(
 
                 // Text Content
                 Text(
-                    text = "Para activar los beneficios, asegúrate de haber otorgado todos los permisos necesarios y pulsa el botón de inicio.",
+                    text = "Para activar los beneficios, asegúrate de haber otorgado todos los " +
+                        "permisos necesarios y pulsa el botón de inicio.",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
