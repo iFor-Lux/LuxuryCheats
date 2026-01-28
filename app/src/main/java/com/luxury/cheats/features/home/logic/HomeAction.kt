@@ -24,4 +24,8 @@ sealed class HomeAction {
     object DismissUpdateAnuncio : HomeAction()
     /** Acción para cerrar la notificación in-app. */
     object DismissInAppNotification : HomeAction()
+    /** Acción para mostrar el bottom sheet de descarga. */
+    data class ShowDownloadArchivo(val cheatName: String) : HomeAction()
+    /** Acción para cerrar el bottom sheet de descarga. */
+    object DismissDownloadArchivo : HomeAction()
 }

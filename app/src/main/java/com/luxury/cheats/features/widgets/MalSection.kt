@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,7 +46,15 @@ private const val SMALL_BUTTON_HEIGHT = 36
 private const val BUTTON_WIDTH = 250
 private const val BUTTON_HEIGHT = 50
 private const val BUTTON_FONT_SIZE = 16
+private const val ERROR_RED_COLOR = 0xFFFF4D4D
 
+/**
+ * Bottom sheet que muestra un mensaje de error tras una instalación fallida.
+ * @param onDismissRequest Acción al cerrar el sheet.
+ * @param onViewProblemsClick Acción para ver los detalles del error.
+ * @param onExitClick Acción al pulsar salir.
+ * @param sheetState Estado del bottom sheet.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MalBottomSheet(
@@ -74,6 +81,12 @@ fun MalBottomSheet(
     }
 }
 
+/**
+ * Contenido visual de la sección de error.
+ * @param onViewProblemsClick Acción para ver problemas.
+ * @param onExitClick Acción para salir.
+ * @param modifier Modificador de layout.
+ */
 @Composable
 fun MalContent(
     onViewProblemsClick: () -> Unit,
@@ -84,10 +97,10 @@ fun MalContent(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp)
-            .padding(bottom = 40.dp), // Increased bottom padding to avoid "too low" feel
+            .padding(bottom = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Visual handle - Internal to content, not interactive
+        // Visual handle
         Box(
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 8.dp)
@@ -96,39 +109,46 @@ fun MalContent(
                 .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
         )
 
-        // Error Icon & Aura Section - Reduced container size to lift content
+        ErrorAuraIcon()
+        Spacer(modifier = Modifier.height(8.dp))
+        ErrorTextSection()
+        Spacer(modifier = Modifier.height(32.dp))
+        ErrorActionButtons(onViewProblemsClick, onExitClick)
+    }
+}
+
+@Composable
+private fun ErrorAuraIcon() {
+    Box(
+        modifier = Modifier.size(160.dp),
+        contentAlignment = Alignment.Center
+    ) {
         Box(
             modifier = Modifier
-                .size(160.dp), // Reduced from 180dp
-            contentAlignment = Alignment.Center
-        ) {
-            // Layer 1: The Aura (Red Radial Gradient)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFFFF4D4D).copy(alpha = AURA_INNER_ALPHA),
-                                Color(0xFFFF4D4D).copy(alpha = AURA_OUTER_ALPHA),
-                                Color.Transparent
-                            )
+                .fillMaxSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(ERROR_RED_COLOR).copy(alpha = AURA_INNER_ALPHA),
+                            Color(ERROR_RED_COLOR).copy(alpha = AURA_OUTER_ALPHA),
+                            Color.Transparent
                         )
                     )
-            )
+                )
+        )
 
-            // Layer 2: The Icon (Solid Close X)
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = null,
-                modifier = Modifier.size(ICON_SIZE_LARGE.dp),
-                tint = Color(0xFFFF4D4D)
-            )
-        }
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = null,
+            modifier = Modifier.size(ICON_SIZE_LARGE.dp),
+            tint = Color(ERROR_RED_COLOR)
+        )
+    }
+}
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Title: INCORRECTO
+@Composable
+private fun ErrorTextSection() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "INCORRECTO",
             fontSize = TITLE_FONT_SIZE.sp,
@@ -139,7 +159,6 @@ fun MalContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Subtitle
         Text(
             text = "Tuvimos un problema con la instalación",
             fontSize = SUBTITLE_FONT_SIZE.sp,
@@ -147,10 +166,15 @@ fun MalContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
+    }
+}
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Action Button: Ver problemas (Secondary/Chip style)
+@Composable
+private fun ErrorActionButtons(
+    onViewProblemsClick: () -> Unit,
+    onExitClick: () -> Unit
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Button(
             onClick = onViewProblemsClick,
             modifier = Modifier.height(SMALL_BUTTON_HEIGHT.dp),
@@ -171,7 +195,6 @@ fun MalContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Action Button: SALIR (Primary/Red)
         Button(
             onClick = onExitClick,
             modifier = Modifier
@@ -192,6 +215,9 @@ fun MalContent(
     }
 }
 
+/**
+ * Vista previa de la sección de error en modo claro y oscuro.
+ */
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

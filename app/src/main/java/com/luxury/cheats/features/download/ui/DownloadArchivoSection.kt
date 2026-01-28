@@ -1,8 +1,8 @@
-package com.luxury.cheats.features.widgets
+package com.luxury.cheats.features.download.ui
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,12 +32,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.R
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.luxury.cheats.features.download.logic.DownloadAction
+import com.luxury.cheats.features.download.logic.DownloadParams
+import com.luxury.cheats.features.download.logic.DownloadStatus
+import com.luxury.cheats.features.download.logic.DownloadViewModel
 
 /**
  * DownloadArchivoSection - Widget Bottom Sheet para descargas
@@ -52,55 +56,86 @@ import com.luxury.cheats.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DownloadArchivoBottomSheet(
+    params: DownloadParams,
     onDismissRequest: () -> Unit,
+    viewModel: DownloadViewModel = viewModel(),
     sheetState: SheetState = rememberModalBottomSheetState()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Al abrir el bottom sheet, iniciamos la configuración si es un cheat nuevo
+    androidx.compose.runtime.LaunchedEffect(params.cheatName) {
+        viewModel.onAction(
+            DownloadAction.StartSetup(
+                params.cheatName,
+                params.directUrl,
+                params.directPath,
+                params.preloadedWeight
+            )
+        )
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = null // Remove default handle that user doesn't like
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Minimalist Custom Handle
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f),
+        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
+        dragHandle = {
             Box(
                 modifier = Modifier
-                    .padding(vertical = 12.dp)
-                    .size(width = 30.dp, height = 4.dp)
-                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .padding(vertical = 24.dp)
+                    .size(width = 32.dp, height = 4.dp)
+                    .clip(RoundedCornerShape(2.5.dp))
                     .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
             )
-
-            DownloadArchivoContent()
         }
+    ) {
+        DownloadArchivoContent(
+            fileName = uiState.fileName,
+            fileWeight = uiState.fileWeight,
+            progress = uiState.progress,
+            status = uiState.status
+        )
     }
 }
 
 /**
- * Contenido principal del widget de descarga.
- * Muestra la información del archivo, icono de descarga y barra de progreso.
- *
- * @param modifier Modificador de Compose.
+ * Contenido interno de la sección de descarga.
+ * @param fileName Nombre del archivo.
+ * @param fileWeight Tamaño del archivo.
+ * @param progress Progreso actual (0.0 a 1.0).
+ * @param status Estado de la descarga.
+ * @param modifier Modificador de layout.
  */
 @Composable
 fun DownloadArchivoContent(
+    fileName: String,
+    fileWeight: String,
+    progress: Float,
+    status: DownloadStatus,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 32.dp),
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Espacio garantizado entre el tirador y el box para máxima separación (Premium spacing)
+        Spacer(modifier = Modifier.height(15.dp))
+
         // Contenedor principal 340x223
         Box(
             modifier = Modifier
                 .size(width = 340.dp, height = 223.dp)
                 .clip(RoundedCornerShape(30.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainer)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(30.dp)
+                )
                 .padding(20.dp)
         ) {
             Column(
@@ -108,15 +143,19 @@ fun DownloadArchivoContent(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val statusText = when (status) {
+                    DownloadStatus.COMPLETED -> "Listo"
+                    else -> "Descargando"
+                }
+
                 FileInfoRow(
-                    fileName = "Aimbot.txt",
-                    fileWeight = "97.22kb",
-                    imageResId = R.drawable.sprit1
+                    fileName = fileName,
+                    fileWeight = fileWeight
                 )
 
                 DownloadProgressBox(
-                    progress = 0.75f,
-                    statusText = "Descargando"
+                    progress = progress,
+                    statusText = statusText
                 )
             }
         }
@@ -126,27 +165,19 @@ fun DownloadArchivoContent(
 @Composable
 private fun FileInfoRow(
     fileName: String,
-    fileWeight: String,
-    imageResId: Int
+    fileWeight: String
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Columna 1: Imagen 101x101
+        // Columna 1: Placeholder 101x101 (Removed local resource)
         Box(
             modifier = Modifier
                 .size(101.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Image(
-                painter = painterResource(id = imageResId),
-                contentDescription = "File Preview",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-        }
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+        )
 
         Spacer(modifier = Modifier.width(16.dp))
 

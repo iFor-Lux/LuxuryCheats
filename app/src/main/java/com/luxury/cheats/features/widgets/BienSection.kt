@@ -45,7 +45,14 @@ private const val SUBTITLE_FONT_SIZE = 12
 private const val BUTTON_WIDTH = 250
 private const val BUTTON_HEIGHT = 50
 private const val BUTTON_FONT_SIZE = 16
+private const val SUCCESS_GREEN_COLOR = 0xFF4CAF50
 
+/**
+ * Bottom sheet que muestra un mensaje de éxito tras una instalación correcta.
+ * @param onDismissRequest Acción al cerrar el sheet.
+ * @param onContinueClick Acción al pulsar el botón de continuar.
+ * @param sheetState Estado del bottom sheet.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BienBottomSheet(
@@ -84,6 +91,11 @@ fun BienBottomSheet(
     }
 }
 
+/**
+ * Contenido visual de la sección de éxito.
+ * @param onContinueClick Acción al pulsar continuar.
+ * @param modifier Modificador de layout.
+ */
 @Composable
 fun BienContent(
     onContinueClick: () -> Unit,
@@ -96,39 +108,46 @@ fun BienContent(
             .padding(bottom = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Success Icon & Aura Section - Using RadialGradient for a perfect circular glow
+        SuccessAuraIcon()
+        Spacer(modifier = Modifier.height(24.dp))
+        SuccessTextSection()
+        Spacer(modifier = Modifier.height(32.dp))
+        SuccessActionButton(onContinueClick)
+    }
+}
+
+@Composable
+private fun SuccessAuraIcon() {
+    Box(
+        modifier = Modifier.size(200.dp),
+        contentAlignment = Alignment.Center
+    ) {
         Box(
             modifier = Modifier
-                .size(200.dp), // The requested 200x200 size
-            contentAlignment = Alignment.Center
-        ) {
-            // Layer 1: The Aura (Radial Gradient)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFF4CAF50).copy(alpha = AURA_INNER_ALPHA),
-                                Color(0xFF4CAF50).copy(alpha = AURA_OUTER_ALPHA),
-                                Color.Transparent
-                            )
+                .fillMaxSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(SUCCESS_GREEN_COLOR).copy(alpha = AURA_INNER_ALPHA),
+                            Color(SUCCESS_GREEN_COLOR).copy(alpha = AURA_OUTER_ALPHA),
+                            Color.Transparent
                         )
                     )
-            )
+                )
+        )
 
-            // Layer 2: The Icon (Solid, on top of the blurred aura)
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = "Success",
-                modifier = Modifier.size(ICON_SIZE_LARGE.dp),
-                tint = Color(0xFF4CAF50)
-            )
-        }
+        Icon(
+            imageVector = Icons.Default.Check,
+            contentDescription = "Success",
+            modifier = Modifier.size(ICON_SIZE_LARGE.dp),
+            tint = Color(SUCCESS_GREEN_COLOR)
+        )
+    }
+}
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Title: Correcto
+@Composable
+private fun SuccessTextSection() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "Correcto",
             fontSize = TITLE_FONT_SIZE.sp,
@@ -138,37 +157,39 @@ fun BienContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Subtitle
         Text(
             text = "Felicidades la instalacion fue todo un exito",
             fontSize = SUBTITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Action Button: Continuar
-        Button(
-            onClick = onContinueClick,
-            modifier = Modifier
-                .width(BUTTON_WIDTH.dp)
-                .height(BUTTON_HEIGHT.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        ) {
-            Text(
-                text = "Continuar",
-                fontSize = BUTTON_FONT_SIZE.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
     }
 }
 
+@Composable
+private fun SuccessActionButton(onContinueClick: () -> Unit) {
+    Button(
+        onClick = onContinueClick,
+        modifier = Modifier
+            .width(BUTTON_WIDTH.dp)
+            .height(BUTTON_HEIGHT.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    ) {
+        Text(
+            text = "Continuar",
+            fontSize = BUTTON_FONT_SIZE.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+/**
+ * Vista previa de la sección de éxito en modo claro y oscuro.
+ */
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

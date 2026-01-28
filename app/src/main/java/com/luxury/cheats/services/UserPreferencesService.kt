@@ -90,17 +90,12 @@ class UserPreferencesService(context: Context) {
         return prefs.getString(key, null)
     }
 
-    /** Acceso rápido a imagen de perfil. */
-    fun getProfileImage(): String? = accessImage(false)
+    /** Acceso rápido a imagen de perfil o banner. */
+    fun getBannerImage(): String? = accessImage(isBanner = true)
+    fun getProfileImage(): String? = accessImage(isBanner = false)
 
-    /** Acceso rápido a banner image. */
-    fun getBannerImage(): String? = accessImage(true)
-
-    /** Guarda la imagen de perfil. */
-    fun saveProfileImage(uri: String) { accessImage(false, uri) }
-
-    /** Guarda la imagen del banner. */
-    fun saveBannerImage(uri: String) { accessImage(true, uri) }
+    /** Guarda la imagen de perfil o banner. */
+    fun saveImage(isBanner: Boolean, uri: String) { accessImage(isBanner, uri) }
 
     /** Gestiona el caché del perfil. */
     fun accessProfileCache(data: Map<String, String>? = null): Map<String, String>? {
@@ -134,18 +129,17 @@ class UserPreferencesService(context: Context) {
         return v to t
     }
 
-    /** Obtiene el conjunto de IDs de notificaciones ya vistas. */
-    fun getSeenNotifications(): Set<String> {
+    /** Gestiona el conjunto de IDs de notificaciones ya vistas. */
+    fun accessSeenNotifications(idToMark: String? = null): Set<String> {
         val seenRaw = prefs.getString(KEY_SEEN_NOTIFICATIONS, "") ?: ""
-        return seenRaw.split(",").filter { it.isNotEmpty() }.toSet()
-    }
-
-    /** Marca una notificación como vista. */
-    fun markNotificationAsSeen(id: String) {
-        val currentSeen = getSeenNotifications().toMutableSet()
-        if (currentSeen.add(id)) {
-            prefs.edit().putString(KEY_SEEN_NOTIFICATIONS, currentSeen.joinToString(",")).apply()
+        val currentSeen = seenRaw.split(",").filter { it.isNotEmpty() }.toSet()
+        
+        if (idToMark != null && !currentSeen.contains(idToMark)) {
+            val updated = currentSeen.toMutableSet().apply { add(idToMark) }
+            prefs.edit().putString(KEY_SEEN_NOTIFICATIONS, updated.joinToString(",")).apply()
+            return updated
         }
+        return currentSeen
     }
 
     private object PreferenceHelper {

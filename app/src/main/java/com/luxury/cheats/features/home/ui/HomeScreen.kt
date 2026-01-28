@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,8 +22,10 @@ import com.luxury.cheats.features.home.logic.HomeAction
 import com.luxury.cheats.features.home.logic.HomeViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.luxury.cheats.features.download.logic.DownloadParams
 import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
 import com.luxury.cheats.features.widgets.InfoMessageDialog
+import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.navigations.NavRoutes
 
 const val HOME_ROUTE = "home_screen"
@@ -35,6 +38,7 @@ private object HomeUIConstants {
 /**
  * Pantalla principal de la aplicación (Home).
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
@@ -65,41 +69,64 @@ fun HomeScreen(
     Box(modifier = modifier.fillMaxSize()) {
         HomeSectionsList(uiState, scrollState, viewModel, navController)
 
-        com.luxury.cheats.core.ui.AppToast(
-            notifications = uiState.notifications,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = HomeUIConstants.TOAST_TOP_PADDING.dp)
+        HomeOverlays(
+            uiState = uiState,
+            onAction = { viewModel.onAction(it) },
+            navController = navController
         )
+    }
+}
 
-        uiState.notifications.forEach { notification ->
-            androidx.compose.runtime.LaunchedEffect(notification.id) {
-                kotlinx.coroutines.delay(HomeUIConstants.NOTIFICATION_DELAY)
-                viewModel.onAction(HomeAction.RemoveNotification(notification.id))
-            }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeOverlays(
+    uiState: com.luxury.cheats.features.home.logic.HomeState,
+    onAction: (HomeAction) -> Unit,
+    navController: NavHostController
+) {
+    com.luxury.cheats.core.ui.AppToast(
+        notifications = uiState.notifications,
+        modifier = Modifier
+            .padding(top = HomeUIConstants.TOAST_TOP_PADDING.dp)
+    )
+
+    uiState.notifications.forEach { notification ->
+        androidx.compose.runtime.LaunchedEffect(notification.id) {
+            kotlinx.coroutines.delay(HomeUIConstants.NOTIFICATION_DELAY)
+            onAction(HomeAction.RemoveNotification(notification.id))
         }
+    }
 
-        uiState.appUpdate?.let { update ->
-            androidx.compose.ui.window.Dialog(
-                onDismissRequest = { viewModel.onAction(HomeAction.DismissUpdateAnuncio) }
-            ) {
-                UpdateAnuncioSection(
-                    title = update.title,
-                    description = update.description,
-                    onUpdateClick = {
-                        viewModel.onAction(HomeAction.DismissUpdateAnuncio)
-                        navController.navigate(NavRoutes.UPDATE)
-                    }
-                )
-            }
-        
-        uiState.currentInAppNotification?.let { notification ->
-            InfoMessageDialog(
-                notification = notification,
-                onDismissRequest = { viewModel.onAction(HomeAction.DismissInAppNotification) }
+    uiState.appUpdate?.let { update ->
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { onAction(HomeAction.DismissUpdateAnuncio) }
+        ) {
+            UpdateAnuncioSection(
+                title = update.title,
+                description = update.description,
+                onUpdateClick = {
+                    onAction(HomeAction.DismissUpdateAnuncio)
+                    navController.navigate(NavRoutes.UPDATE)
+                }
             )
         }
-        }
+    }
+
+    uiState.currentInAppNotification?.let { notification ->
+        InfoMessageDialog(
+            notification = notification,
+            onDismissRequest = { onAction(HomeAction.DismissInAppNotification) }
+        )
+    }
+
+    if (uiState.isDownloadArchivoVisible) {
+        DownloadArchivoBottomSheet(
+            params = DownloadParams(
+                cheatName = uiState.downloadingFileName,
+                preloadedWeight = uiState.downloadingFileWeight
+            ),
+            onDismissRequest = { onAction(HomeAction.DismissDownloadArchivo) }
+        )
     }
 }
 
@@ -120,7 +147,7 @@ private fun HomeSectionsList(
     ) {
         HomeImagenSection()
         HomeSaludoSection(uiState.userName, uiState.greeting, uiState.greetingSubtitle)
-        
+
         HomeSeguridadSection(uiState.isSeguridadUnlocked, onClick = { viewModel.onAction(HomeAction.ToggleSeguridad) })
 
         if (uiState.isSeguridadUnlocked) {
@@ -146,7 +173,9 @@ private fun HomeSectionsList(
         }
 
         if (uiState.isSeguridadUnlocked && uiState.isOpcionesVisible) {
-            HomeOpcionesSection()
+            HomeOpcionesSection(
+                onAction = { viewModel.onAction(it) }
+            )
         }
 
         Spacer(modifier = Modifier.height(130.dp))

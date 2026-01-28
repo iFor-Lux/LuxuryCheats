@@ -65,10 +65,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+import com.luxury.cheats.features.home.logic.HomeAction
 
 private const val SECTION_WIDTH = 340
 private const val SECTION_HEIGHT = 450
@@ -107,6 +110,7 @@ data class CheatOption(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeOpcionesSection(
+    onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val options = listOf(
@@ -132,7 +136,7 @@ fun HomeOpcionesSection(
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HomeOptionsCarousel(options, carouselState, scope, screenCenterX)
+        HomeOptionsCarousel(options, carouselState, scope, screenCenterX, onAction)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -148,7 +152,8 @@ private fun HomeOptionsCarousel(
     options: List<CheatOption>,
     carouselState: androidx.compose.material3.carousel.CarouselState,
     scope: kotlinx.coroutines.CoroutineScope,
-    screenCenterX: Float
+    screenCenterX: Float,
+    onAction: (HomeAction) -> Unit
 ) {
     Text(
         text = "OPCIONES",
@@ -171,6 +176,7 @@ private fun HomeOptionsCarousel(
         OptionCard(
             option = option,
             screenCenterX = screenCenterX,
+            onAction = onAction,
             modifier = Modifier
                 .fillMaxSize()
                 .maskClip(MaterialTheme.shapes.extraLarge)
@@ -189,6 +195,7 @@ private fun HomeOptionsCarousel(
 fun OptionCard(
     option: CheatOption,
     screenCenterX: Float,
+    onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var checked by remember { mutableStateOf(option.initialValue) }
@@ -199,7 +206,7 @@ fun OptionCard(
     val alpha by animateFloatAsState(
         targetValue = if (isCollapsed) OptionsConstants.ALPHA_COLLAPSED else 1f,
         animationSpec = tween(
-            durationMillis = OptionsConstants.ANIM_DUR_COLLAPSED, 
+            durationMillis = OptionsConstants.ANIM_DUR_COLLAPSED,
             easing = FastOutSlowInEasing
         ),
         label = "alpha"
@@ -219,23 +226,48 @@ fun OptionCard(
             lineCount = 7
         )
 
-        Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-            AnimatedContent(
-                targetState = isCollapsed,
-                transitionSpec = {
-                    val fadeTween = tween<Float>(OptionsConstants.ANIM_DUR_FADE)
-                    val scaleIn = scaleIn(initialScale = OptionsConstants.SCALE_TRANSITION)
-                    val scaleOut = scaleOut(targetScale = OptionsConstants.SCALE_TRANSITION)
-                    
-                    fadeIn(fadeTween) + scaleIn togetherWith fadeOut(fadeTween) + scaleOut
-                },
-                label = "layout_change"
-            ) { collapsed ->
-                if (collapsed) {
-                    OptionCardCollapsed(option.title, alpha)
-                } else {
-                    OptionCardHero(option, checked, alpha, onCheckedChange = { checked = it })
-                }
+        OptionCardLayout(
+            isCollapsed = isCollapsed,
+            option = option,
+            checked = checked,
+            alpha = alpha,
+            onCheckedChange = { isChecked ->
+                checked = isChecked
+                if (isChecked) onAction(HomeAction.ShowDownloadArchivo(option.title))
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun OptionCardLayout(
+    isCollapsed: Boolean,
+    option: CheatOption,
+    checked: Boolean,
+    alpha: Float,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+        AnimatedContent(
+            targetState = isCollapsed,
+            transitionSpec = {
+                val fadeTween = tween<Float>(OptionsConstants.ANIM_DUR_FADE)
+                val scaleIn = scaleIn(initialScale = OptionsConstants.SCALE_TRANSITION)
+                val scaleOut = scaleOut(targetScale = OptionsConstants.SCALE_TRANSITION)
+                fadeIn(fadeTween) + scaleIn togetherWith fadeOut(fadeTween) + scaleOut
+            },
+            label = "layout_change"
+        ) { collapsed ->
+            if (collapsed) {
+                OptionCardCollapsed(option.title, alpha)
+            } else {
+                OptionCardHero(
+                    option = option,
+                    checked = checked,
+                    alpha = alpha,
+                    onCheckedChange = onCheckedChange
+                )
             }
         }
     }
@@ -274,39 +306,53 @@ private fun OptionCardHero(
             .padding(8.dp)
             .graphicsLayer { this.alpha = alpha }
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = option.icon,
-                contentDescription = option.title,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                )
-            )
-        }
-
+        OptionCardHeader(option, checked, onCheckedChange)
         Spacer(modifier = Modifier.weight(1f))
+        OptionCardFooter(option.title, option.description)
+    }
+}
 
+@Composable
+private fun OptionCardHeader(
+    option: CheatOption,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = option.icon,
+            contentDescription = option.title,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+            )
+        )
+    }
+}
+
+@Composable
+private fun OptionCardFooter(title: String, description: String) {
+    Column {
         Text(
-            text = option.title,
+            text = title,
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 26.sp,
             fontWeight = FontWeight.ExtraBold
         )
 
         Text(
-            text = option.description,
+            text = description,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             fontSize = 12.sp,
             lineHeight = 16.sp,
@@ -412,5 +458,15 @@ fun TopographicBackground(
                 }
             }
         }
+    }
+}
+/**
+ * Vista previa de la sección de opciones del home.
+ */
+@Preview(showBackground = true)
+@Composable
+fun HomeOpcionesSectionPreview() {
+    LuxuryCheatsTheme {
+        HomeOpcionesSection(onAction = {})
     }
 }

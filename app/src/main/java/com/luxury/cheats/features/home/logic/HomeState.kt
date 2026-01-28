@@ -20,5 +20,9 @@ data class HomeState(
     val notifications: List<AppNotification> = emptyList(),
     val isSeguridadUnlocked: Boolean = false,
     val appUpdate: com.luxury.cheats.features.update.logic.AppUpdate? = null,
-    val currentInAppNotification: com.luxury.cheats.features.home.logic.InAppNotification? = null
+    val currentInAppNotification: com.luxury.cheats.features.home.logic.InAppNotification? = null,
+    val isDownloadArchivoVisible: Boolean = false,
+    val downloadingFileName: String = "",
+    val downloadingFileWeight: String = "",
+    val fileWeightsCache: Map<String, String> = emptyMap() // Caché de pesos pre-cargados
 )

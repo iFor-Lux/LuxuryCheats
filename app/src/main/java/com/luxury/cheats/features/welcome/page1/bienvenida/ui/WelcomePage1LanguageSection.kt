@@ -49,6 +49,10 @@ private object LanguageConstants {
     val DIVIDER_ALPHA = 0.1f
 }
 
+/**
+ * Sección de selección de idioma para la primera página de bienvenida.
+ * @param modifier Modificador de layout.
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WelcomePage1LanguageSection(

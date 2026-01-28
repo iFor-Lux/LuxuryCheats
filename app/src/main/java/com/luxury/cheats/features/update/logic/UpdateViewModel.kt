@@ -52,7 +52,7 @@ class UpdateViewModel(
                         releaseDate = formatTimestamp(finalInfo?.second ?: "2025-01-01")
                     )
                 }
-            } catch (ignored: Exception) {
+            } catch (e: com.google.firebase.database.DatabaseException) {
                 val finalInfo = preferencesService.accessUpdateInfo()
                 _uiState.update { 
                     it.copy(
@@ -60,6 +60,9 @@ class UpdateViewModel(
                         releaseDate = formatTimestamp(finalInfo?.second ?: "2025-01-01")
                     )
                 }
+            } catch (e: Exception) {
+                // Final fallback for unexpected errors
+                _uiState.update { it.copy(appVersion = "Error: ${com.luxury.cheats.BuildConfig.VERSION_NAME}") }
             }
         }
     }
@@ -68,7 +71,7 @@ class UpdateViewModel(
         return try {
             // Un formateo simple: 2026-01-02T12:00:00Z -> 2026-01-02
             if (isoTimestamp.length >= 10) isoTimestamp.substring(0, 10) else isoTimestamp
-        } catch (e: Exception) {
+        } catch (e: IndexOutOfBoundsException) {
             isoTimestamp
         }
     }

@@ -185,7 +185,13 @@
     │       │   │       │   │   └── logic
     │       │   │       │   │       ├── PerfilViewModel.kt
     │       │   │       │   │       └── PerfilState.kt
+    │       │   │       │   ├── download
+    │       │   │       │   │   └── ui
+    │       │   │       │   │       └── DownloadArchivoSection.kt
     │       │   │       │   ├── widgets
+    │       │   │       │   │   ├── InfoMessageDialog.kt
+    │       │   │       │   │   ├── InfoMessageSection.kt
+    │       │   │       │   │   └── InfoActivationSection.kt
     │       │   │       │   └── settings
     │       │   │       │       ├── ui
     │       │   │       │       │   ├── SettingsRoute.kt

@@ -39,7 +39,7 @@ class UpdateService {
                                 ?: snapshot.child("downloadlink").getValue(String::class.java) ?: "",
                             timestamp = snapshot.child("timestamp").getValue(String::class.java) ?: ""
                         )
-                    } catch (e: Exception) {
+                    } catch (e: com.google.firebase.database.DatabaseException) {
                         AppUpdate()
                     }
                     cont.resume(update)

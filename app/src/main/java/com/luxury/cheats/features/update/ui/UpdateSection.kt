@@ -39,15 +39,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.luxury.cheats.BuildConfig
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.update.logic.UpdateAction
 import com.luxury.cheats.features.update.logic.UpdateViewModel
-import com.luxury.cheats.features.widgets.DownloadArchivoBottomSheet
+import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 
 private const val NEWS_REPEAT_COUNT = 4
 
@@ -97,6 +95,13 @@ fun DownloadUpdateScreen(
 
     if (uiState.showDownloadSheet) {
         DownloadArchivoBottomSheet(
+            params = com.luxury.cheats.features.download.logic.DownloadParams(
+                cheatName = "LuxuryUpdate.apk",
+                directUrl = uiState.appUpdate?.downloadLink,
+                directPath = "",
+                preloadedWeight = ""
+            ),
+            viewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
             onDismissRequest = { viewModel.onAction(UpdateAction.DismissDownloadSheet) }
         )
     }

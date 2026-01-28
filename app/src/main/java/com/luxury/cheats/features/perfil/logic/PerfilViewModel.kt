@@ -211,14 +211,14 @@ class PerfilViewModel(
     private fun updateProfileImage(uri: String) {
         val prefix = "profile.jpg"
         val localUri = fileService?.saveImageToInternal(uri, prefix) ?: uri
-        preferencesService.saveProfileImage(localUri)
+        preferencesService.saveImage(isBanner = false, uri = localUri)
         _uiState.update { it.copy(profileImageUri = localUri) }
     }
 
     private fun updateBannerImage(uri: String) {
         val prefix = "banner.jpg"
         val localUri = fileService?.saveImageToInternal(uri, prefix) ?: uri
-        preferencesService.saveBannerImage(localUri)
+        preferencesService.saveImage(isBanner = true, uri = localUri)
         _uiState.update { it.copy(bannerImageUri = localUri) }
     }
 }

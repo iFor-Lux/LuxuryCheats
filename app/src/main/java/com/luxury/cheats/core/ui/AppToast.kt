@@ -64,6 +64,11 @@ private data class ToastTheme(
     val icon: androidx.compose.ui.graphics.vector.ImageVector
 )
 
+/**
+ * Componente principal para mostrar una lista de notificaciones tipo Toast.
+ * @param notifications Lista de notificaciones activas a mostrar.
+ * @param modifier Modificador para el contenedor de los toasts.
+ */
 @Composable
 fun AppToast(
     notifications: List<AppNotification>,

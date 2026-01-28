@@ -617,6 +617,14 @@
     - La UI de `UpdateSection` consume estos valores dinámicos.
 - **Resultado**: La fecha de lanzamiento es persistente y solo cambia cuando hay un nuevo release en Firebase.
 
+### In-App Notifications & Remote Assets
+- **GIF Support**: Integrated `coil-gif` to support animated notifications. Real-time configuration of `ImageLoader` with `GifDecoder` was implemented in `InfoMessageSection`.
+- **Remote-First Assets**: Removed all local image resources from `InfoActivationSection`, `UpdateAnuncioSection`, `PerfilCreditosSection`, and `DownloadArchivoSection` to enforce a purely dynamic, cloud-managed UI content strategy.
+- **Dynamic Download Feature**: Refactored `DownloadArchivoSection` into a feature (`features/download/`).
+    - **Logic**: Implemented `DownloadViewModel` and `DownloadService` to fetch URLs and target paths from Firebase Realtime Database (node: `downloads`).
+    - **Real-time Metadata**: Added HEAD requests to calculate file weight (`Content-Length`) dynamically from download URLs.
+    - **Multimodal Support**: Supports both Firebase-configured cheats (Aimbot, etc.) and direct URLs (App Updates).
+
 ### Notificaciones In-App Dinámicas (Enero 2026)
 - **Contexto**: El widget `InfoMessageSection` debe mostrar contenido dinámico desde Firebase (notificaciones).
 - **Implementación**:
