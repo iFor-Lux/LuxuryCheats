@@ -44,9 +44,9 @@ import com.luxury.cheats.R
 private object LanguageConstants {
     val TOP_PADDING = 60.dp
     val HORIZONTAL_PADDING = 16.dp
-    val ICON_ROTATION_DURATION = 150
+    const val ICON_ROTATION_DURATION = 150
     val FONT_SIZE = 14.sp
-    val DIVIDER_ALPHA = 0.1f
+    const val DIVIDER_ALPHA = 0.1f
 }
 
 /**

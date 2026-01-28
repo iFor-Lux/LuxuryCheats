@@ -40,6 +40,7 @@ class UpdateService {
                             timestamp = snapshot.child("timestamp").getValue(String::class.java) ?: ""
                         )
                     } catch (e: com.google.firebase.database.DatabaseException) {
+                        android.util.Log.e("UpdateService", "Error parsing AppUpdate snapshot", e)
                         AppUpdate()
                     }
                     cont.resume(update)

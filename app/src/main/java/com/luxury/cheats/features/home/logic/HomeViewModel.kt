@@ -87,7 +87,9 @@ class HomeViewModel(
             HomeAction.ToggleIdAndConsole -> handleToggle("id_console")
             HomeAction.ToggleOpciones -> handleToggle("opciones")
             HomeAction.ToggleConsoleExpansion -> handleToggle("console_expansion")
-            is HomeAction.OnIdValueChange -> _uiState.update { it.copy(idValue = action.value, isSearchSuccessful = false) }
+            is HomeAction.OnIdValueChange -> _uiState.update { 
+                it.copy(idValue = action.value, isSearchSuccessful = false) 
+            }
             HomeAction.ExecuteSearch -> executePlayerLookup()
             HomeAction.SaveId -> handleSaveId()
             is HomeAction.RemoveNotification -> handleRemoveNotification(action.notificationId)
@@ -133,7 +135,13 @@ class HomeViewModel(
 
     private fun handleShowDownloadArchivo(cheatName: String) {
         val weight = _uiState.value.fileWeightsCache[cheatName] ?: ""
-        _uiState.update { it.copy(isDownloadArchivoVisible = true, downloadingFileName = cheatName, downloadingFileWeight = weight) }
+        _uiState.update { 
+            it.copy(
+                isDownloadArchivoVisible = true, 
+                downloadingFileName = cheatName, 
+                downloadingFileWeight = weight
+            ) 
+        }
     }
 
     private fun handleDismissInAppNotification() {
@@ -158,15 +166,31 @@ class HomeViewModel(
         val uid = _uiState.value.idValue
         if (uid.isEmpty()) return
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingPlayer = true, consoleOutput = "INICIANDO PROTOCOLO DE BÚSQUEDA...", isSearchSuccessful = false) }
+            _uiState.update { 
+                it.copy(
+                    isLoadingPlayer = true, 
+                    consoleOutput = "INICIANDO PROTOCOLO DE BÚSQUEDA...", 
+                    isSearchSuccessful = false
+                ) 
+            }
             val foundData = playerRepository.searchAcrossRegions(uid) { msg ->
                 _uiState.update { it.copy(consoleOutput = it.consoleOutput + msg) }
             }
             if (foundData != null) {
-                _uiState.update { it.copy(consoleOutput = HomeGreetingProvider.formatPlayerData(foundData), isSearchSuccessful = true) }
+                _uiState.update { 
+                    it.copy(
+                        consoleOutput = HomeGreetingProvider.formatPlayerData(foundData), 
+                        isSearchSuccessful = true
+                    ) 
+                }
                 addNotification("OBJETIVO LOCALIZADO EXITOSAMENTE", NotificationType.SUCCESS)
             } else {
-                _uiState.update { it.copy(consoleOutput = it.consoleOutput + "\n\nPROTOCOLO FINALIZADO: SIN RESULTADOS.", isSearchSuccessful = false) }
+                _uiState.update { 
+                    it.copy(
+                        consoleOutput = it.consoleOutput + "\n\nPROTOCOLO FINALIZADO: SIN RESULTADOS.", 
+                        isSearchSuccessful = false
+                    ) 
+                }
                 addNotification("SUJETO NO ENCONTRADO EN NINGUNA REGIÓN", NotificationType.ERROR)
             }
             _uiState.update { it.copy(isLoadingPlayer = false) }
@@ -179,6 +203,8 @@ class HomeViewModel(
 
     private fun saveCurrentHomeState() {
         val state = _uiState.value
-        preferencesService.accessHomeState(Triple(state.isSeguridadUnlocked, state.isIdAndConsoleVisible, state.isOpcionesVisible))
+        preferencesService.accessHomeState(
+            Triple(state.isSeguridadUnlocked, state.isIdAndConsoleVisible, state.isOpcionesVisible)
+        )
     }
 }

@@ -17,6 +17,11 @@ class UpdateViewModel(
     private val preferencesService: com.luxury.cheats.services.UserPreferencesService
 ) : androidx.lifecycle.ViewModel() {
 
+    /** Constantes para formateo de fechas. */
+    companion object {
+        private const val DATE_STRING_LENGTH = 10
+    }
+
     private val _uiState = MutableStateFlow(UpdateState())
     val uiState: StateFlow<UpdateState> = _uiState.asStateFlow()
 
@@ -53,6 +58,7 @@ class UpdateViewModel(
                     )
                 }
             } catch (e: com.google.firebase.database.DatabaseException) {
+                android.util.Log.e("UpdateViewModel", "Database error fetching update info", e)
                 val finalInfo = preferencesService.accessUpdateInfo()
                 _uiState.update { 
                     it.copy(
@@ -60,8 +66,8 @@ class UpdateViewModel(
                         releaseDate = formatTimestamp(finalInfo?.second ?: "2025-01-01")
                     )
                 }
-            } catch (e: Exception) {
-                // Final fallback for unexpected errors
+            } catch (@Suppress("TooGenericExceptionCaught") e: RuntimeException) {
+                android.util.Log.e("UpdateViewModel", "Unexpected runtime error in fetchAndUpdateInfo", e)
                 _uiState.update { it.copy(appVersion = "Error: ${com.luxury.cheats.BuildConfig.VERSION_NAME}") }
             }
         }
@@ -70,8 +76,10 @@ class UpdateViewModel(
     private fun formatTimestamp(isoTimestamp: String): String {
         return try {
             // Un formateo simple: 2026-01-02T12:00:00Z -> 2026-01-02
-            if (isoTimestamp.length >= 10) isoTimestamp.substring(0, 10) else isoTimestamp
-        } catch (e: IndexOutOfBoundsException) {
+            if (isoTimestamp.length >= DATE_STRING_LENGTH) {
+                isoTimestamp.substring(0, DATE_STRING_LENGTH)
+            } else isoTimestamp
+        } catch (ignored: IndexOutOfBoundsException) {
             isoTimestamp
         }
     }

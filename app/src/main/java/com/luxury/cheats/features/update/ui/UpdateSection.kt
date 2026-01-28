@@ -47,7 +47,7 @@ import com.luxury.cheats.features.update.logic.UpdateAction
 import com.luxury.cheats.features.update.logic.UpdateViewModel
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 
-private const val NEWS_REPEAT_COUNT = 4
+private const val DATE_LENGTH = 10
 
 /**
  * Pantalla completa de descarga de actualización.
@@ -252,8 +252,12 @@ private fun DownloadStatusInfo(update: com.luxury.cheats.features.update.logic.A
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )
+        val releaseText = if (update?.timestamp?.length ?: 0 >= DATE_LENGTH) {
+            update?.timestamp?.substring(0, DATE_LENGTH)
+        } else "..."
+        
         Text(
-            text = "Release ${if (update?.timestamp?.length ?: 0 >= 10) update?.timestamp?.substring(0, 10) else "..."}",
+            text = "Release $releaseText",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium

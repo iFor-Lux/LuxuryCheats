@@ -17,6 +17,13 @@ class DownloadViewModel(
     private val downloadService: DownloadService = DownloadService()
 ) : ViewModel() {
 
+    /** Constantes de simulación y progreso. */
+    companion object {
+        private const val SIMULATION_STEPS = 100
+        private const val SIMULATION_DELAY_MS = 4L
+        private const val PROGRESS_FACTOR = 100f
+    }
+
     private val _uiState = MutableStateFlow(DownloadState())
     val uiState: StateFlow<DownloadState> = _uiState.asStateFlow()
 
@@ -26,7 +33,12 @@ class DownloadViewModel(
      */
     fun onAction(action: DownloadAction) {
         when (action) {
-            is DownloadAction.StartSetup -> setupDownload(action.cheatName, action.directUrl, action.directPath, action.preloadedWeight)
+            is DownloadAction.StartSetup -> setupDownload(
+                cheatName = action.cheatName,
+                directUrl = action.directUrl,
+                directPath = action.directPath,
+                preloadedWeight = action.preloadedWeight
+            )
             DownloadAction.StartDownload -> { /* No-op: download starts automatically */ }
             DownloadAction.Reset -> _uiState.update { DownloadState() }
         }
@@ -44,9 +56,9 @@ class DownloadViewModel(
 
         // Simulación ultra rápida e independiente para feedback instantáneo
         viewModelScope.launch {
-            for (i in 1..100) {
-                kotlinx.coroutines.delay(4) // ~0.4 segundos total - ultra rápido
-                _uiState.update { it.copy(progress = i / 100f) }
+            for (i in 1..SIMULATION_STEPS) {
+                kotlinx.coroutines.delay(SIMULATION_DELAY_MS)
+                _uiState.update { it.copy(progress = i / PROGRESS_FACTOR) }
             }
             _uiState.update { it.copy(status = DownloadStatus.COMPLETED) }
         }
@@ -71,9 +83,9 @@ class DownloadViewModel(
                     }
                 } catch (e: java.io.IOException) {
                     _uiState.update { it.copy(fileWeight = "Error de red: ${e.message}") }
-                } catch (e: Exception) {
+                } catch (@Suppress("TooGenericExceptionCaught") e: RuntimeException) {
+                    android.util.Log.e("DownloadViewModel", "Unexpected runtime error getting file size", e)
                     _uiState.update { it.copy(fileWeight = "Error desconocido") }
-                    // Log error to console or crashlytics here
                 }
             }
         }

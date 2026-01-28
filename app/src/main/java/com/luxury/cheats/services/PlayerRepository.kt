@@ -1,9 +1,5 @@
 package com.luxury.cheats.services
 
-import com.luxury.cheats.features.home.logic.HomeViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
-import retrofit2.Response
 
 /**
  * Repositorio para gestionar la búsqueda y obtención de datos de jugadores.
@@ -14,7 +10,7 @@ class PlayerRepository(
 ) {
     /**
      * Busca un jugador en múltiples regiones.
-     * 
+     *
      * @param uid El ID del jugador.
      * @param onConsoleLog Callback para registrar mensajes en la consola.
      * @return El [PlayerResponse] encontrado o null si no se localizó en ninguna región.
@@ -24,10 +20,10 @@ class PlayerRepository(
         onConsoleLog: (String) -> Unit
     ): PlayerResponse? {
         val servers = listOf("us", "br", "ind", "sg", "id")
-        
+
         for (server in servers) {
             onConsoleLog("\nRASTREANDO REGIÓN: ${server.uppercase()}...")
-            
+
             try {
                 val response = ffApiService.getPlayerInfo(server, uid)
                 if (response.isSuccessful && response.body()?.basicInfo != null) {

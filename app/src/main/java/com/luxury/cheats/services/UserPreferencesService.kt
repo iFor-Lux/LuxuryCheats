@@ -90,11 +90,23 @@ class UserPreferencesService(context: Context) {
         return prefs.getString(key, null)
     }
 
-    /** Acceso rápido a imagen de perfil o banner. */
+    /**
+     * Recupera la imagen del banner guardada.
+     * @return El URI de la imagen o null si no existe.
+     */
     fun getBannerImage(): String? = accessImage(isBanner = true)
+
+    /**
+     * Recupera la imagen de perfil guardada.
+     * @return El URI de la imagen o null si no existe.
+     */
     fun getProfileImage(): String? = accessImage(isBanner = false)
 
-    /** Guarda la imagen de perfil o banner. */
+    /**
+     * Guarda la imagen de perfil o banner.
+     * @param isBanner True si es banner, False si es perfil.
+     * @param uri URI de la imagen a guardar.
+     */
     fun saveImage(isBanner: Boolean, uri: String) { accessImage(isBanner, uri) }
 
     /** Gestiona el caché del perfil. */

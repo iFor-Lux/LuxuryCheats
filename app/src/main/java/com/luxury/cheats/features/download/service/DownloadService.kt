@@ -26,6 +26,13 @@ data class DownloadItem(
  */
 class DownloadService {
 
+    /** Constantes de configuración de red y conversión de unidades. */
+    companion object {
+        private const val TIMEOUT_MS = 5000
+        private const val BYTES_PER_KB = 1024.0
+        private const val MB_THRESHOLD = 1.0
+    }
+
     private val db = FirebaseDatabase.getInstance().getReference("urls")
 
     /**
@@ -44,8 +51,8 @@ class DownloadService {
                             url = snapshot.child("url").child("url").getValue(String::class.java) ?: ""
                         )
                     } catch (e: com.google.firebase.database.DatabaseException) {
+                        android.util.Log.e("DownloadService", "Error mapping DownloadItem", e)
                         DownloadItem(title = cheatName)
-                        // Consider resuming with exception if you want to show an error to the user
                     }
                     cont.resume(item)
                 }
@@ -67,8 +74,8 @@ class DownloadService {
             val url = URL(urlString)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "HEAD"
-            connection.connectTimeout = 5000
-            connection.readTimeout = 5000
+            connection.connectTimeout = TIMEOUT_MS
+            connection.readTimeout = TIMEOUT_MS
             connection.instanceFollowRedirects = true
             connection.connect()
             
@@ -79,17 +86,19 @@ class DownloadService {
 
             formatFileSize(fileSize)
         } catch (e: java.net.MalformedURLException) {
+            android.util.Log.e("DownloadService", "Invalid URL: $urlString", e)
             "URL inválida"
         } catch (e: java.io.IOException) {
+            android.util.Log.e("DownloadService", "Network error getting file size", e)
             "Error de red"
         }
     }
 
     private fun formatFileSize(size: Long): String {
-        val kb = size / 1024.0
-        val mb = kb / 1024.0
+        val kb = size / BYTES_PER_KB
+        val mb = kb / BYTES_PER_KB
         return when {
-            mb >= 1.0 -> String.format(java.util.Locale.US, "%.1fMB", mb)
+            mb >= MB_THRESHOLD -> String.format(java.util.Locale.US, "%.1fMB", mb)
             else -> String.format(java.util.Locale.US, "%.2fkb", kb)
         }
     }
