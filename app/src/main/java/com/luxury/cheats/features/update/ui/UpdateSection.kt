@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -90,7 +91,7 @@ fun DownloadUpdateScreen(
             }
         )
         Spacer(modifier = Modifier.height(32.dp))
-        DownloadNewsSection()
+        DownloadNewsSection(uiState.appUpdate?.description ?: "")
         Spacer(modifier = Modifier.height(32.dp))
     }
 
@@ -132,8 +133,8 @@ private fun DownloadMainCard(
     uiState: com.luxury.cheats.features.update.logic.UpdateState,
     onDownloadClick: () -> Unit
 ) {
-    val hasUpdate = uiState.appUpdate != null && 
-        uiState.appUpdate.version.isNotEmpty() && 
+    val hasUpdate = uiState.appUpdate != null &&
+        uiState.appUpdate.version.isNotEmpty() &&
         uiState.appUpdate.version != uiState.appVersion
 
     Box(
@@ -157,7 +158,7 @@ private fun DownloadMainCard(
             DownloadAppIcon()
             Spacer(modifier = Modifier.height(24.dp))
             DownloadVersionInfo(uiState.appVersion, uiState.releaseDate)
-            
+
             if (hasUpdate) {
                 Spacer(modifier = Modifier.height(24.dp))
                 DownloadDivider()
@@ -275,7 +276,12 @@ private fun DownloadActionButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun DownloadNewsSection() {
+private fun DownloadNewsSection(description: String) {
+    if (description.isBlank()) return
+
+    // Dividimos por saltos de línea para crear puntos de novedades
+    val lines = description.split("\n").filter { it.isNotBlank() }
+
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.Start
@@ -289,24 +295,26 @@ private fun DownloadNewsSection() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .heightIn(min = 100.dp) // Altura mínima de 100dp, pero crece si es necesario
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(16.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                repeat(NEWS_REPEAT_COUNT) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                lines.forEach { line ->
+                    Row(verticalAlignment = Alignment.Top) {
                         Box(
                             modifier = Modifier
+                                .padding(top = 8.dp)
                                 .size(4.dp)
                                 .background(MaterialTheme.colorScheme.primary, CircleShape)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Mejoras",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = line,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 20.sp
                         )
                     }
                 }
