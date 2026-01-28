@@ -19,5 +19,7 @@ data class AppUpdate(
  */
 data class UpdateState(
     val showDownloadSheet: Boolean = false,
-    val appUpdate: AppUpdate? = null
+    val appUpdate: AppUpdate? = null,
+    val appVersion: String = "1.0.0",
+    val releaseDate: String = "2025-01-01"
 )

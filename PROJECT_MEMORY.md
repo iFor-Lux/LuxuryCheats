@@ -607,3 +607,12 @@
     - `HomeViewModel.kt`: Ejecuta la comprobación al iniciar la pantalla Home y gestiona la desestimación.
     - `HomeScreen.kt`: Muestra `UpdateAnuncioSection` dentro de un `androidx.compose.ui.window.Dialog`.
 - **Resultado**: El anuncio de actualización aparece como un popup (Dialog) sobre Home. Se refinó el diseño para que la descripción esté alineada a la izquierda y el título use colores primarios de Material You, asegurando que sea llamativo y legible incluso con descripciones largas.
+
+### Persistencia de Fecha de Lanzamiento (Enero 2026)
+- **Contexto**: La fecha de lanzamiento en la pantalla de actualización debe reflejar la del release actual y solo actualizarse cuando cambie la versión.
+- **Decisión**: Usar `UserPreferencesService` para guardar el par `(versión, timestamp)`.
+- **Implementación**:
+    - `UpdateViewModel` compara la versión de Firebase con la guardada.
+    - Si son diferentes, actualiza el timestamp local.
+    - La UI de `UpdateSection` consume estos valores dinámicos.
+- **Resultado**: La fecha de lanzamiento es persistente y solo cambia cuando hay un nuevo release en Firebase.

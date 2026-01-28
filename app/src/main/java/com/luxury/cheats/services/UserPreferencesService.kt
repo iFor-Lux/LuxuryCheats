@@ -26,6 +26,8 @@ class UserPreferencesService(context: Context) {
         private const val KEY_PROFILE_CREATED = "profile_created"
         private const val KEY_PROFILE_EXPIRY = "profile_expiry"
         private const val KEY_PROFILE_DEVICE = "profile_device"
+        private const val KEY_LAST_UPDATE_VERSION = "last_update_version"
+        private const val KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp"
         private const val XOR_SEED = 0x55
     }
 
@@ -116,6 +118,19 @@ class UserPreferencesService(context: Context) {
             "expiry" to (prefs.getString(KEY_PROFILE_EXPIRY, "") ?: ""),
             "device" to (prefs.getString(KEY_PROFILE_DEVICE, "") ?: "")
         )
+    }
+    
+    /** Gestiona la información de la última versión y fecha de lanzamiento. */
+    fun accessUpdateInfo(version: String? = null, timestamp: String? = null): Pair<String, String>? {
+        if (version != null && timestamp != null) {
+            prefs.edit()
+                .putString(KEY_LAST_UPDATE_VERSION, version)
+                .putString(KEY_LAST_UPDATE_TIMESTAMP, timestamp)
+                .apply()
+        }
+        val v = prefs.getString(KEY_LAST_UPDATE_VERSION, null) ?: return null
+        val t = prefs.getString(KEY_LAST_UPDATE_TIMESTAMP, "") ?: ""
+        return v to t
     }
 
     private object PreferenceHelper {

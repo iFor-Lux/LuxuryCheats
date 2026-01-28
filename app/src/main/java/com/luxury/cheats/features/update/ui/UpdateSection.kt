@@ -57,9 +57,18 @@ private const val NEWS_REPEAT_COUNT = 4
 @Composable
 fun DownloadUpdateScreen(
     modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {},
-    viewModel: UpdateViewModel = viewModel()
+    onBackClick: () -> Unit = {}
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val viewModel: UpdateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return UpdateViewModel(
+                    preferencesService = com.luxury.cheats.services.UserPreferencesService(context)
+                ) as T
+            }
+        }
+    )
     val uiState = viewModel.uiState.collectAsState().value
     val scrollState = rememberScrollState()
 
@@ -74,9 +83,12 @@ fun DownloadUpdateScreen(
     ) {
         DownloadHeader(onBackClick)
         Spacer(modifier = Modifier.height(20.dp))
-        DownloadMainCard(onDownloadClick = {
-            viewModel.onAction(UpdateAction.DownloadClicked)
-        })
+        DownloadMainCard(
+            uiState = uiState,
+            onDownloadClick = {
+                viewModel.onAction(UpdateAction.DownloadClicked)
+            }
+        )
         Spacer(modifier = Modifier.height(32.dp))
         DownloadNewsSection()
         Spacer(modifier = Modifier.height(32.dp))
@@ -116,11 +128,18 @@ private fun DownloadHeader(onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun DownloadMainCard(onDownloadClick: () -> Unit) {
+private fun DownloadMainCard(
+    uiState: com.luxury.cheats.features.update.logic.UpdateState,
+    onDownloadClick: () -> Unit
+) {
+    val hasUpdate = uiState.appUpdate != null && 
+        uiState.appUpdate.version.isNotEmpty() && 
+        uiState.appUpdate.version != uiState.appVersion
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(521.dp)
+            .then(if (hasUpdate) Modifier.height(521.dp) else Modifier.wrapContentHeight())
             .clip(RoundedCornerShape(50.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .border(
@@ -132,18 +151,29 @@ private fun DownloadMainCard(onDownloadClick: () -> Unit) {
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DownloadAppIcon()
             Spacer(modifier = Modifier.height(24.dp))
-            DownloadVersionInfo()
-            Spacer(modifier = Modifier.height(24.dp))
-            DownloadDivider()
-            Spacer(modifier = Modifier.height(24.dp))
-            DownloadStatusInfo()
-            Spacer(modifier = Modifier.weight(1f))
-            DownloadActionButton(onClick = onDownloadClick)
+            DownloadVersionInfo(uiState.appVersion, uiState.releaseDate)
+            
+            if (hasUpdate) {
+                Spacer(modifier = Modifier.height(24.dp))
+                DownloadDivider()
+                Spacer(modifier = Modifier.height(24.dp))
+                DownloadStatusInfo(uiState.appUpdate)
+                Spacer(modifier = Modifier.weight(1f))
+                DownloadActionButton(onClick = onDownloadClick)
+            } else {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "Tu sistema está actualizado",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }
@@ -168,10 +198,7 @@ private fun DownloadAppIcon() {
 
 
 @Composable
-private fun DownloadVersionInfo() {
-
-    val appVersion = BuildConfig.VERSION_NAME
-
+private fun DownloadVersionInfo(appVersion: String, releaseDate: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "v$appVersion",
@@ -180,7 +207,7 @@ private fun DownloadVersionInfo() {
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "Release 2025-12-06",
+            text = "Release $releaseDate",
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -198,7 +225,7 @@ private fun DownloadDivider() {
 }
 
 @Composable
-private fun DownloadStatusInfo() {
+private fun DownloadStatusInfo(update: com.luxury.cheats.features.update.logic.AppUpdate?) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
             imageVector = Icons.Default.Update,
@@ -214,13 +241,13 @@ private fun DownloadStatusInfo() {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Version 2.0.0",
+            text = "Version ${update?.version ?: "..."}",
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )
         Text(
-            text = "Release 2026-01-02",
+            text = "Release ${if (update?.timestamp?.length ?: 0 >= 10) update?.timestamp?.substring(0, 10) else "..."}",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
