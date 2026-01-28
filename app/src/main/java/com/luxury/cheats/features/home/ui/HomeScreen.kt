@@ -22,6 +22,7 @@ import com.luxury.cheats.features.home.logic.HomeViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
+import com.luxury.cheats.features.widgets.InfoMessageDialog
 import com.luxury.cheats.navigations.NavRoutes
 
 const val HOME_ROUTE = "home_screen"
@@ -91,6 +92,13 @@ fun HomeScreen(
                     }
                 )
             }
+        
+        uiState.currentInAppNotification?.let { notification ->
+            InfoMessageDialog(
+                notification = notification,
+                onDismissRequest = { viewModel.onAction(HomeAction.DismissInAppNotification) }
+            )
+        }
         }
     }
 }

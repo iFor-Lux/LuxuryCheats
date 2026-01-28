@@ -22,4 +22,6 @@ sealed class HomeAction {
     object ToggleSeguridad : HomeAction()
     /** Acción para cerrar el anuncio de actualización. */
     object DismissUpdateAnuncio : HomeAction()
+    /** Acción para cerrar la notificación in-app. */
+    object DismissInAppNotification : HomeAction()
 }

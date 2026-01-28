@@ -19,7 +19,9 @@ class HomeViewModel(
     private val ffApiService: com.luxury.cheats.services.FreeFireApiService = 
         com.luxury.cheats.services.FreeFireApiService.create(),
     private val updateService: com.luxury.cheats.features.update.service.UpdateService = 
-        com.luxury.cheats.features.update.service.UpdateService()
+        com.luxury.cheats.features.update.service.UpdateService(),
+    private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService =
+        com.luxury.cheats.features.home.service.InAppNotificationService()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -48,6 +50,7 @@ class HomeViewModel(
     init {
         updateGreeting()
         checkForUpdates()
+        fetchInAppNotifications()
         val savedId = preferencesService.accessPlayerId()
         _uiState.update { 
             it.copy(
@@ -68,6 +71,30 @@ class HomeViewModel(
                 }
             } catch (ignored: Exception) {
                 // Silently ignore update check errors for Home
+            }
+        }
+    }
+
+    private fun fetchInAppNotifications() {
+        viewModelScope.launch {
+            try {
+                val allNotifications = notificationService.getActiveNotifications()
+                val seenNotifications = preferencesService.getSeenNotifications() // Necesito crear este método
+                
+                // Buscamos una notificación que deba mostrarse
+                val toShow = allNotifications.firstOrNull { notif ->
+                    if (notif.frequency == "once") {
+                        !seenNotifications.contains(notif.id)
+                    } else {
+                        true // "always" o similar
+                    }
+                }
+                
+                if (toShow != null) {
+                    _uiState.update { it.copy(currentInAppNotification = toShow) }
+                }
+            } catch (ignored: Exception) {
+                // Silently ignore notification errors
             }
         }
     }
@@ -195,11 +222,20 @@ class HomeViewModel(
             HomeAction.SaveId -> handleSaveId()
             is HomeAction.RemoveNotification -> handleRemoveNotification(action.notificationId)
             HomeAction.DismissUpdateAnuncio -> handleDismissUpdateAnuncio()
+            HomeAction.DismissInAppNotification -> handleDismissInAppNotification()
         }
     }
 
     private fun handleDismissUpdateAnuncio() {
         _uiState.update { it.copy(appUpdate = null) }
+    }
+
+    private fun handleDismissInAppNotification() {
+        val current = _uiState.value.currentInAppNotification
+        if (current != null && current.frequency == "once") {
+            preferencesService.markNotificationAsSeen(current.id)
+        }
+        _uiState.update { it.copy(currentInAppNotification = null) }
     }
 
     private fun handleToggleSeguridad() {

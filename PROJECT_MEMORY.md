@@ -616,3 +616,12 @@
     - Si son diferentes, actualiza el timestamp local.
     - La UI de `UpdateSection` consume estos valores dinámicos.
 - **Resultado**: La fecha de lanzamiento es persistente y solo cambia cuando hay un nuevo release en Firebase.
+
+### Notificaciones In-App Dinámicas (Enero 2026)
+- **Contexto**: El widget `InfoMessageSection` debe mostrar contenido dinámico desde Firebase (notificaciones).
+- **Implementación**:
+    - `InAppNotificationService`: Recupera notificaciones de la ruta `notifications` en Firebase.
+    - `InAppNotification`: Nuevo modelo de datos que incluye título, descripción, imagen (URL), frecuencia e ID.
+    - `HomeViewModel`: Gestiona qué notificación mostrar basándose en la frecuencia (si es "once" se guarda como vista).
+    - `InfoMessageSection`: Refactorizado para usar `AsyncImage` (Coil) y mostrar datos dinámicos.
+- **Resultado**: Los anuncios e información importante se pueden gestionar remotamente desde Firebase, permitiendo mensajes de un solo uso o recurrentes.

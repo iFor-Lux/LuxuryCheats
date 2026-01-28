@@ -28,6 +28,7 @@ class UserPreferencesService(context: Context) {
         private const val KEY_PROFILE_DEVICE = "profile_device"
         private const val KEY_LAST_UPDATE_VERSION = "last_update_version"
         private const val KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp"
+        private const val KEY_SEEN_NOTIFICATIONS = "seen_notifications"
         private const val XOR_SEED = 0x55
     }
 
@@ -131,6 +132,20 @@ class UserPreferencesService(context: Context) {
         val v = prefs.getString(KEY_LAST_UPDATE_VERSION, null) ?: return null
         val t = prefs.getString(KEY_LAST_UPDATE_TIMESTAMP, "") ?: ""
         return v to t
+    }
+
+    /** Obtiene el conjunto de IDs de notificaciones ya vistas. */
+    fun getSeenNotifications(): Set<String> {
+        val seenRaw = prefs.getString(KEY_SEEN_NOTIFICATIONS, "") ?: ""
+        return seenRaw.split(",").filter { it.isNotEmpty() }.toSet()
+    }
+
+    /** Marca una notificación como vista. */
+    fun markNotificationAsSeen(id: String) {
+        val currentSeen = getSeenNotifications().toMutableSet()
+        if (currentSeen.add(id)) {
+            prefs.edit().putString(KEY_SEEN_NOTIFICATIONS, currentSeen.joinToString(",")).apply()
+        }
     }
 
     private object PreferenceHelper {

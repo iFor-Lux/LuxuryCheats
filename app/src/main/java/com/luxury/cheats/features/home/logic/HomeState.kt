@@ -19,5 +19,6 @@ data class HomeState(
     val isSearchSuccessful: Boolean = false,
     val notifications: List<AppNotification> = emptyList(),
     val isSeguridadUnlocked: Boolean = false,
-    val appUpdate: com.luxury.cheats.features.update.logic.AppUpdate? = null
+    val appUpdate: com.luxury.cheats.features.update.logic.AppUpdate? = null,
+    val currentInAppNotification: com.luxury.cheats.features.home.logic.InAppNotification? = null
 )

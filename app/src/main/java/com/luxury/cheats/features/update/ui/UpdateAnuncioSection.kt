@@ -1,6 +1,5 @@
 package com.luxury.cheats.features.update.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,13 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.R
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 /**
@@ -102,11 +99,11 @@ private fun UpdateBanner() {
                 )
             }
         } else {
-            Image(
-                painter = painterResource(id = R.drawable.sprit1),
-                contentDescription = "Update Banner",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+            // Placeholder Box (Removed local resource)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
             )
         }
     }

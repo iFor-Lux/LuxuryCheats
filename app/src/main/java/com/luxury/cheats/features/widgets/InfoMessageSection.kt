@@ -1,6 +1,5 @@
 package com.luxury.cheats.features.widgets
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.ui.graphics.Color
@@ -30,14 +31,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.luxury.cheats.R
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.features.home.logic.InAppNotification
+import coil.compose.AsyncImage
+import coil.ImageLoader
+import coil.decode.ImageDecoderDecoder
+import coil.decode.GifDecoder
+import android.os.Build
+import androidx.compose.ui.platform.LocalContext
 
 private const val PARAGRAPH_COUNT = 3
 
@@ -46,10 +52,14 @@ private const val PARAGRAPH_COUNT = 3
  */
 @Composable
 fun InfoMessageDialog(
+    notification: InAppNotification,
     onDismissRequest: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        InfoMessageSection(onDismiss = onDismissRequest)
+        InfoMessageSection(
+            notification = notification,
+            onDismiss = onDismissRequest
+        )
     }
 }
 
@@ -59,6 +69,7 @@ fun InfoMessageDialog(
  */
 @Composable
 fun InfoMessageSection(
+    notification: InAppNotification,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -125,7 +136,7 @@ fun InfoMessageSection(
                 ) {
                     Column(verticalArrangement = Arrangement.Center) {
                         Text(
-                            text = "Luxury Cheat´s",
+                            text = notification.title,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -155,8 +166,8 @@ fun InfoMessageSection(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Recurrente",
-                                fontSize = 12.sp,
+                                text = if (notification.frequency == "always") "Recurrente" else "Puntual",
+                                fontSize = 8.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -189,31 +200,46 @@ fun InfoMessageSection(
                                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                             )
                             Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                repeat(PARAGRAPH_COUNT) { index ->
-                                    Text(
-                                        text = getDummyParagraph(index),
-                                        fontSize = 11.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        lineHeight = 14.sp,
-                                        modifier = Modifier.padding(bottom = 4.dp)
-                                    )
-                                }
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                Text(
+                                    text = notification.description,
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 14.sp
+                                )
                             }
                         }
 
                         // Content Image 288x123
-                        Box(
-                            modifier = Modifier
-                                .size(width = 288.dp, height = 123.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.info_message_content),
-                                contentDescription = "Message Content",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
+                        if (notification.image.isNotEmpty()) {
+                            val context = LocalContext.current
+                            val imageLoader = ImageLoader.Builder(context)
+                                .components {
+                                    if (Build.VERSION.SDK_INT >= 28) {
+                                        add(ImageDecoderDecoder.Factory())
+                                    } else {
+                                        add(GifDecoder.Factory())
+                                    }
+                                }
+                                .build()
+
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 288.dp, height = 123.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                            ) {
+                                AsyncImage(
+                                    model = notification.image,
+                                    imageLoader = imageLoader,
+                                    contentDescription = "Message Content",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
                 }
@@ -248,17 +274,7 @@ fun InfoMessageSection(
     }
 }
 
-private fun getDummyParagraph(index: Int): String {
-    return when (index) {
-        0 -> "Mantenemos nuestros servicios actualizados diariamente para garantizar la mejor " +
-            "seguridad y rendimiento en todos tus juegos favoritos."
-        1 -> "Recuerda siempre verificar el estado del servidor antes de iniciar una sesión " +
-            "larga para evitar interrupciones o detecciones innecesarias."
-        2 -> "Gracias por confiar en Luxury Cheats. Estamos comprometidos con brindarte la " +
-            "experiencia de juego más exclusiva y potente del mercado."
-        else -> ""
-    }
-}
+// Eliminadas funciones dummy
 
 @Preview(showBackground = true)
 @Composable
@@ -270,7 +286,15 @@ fun InfoMessageSectionPreview() {
                 .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
-            InfoMessageSection(onDismiss = {})
+            InfoMessageSection(
+                notification = InAppNotification(
+                    title = "※ CONTRIBUCION ※",
+                    description = "Si detectas algún error...",
+                    frequency = "always",
+                    image = ""
+                ),
+                onDismiss = {}
+            )
         }
     }
 }

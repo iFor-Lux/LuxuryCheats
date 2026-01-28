@@ -27,13 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.R
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 /**
@@ -112,21 +110,14 @@ fun InfoActivationContent(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Media: Image
+                // Media: Placeholder Box (Removed local resource)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(140.dp)
                         .clip(RoundedCornerShape(25.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.info_activation_guide),
-                        contentDescription = "Activation Guide",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
+                )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
