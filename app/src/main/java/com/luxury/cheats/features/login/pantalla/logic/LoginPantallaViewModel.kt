@@ -24,6 +24,8 @@ class LoginPantallaViewModel(
     private val _uiState = MutableStateFlow(LoginPantallaState())
     val uiState: StateFlow<LoginPantallaState> = _uiState.asStateFlow()
 
+    private var saveDebounceJob: kotlinx.coroutines.Job? = null
+
     init {
         // Cargar preferencias locales al iniciar
         val isSaveEnabled = preferencesService.isSaveUserEnabled()
@@ -69,19 +71,26 @@ class LoginPantallaViewModel(
     private fun handleUsernameChange(username: TextFieldValue) {
         _uiState.update { it.copy(username = username) }
         updateDebugMessage(username.text, _uiState.value.password.text)
-        autoSaveIfEnabled()
+        triggerDebouncedSave()
     }
 
     private fun handlePasswordChange(password: TextFieldValue) {
         _uiState.update { it.copy(password = password) }
         updateDebugMessage(_uiState.value.username.text, password.text)
-        autoSaveIfEnabled()
+        triggerDebouncedSave()
     }
 
     private fun handleSaveUserToggle(save: Boolean) {
         _uiState.update { it.copy(saveUser = save) }
         preferencesService.setSaveUserEnabled(save)
-        if (save) autoSaveIfEnabled() else preferencesService.clearCredentials()
+        if (save) {
+            preferencesService.saveCredentials(
+                _uiState.value.username.text,
+                _uiState.value.password.text
+            )
+        } else {
+            preferencesService.clearCredentials()
+        }
         updateDebugMessage(_uiState.value.username.text, _uiState.value.password.text)
     }
 
@@ -118,11 +127,8 @@ class LoginPantallaViewModel(
             
             val newState = if (isUserField) state.copy(username = newValue) else state.copy(password = newValue)
             updateDebugMessage(newState.username.text, newState.password.text)
-            if (newState.saveUser) {
-                preferencesService.saveCredentials(newState.username.text, newState.password.text)
-            }
             newState
-        }
+        }.also { triggerDebouncedSave() }
     }
 
     private fun handleKeyDelete() {
@@ -147,21 +153,28 @@ class LoginPantallaViewModel(
             if (newValue != null) {
                 val newState = if (isUserField) state.copy(username = newValue) else state.copy(password = newValue)
                 updateDebugMessage(newState.username.text, newState.password.text)
-                if (newState.saveUser) {
-                    preferencesService.saveCredentials(newState.username.text, newState.password.text)
-                }
                 newState
             } else state
-        }
+        }.also { triggerDebouncedSave() }
     }
 
-    private fun autoSaveIfEnabled() {
-        if (_uiState.value.saveUser) {
+    private fun triggerDebouncedSave() {
+        if (!_uiState.value.saveUser) return
+        
+        saveDebounceJob?.cancel()
+        saveDebounceJob = viewModelScope.launch {
+            kotlinx.coroutines.delay(LoginConstants.SAVE_DEBOUNCE_MILLIS)
             preferencesService.saveCredentials(
                 _uiState.value.username.text,
                 _uiState.value.password.text
             )
         }
+    }
+
+    private fun autoSaveIfEnabled() {
+        // Redundante con triggerDebouncedSave, se mantiene por compatibilidad si es necesario
+        // pero se prefiere el debounced save para evitar I/O excesivo.
+        triggerDebouncedSave()
     }
 
     private fun updateDebugMessage(user: String, pass: String) {
@@ -230,4 +243,5 @@ class LoginPantallaViewModel(
 
 private object LoginConstants {
     const val NOTIFICATION_DISMISS_DELAY = 4000L
+    const val SAVE_DEBOUNCE_MILLIS = 1000L
 }

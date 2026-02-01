@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  */
 
 class DownloadViewModel(
-    private val downloadService: DownloadService = DownloadService()
+    private val downloadService: DownloadService
 ) : ViewModel() {
 
     /** Constantes de simulación y progreso. */

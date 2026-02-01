@@ -48,9 +48,19 @@ fun HomeScreen(
     val viewModel: HomeViewModel = viewModel(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val prefsService = com.luxury.cheats.services.UserPreferencesService(context)
+                val appContext = context.applicationContext
+                val prefsService = com.luxury.cheats.services.UserPreferencesService(appContext)
+                val playerRepo = com.luxury.cheats.services.PlayerRepository()
+                val updateService = com.luxury.cheats.features.update.service.UpdateService()
+                val notificationService = com.luxury.cheats.features.home.service.InAppNotificationService()
+
                 @Suppress("UNCHECKED_CAST")
-                return HomeViewModel(prefsService) as T
+                return HomeViewModel(
+                    preferencesService = prefsService,
+                    playerRepository = playerRepo,
+                    updateService = updateService,
+                    notificationService = notificationService
+                ) as T
             }
         }
     )

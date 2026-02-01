@@ -12,8 +12,7 @@ import kotlinx.coroutines.launch
  * ViewModel que gestiona la lógica de la pantalla de actualización.
  */
 class UpdateViewModel(
-    private val updateService: com.luxury.cheats.features.update.service.UpdateService = 
-        com.luxury.cheats.features.update.service.UpdateService(),
+    private val updateService: com.luxury.cheats.features.update.service.UpdateService,
     private val preferencesService: com.luxury.cheats.services.UserPreferencesService
 ) : androidx.lifecycle.ViewModel() {
 

@@ -58,7 +58,15 @@ import com.luxury.cheats.features.download.logic.DownloadViewModel
 fun DownloadArchivoBottomSheet(
     params: DownloadParams,
     onDismissRequest: () -> Unit,
-    viewModel: DownloadViewModel = viewModel(),
+    viewModel: DownloadViewModel = viewModel(
+        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                val service = com.luxury.cheats.features.download.service.DownloadService()
+                @Suppress("UNCHECKED_CAST")
+                return DownloadViewModel(service) as T
+            }
+        }
+    ),
     sheetState: SheetState = rememberModalBottomSheetState()
 ) {
     val uiState by viewModel.uiState.collectAsState()

@@ -21,7 +21,7 @@ class PerfilViewModel(
     private val preferencesService: com.luxury.cheats.services.UserPreferencesService,
     private val authService: com.luxury.cheats.services.AuthService,
     private val context: android.content.Context,
-    private val fileService: com.luxury.cheats.services.FileService? = null
+    private val fileService: com.luxury.cheats.services.FileService
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PerfilState())
     val uiState: StateFlow<PerfilState> = _uiState.asStateFlow()

@@ -53,11 +53,21 @@ fun HomeConsoleSection(
             )
             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(30.dp))
     ) {
+        val scrollState = rememberScrollState()
+
+        // Auto-scroll al final cuando llega nuevo texto
+        androidx.compose.runtime.LaunchedEffect(consoleText) {
+            if (consoleText.isNotEmpty()) {
+                scrollState.animateScrollTo(scrollState.maxValue)
+            }
+        }
+
         Column(modifier = Modifier.fillMaxSize()) {
             ConsoleHeader()
             HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
             ConsoleContent(
                 text = consoleText,
+                scrollState = scrollState,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -111,10 +121,9 @@ private fun ConsoleHeader() {
 @Composable
 private fun ConsoleContent(
     text: String,
+    scrollState: androidx.compose.foundation.ScrollState,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
-
     Box(
         modifier = modifier
             .fillMaxWidth()

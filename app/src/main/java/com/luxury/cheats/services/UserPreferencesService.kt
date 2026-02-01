@@ -34,8 +34,13 @@ class UserPreferencesService(context: Context) {
 
     /** Gestiona el estado de "Guardar Usuario" y credenciales. */
     fun setSaveUserEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_SAVE_USER, enabled).apply()
-        if (!enabled) clearCredentials()
+        update {
+            putBoolean(KEY_SAVE_USER, enabled)
+            if (!enabled) {
+                remove(KEY_USERNAME)
+                remove(KEY_PASSWORD)
+            }
+        }
     }
 
     /** Retorna si la opción de guardar usuario está activa. */
@@ -143,12 +148,11 @@ class UserPreferencesService(context: Context) {
 
     /** Gestiona el conjunto de IDs de notificaciones ya vistas. */
     fun accessSeenNotifications(idToMark: String? = null): Set<String> {
-        val seenRaw = prefs.getString(KEY_SEEN_NOTIFICATIONS, "") ?: ""
-        val currentSeen = seenRaw.split(",").filter { it.isNotEmpty() }.toSet()
+        val currentSeen = prefs.getStringSet(KEY_SEEN_NOTIFICATIONS, emptySet()) ?: emptySet()
         
         if (idToMark != null && !currentSeen.contains(idToMark)) {
             val updated = currentSeen.toMutableSet().apply { add(idToMark) }
-            prefs.edit().putString(KEY_SEEN_NOTIFICATIONS, updated.joinToString(",")).apply()
+            update { putStringSet(KEY_SEEN_NOTIFICATIONS, updated) }
             return updated
         }
         return currentSeen
@@ -159,5 +163,10 @@ class UserPreferencesService(context: Context) {
             val key = XOR_SEED xor BuildConfig.VERSION_CODE
             return data.map { (it.code xor key).toChar() }.joinToString("")
         }
+    }
+
+    /** Utility for batch editing SharedPreferences */
+    private fun update(block: SharedPreferences.Editor.() -> Unit) {
+        prefs.edit().apply(block).apply()
     }
 }

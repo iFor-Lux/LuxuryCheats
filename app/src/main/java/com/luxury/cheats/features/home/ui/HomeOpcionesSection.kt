@@ -49,6 +49,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -201,8 +202,13 @@ fun OptionCard(
     var checked by remember { mutableStateOf(option.initialValue) }
     var itemCenterX by remember { mutableFloatStateOf(0f) }
 
-    val distanceFromCenter = abs(itemCenterX - screenCenterX)
-    val isCollapsed = distanceFromCenter > OptionsConstants.COLLAPSE_THRESHOLD
+    val isCollapsed by remember {
+        derivedStateOf {
+            val distanceFromCenter = abs(itemCenterX - screenCenterX)
+            distanceFromCenter > OptionsConstants.COLLAPSE_THRESHOLD
+        }
+    }
+
     val alpha by animateFloatAsState(
         targetValue = if (isCollapsed) OptionsConstants.ALPHA_COLLAPSED else 1f,
         animationSpec = tween(

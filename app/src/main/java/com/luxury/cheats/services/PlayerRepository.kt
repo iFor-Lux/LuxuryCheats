@@ -1,5 +1,10 @@
 package com.luxury.cheats.services
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Repositorio para gestionar la búsqueda y obtención de datos de jugadores.
@@ -18,28 +23,40 @@ class PlayerRepository(
     suspend fun searchAcrossRegions(
         uid: String,
         onConsoleLog: (String) -> Unit
-    ): PlayerResponse? {
+    ): PlayerResponse? = coroutineScope {
         val servers = listOf("us", "br", "ind", "sg", "id")
-
-        for (server in servers) {
-            onConsoleLog("\nRASTREANDO REGIÓN: ${server.uppercase()}...")
-
-            try {
-                val response = ffApiService.getPlayerInfo(server, uid)
-                if (response.isSuccessful && response.body()?.basicInfo != null) {
-                    return response.body()
-                } else if (!response.isSuccessful) {
-                    onConsoleLog("\n❌ RESPUESTA FALLIDA: ${response.code()}")
+        val resultDeferred = CompletableDeferred<PlayerResponse?>()
+        
+        // Disparamos todas las búsquedas en paralelo
+        val jobs = servers.map { server ->
+            launch {
+                try {
+                    onConsoleLog("\nRASTREANDO REGIÓN: ${server.uppercase()}...")
+                    val response = ffApiService.getPlayerInfo(server, uid)
+                    
+                    if (response.isSuccessful && response.body()?.basicInfo != null) {
+                        // Si encontramos al jugador, completamos el resultado
+                        resultDeferred.complete(response.body())
+                    }
+                } catch (e: Exception) {
+                    // Ignoramos errores individuales para permitir que otras regiones sigan buscando
                 }
-            } catch (e: java.io.IOException) {
-                onConsoleLog("\n⚠️ ERROR DE RED: ${e.message}")
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                throw e
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                val errorMsg = e.localizedMessage ?: e.message ?: "Error desconocido"
-                onConsoleLog("\n⚠️ ERROR: $errorMsg")
             }
         }
-        return null
+
+        // Corrutina auxiliar para detectar cuando todas las regiones han fallado
+        launch {
+            jobs.forEach { it.join() }
+            if (!resultDeferred.isCompleted) {
+                resultDeferred.complete(null)
+            }
+        }
+
+        val finalResult = resultDeferred.await()
+        
+        // Cancelamos cualquier búsqueda que siga en curso para ahorrar recursos
+        coroutineContext[Job]?.cancelChildren()
+        
+        finalResult
     }
 }

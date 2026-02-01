@@ -18,12 +18,9 @@ import androidx.lifecycle.viewModelScope
  */
 class HomeViewModel(
     private val preferencesService: com.luxury.cheats.services.UserPreferencesService,
-    private val playerRepository: com.luxury.cheats.services.PlayerRepository = 
-        com.luxury.cheats.services.PlayerRepository(),
-    private val updateService: com.luxury.cheats.features.update.service.UpdateService = 
-        com.luxury.cheats.features.update.service.UpdateService(),
-    private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService =
-        com.luxury.cheats.features.home.service.InAppNotificationService()
+    private val playerRepository: com.luxury.cheats.services.PlayerRepository,
+    private val updateService: com.luxury.cheats.features.update.service.UpdateService,
+    private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -190,24 +187,27 @@ class HomeViewModel(
             val foundData = playerRepository.searchAcrossRegions(uid) { msg ->
                 _uiState.update { it.copy(consoleOutput = it.consoleOutput + msg) }
             }
-            if (foundData != null) {
-                _uiState.update { 
-                    it.copy(
-                        consoleOutput = HomeGreetingProvider.formatPlayerData(foundData), 
-                        isSearchSuccessful = true
-                    ) 
+            
+            _uiState.update { currentState ->
+                val (finalOutput, isSuccessful) = if (foundData != null) {
+                    HomeGreetingProvider.formatPlayerData(foundData) to true
+                } else {
+                    (currentState.consoleOutput + "\n\nPROTOCOLO FINALIZADO: SIN RESULTADOS.") to false
                 }
-                addNotification("OBJETIVO LOCALIZADO EXITOSAMENTE", NotificationType.SUCCESS)
-            } else {
-                _uiState.update { 
-                    it.copy(
-                        consoleOutput = it.consoleOutput + "\n\nPROTOCOLO FINALIZADO: SIN RESULTADOS.", 
-                        isSearchSuccessful = false
-                    ) 
+                
+                val notification = if (isSuccessful) {
+                    AppNotification("OBJETIVO LOCALIZADO EXITOSAMENTE", NotificationType.SUCCESS)
+                } else {
+                    AppNotification("SUJETO NO ENCONTRADO EN NINGUNA REGIÓN", NotificationType.ERROR)
                 }
-                addNotification("SUJETO NO ENCONTRADO EN NINGUNA REGIÓN", NotificationType.ERROR)
+
+                currentState.copy(
+                    consoleOutput = finalOutput,
+                    isSearchSuccessful = isSuccessful,
+                    notifications = currentState.notifications + notification,
+                    isLoadingPlayer = false
+                )
             }
-            _uiState.update { it.copy(isLoadingPlayer = false) }
         }
     }
 

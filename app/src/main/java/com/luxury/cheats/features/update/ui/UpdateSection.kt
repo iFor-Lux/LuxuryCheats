@@ -62,9 +62,11 @@ fun DownloadUpdateScreen(
     val viewModel: UpdateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return UpdateViewModel(
-                    preferencesService = com.luxury.cheats.services.UserPreferencesService(context)
-                ) as T
+                val appContext = context.applicationContext
+                val prefs = com.luxury.cheats.services.UserPreferencesService(appContext)
+                val service = com.luxury.cheats.features.update.service.UpdateService()
+                @Suppress("UNCHECKED_CAST")
+                return UpdateViewModel(updateService = service, preferencesService = prefs) as T
             }
         }
     )
