@@ -1,7 +1,7 @@
 package com.luxury.cheats.features.welcome.splash.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -9,7 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.luxury.cheats.R
 import com.luxury.cheats.features.welcome.splash.logic.sprays.WelcomeSpraysAnimations
@@ -28,9 +31,12 @@ fun WelcomeSpraysSection(
 ) {
     val density = LocalDensity.current
     
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val widthDp = with(density) { constraints.maxWidth.toDp() }
-        val heightDp = with(density) { constraints.maxHeight.toDp() }
+    val windowInfo = LocalWindowInfo.current
+    
+    Box(modifier = modifier.fillMaxSize()) {
+        val containerSize: IntSize = windowInfo.containerSize
+        val widthDp = with(density) { containerSize.width.toDp() }
+        val heightDp = with(density) { containerSize.height.toDp() }
         val spriteSize = 200.dp
         
         // Sprite 1: Superior izquierda
@@ -65,10 +71,10 @@ fun WelcomeSpraysSection(
 @Composable
 private fun SpraySprite(
     drawableRes: Int,
-    size: androidx.compose.ui.unit.Dp,
-    offsetX: androidx.compose.ui.unit.Dp,
-    offsetY: androidx.compose.ui.unit.Dp,
-    animationOffset: Pair<androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp>
+    size: Dp,
+    offsetX: Dp,
+    offsetY: Dp,
+    animationOffset: Pair<Dp, Dp>
 ) {
     Image(
         painter = painterResource(id = drawableRes),

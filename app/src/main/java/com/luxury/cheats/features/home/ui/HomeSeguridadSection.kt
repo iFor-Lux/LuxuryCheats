@@ -42,9 +42,9 @@ private object SeguridadConstants {
  */
 @Composable
 fun HomeSeguridadSection(
+    modifier: Modifier = Modifier,
     isUnlocked: Boolean = false,
-    onClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onClick: () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val infiniteTransition = rememberInfiniteTransition(label = "morph")

@@ -28,7 +28,7 @@ import com.luxury.cheats.features.widgets.InfoMessageDialog
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.navigations.NavRoutes
 
-const val HOME_ROUTE = "home_screen"
+
 
 private object HomeUIConstants {
     const val NOTIFICATION_DELAY = 3000L
@@ -49,6 +49,7 @@ fun HomeScreen(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 val prefsService = com.luxury.cheats.services.UserPreferencesService(context)
+                @Suppress("UNCHECKED_CAST")
                 return HomeViewModel(prefsService) as T
             }
         }
@@ -67,7 +68,7 @@ fun HomeScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        HomeSectionsList(uiState, scrollState, viewModel, navController)
+        HomeSectionsList(uiState, scrollState, viewModel)
 
         HomeOverlays(
             uiState = uiState,
@@ -134,8 +135,7 @@ private fun HomeOverlays(
 private fun HomeSectionsList(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     scrollState: androidx.compose.foundation.ScrollState,
-    viewModel: HomeViewModel,
-    navController: NavHostController
+    viewModel: HomeViewModel
 ) {
     Column(
         modifier = Modifier
@@ -146,9 +146,16 @@ private fun HomeSectionsList(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         HomeImagenSection()
-        HomeSaludoSection(uiState.userName, uiState.greeting, uiState.greetingSubtitle)
+        HomeSaludoSection(
+            userName = uiState.userName,
+            greeting = uiState.greeting,
+            subtitle = uiState.greetingSubtitle
+        )
 
-        HomeSeguridadSection(uiState.isSeguridadUnlocked, onClick = { viewModel.onAction(HomeAction.ToggleSeguridad) })
+        HomeSeguridadSection(
+            isUnlocked = uiState.isSeguridadUnlocked,
+            onClick = { viewModel.onAction(HomeAction.ToggleSeguridad) }
+        )
 
         if (uiState.isSeguridadUnlocked) {
             HomeEstadoSection(onVerEstadoClick = { viewModel.onAction(HomeAction.ToggleIdAndConsole) })

@@ -2,15 +2,12 @@ package com.luxury.cheats.core.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import kotlin.math.ceil
 
 // Constantes para Detekt y legibilidad
@@ -33,23 +30,29 @@ fun DotPatternBackground(
     val dotColor = getDotColor(isDark, MaterialTheme.colorScheme.onBackground)
     val backgroundColor = MaterialTheme.colorScheme.background
 
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val widthPx = constraints.maxWidth.toFloat()
-        val heightPx = constraints.maxHeight.toFloat()
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val widthPx = size.width
+        val heightPx = size.height
 
-        val dots = rememberDots(widthPx, heightPx, dotSpacingX, dotSpacingY)
+        val cols = ceil(widthPx / dotSpacingX).toInt().coerceAtMost(MAX_DOT_LIMIT)
+        val rows = ceil(heightPx / dotSpacingY).toInt().coerceAtMost(MAX_DOT_LIMIT)
 
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawRect(color = backgroundColor, size = size)
-            dots.forEach { dot ->
-                if (Rect(Offset.Zero, size).contains(dot)) {
-                    val fadeAlpha = calculateFadeAlpha(dot.y, FADE_HEIGHT_PX)
-                    drawCircle(
-                        color = dotColor.copy(alpha = dotColor.alpha * fadeAlpha),
-                        radius = dotRadius,
-                        center = dot
-                    )
-                }
+        val startX = (widthPx - (cols - 1) * dotSpacingX) / 2f
+        val startY = (heightPx - (rows - 1) * dotSpacingY) / 2f
+
+        drawRect(color = backgroundColor, size = size)
+
+        for (r in 0 until rows) {
+            for (c in 0 until cols) {
+                val x = startX + c * dotSpacingX
+                val y = startY + r * dotSpacingY
+
+                val fadeAlpha = calculateFadeAlpha(y)
+                drawCircle(
+                    color = dotColor.copy(alpha = dotColor.alpha * fadeAlpha),
+                    radius = dotRadius,
+                    center = Offset(x, y)
+                )
             }
         }
     }
@@ -64,25 +67,10 @@ private fun getDotColor(isDark: Boolean, onBackground: Color): Color {
     }
 }
 
-@Composable
-private fun rememberDots(width: Float, height: Float, spacingX: Float, spacingY: Float): List<Offset> {
-    val cols = ceil(width / spacingX).toInt().coerceAtMost(MAX_DOT_LIMIT)
-    val rows = ceil(height / spacingY).toInt().coerceAtMost(MAX_DOT_LIMIT)
-    
-    return remember(cols, rows, spacingX, spacingY) {
-        List(cols * rows) { index ->
-            val col = index % cols
-            val row = index / cols
-            val startX = (width - (cols - 1) * spacingX) / 2f
-            val startY = (height - (rows - 1) * spacingY) / 2f
-            Offset(x = startX + col * spacingX, y = startY + row * spacingY)
-        }
-    }
-}
 
-private fun calculateFadeAlpha(y: Float, fadeHeight: Float): Float {
-    return if (y < fadeHeight) {
-        val progress = y / fadeHeight
+private fun calculateFadeAlpha(y: Float): Float {
+    return if (y < FADE_HEIGHT_PX) {
+        val progress = y / FADE_HEIGHT_PX
         progress * progress
     } else 1f
 }

@@ -3,7 +3,6 @@ package com.luxury.cheats.core.ui
 import android.os.Build
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,31 +34,29 @@ fun WelcomeEclipseSection(
     val (fillColor, strokeColor) = getEclipseColors(isDark)
     val blurRadius = with(density) { 80.dp.toPx() }
 
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val widthPx = constraints.maxWidth.toFloat()
-        val heightPx = constraints.maxHeight.toFloat()
+    Canvas(
+        modifier = modifier.fillMaxSize().then(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Modifier.graphicsLayer {
+                    renderEffect = android.graphics.RenderEffect.createBlurEffect(
+                        blurRadius, blurRadius, android.graphics.Shader.TileMode.CLAMP
+                    ).asComposeRenderEffect()
+                }
+            } else Modifier
+        )
+    ) {
+        val widthPx = size.width
+        val heightPx = size.height
         val eclipseWidth = with(density) { 352.dp.toPx() }
         val eclipseHeight = with(density) { 112.dp.toPx() }
         val centerX = widthPx * CENTER_X_RATIO
         val centerY = heightPx * CENTER_Y_RATIO
         val strokeWidth = with(density) { 90.dp.toPx() }
 
-        Canvas(
-            modifier = Modifier.fillMaxSize().then(
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Modifier.graphicsLayer {
-                        renderEffect = android.graphics.RenderEffect.createBlurEffect(
-                            blurRadius, blurRadius, android.graphics.Shader.TileMode.CLAMP
-                        ).asComposeRenderEffect()
-                    }
-                } else Modifier
-            )
-        ) {
-            val topLeft = Offset(centerX - eclipseWidth / 2f, centerY - eclipseHeight / 2f)
-            val size = Size(eclipseWidth, eclipseHeight)
-            drawOval(color = fillColor, topLeft = topLeft, size = size)
-            drawOval(color = strokeColor, topLeft = topLeft, size = size, style = Stroke(width = strokeWidth))
-        }
+        val topLeft = Offset(centerX - eclipseWidth / 2f, centerY - eclipseHeight / 2f)
+        val ovalSize = Size(eclipseWidth, eclipseHeight)
+        drawOval(color = fillColor, topLeft = topLeft, size = ovalSize)
+        drawOval(color = strokeColor, topLeft = topLeft, size = ovalSize, style = Stroke(width = strokeWidth))
     }
 }
 

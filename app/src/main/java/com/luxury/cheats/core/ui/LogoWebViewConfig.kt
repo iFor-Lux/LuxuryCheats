@@ -60,7 +60,9 @@ object LogoWebViewConfig {
         private val onPageReady: (() -> Unit)?
     ) {
         @JavascriptInterface
+        @Suppress("unused")
         fun onWebGLReady() {
+            // Nota: Se marca como "unused" por Lint pero es invocado desde JS index.html
             Log.d(TAG, "WebGL ready notification from JavaScript")
             onPageReady?.invoke()
         }
@@ -97,14 +99,19 @@ object LogoWebViewConfig {
     
     private fun configureSettings(settings: android.webkit.WebSettings) {
         // JavaScript y DOM (requerido para WebGL)
+        // Solo cargamos assets locales (file:///android_asset/), mitigando riesgos XSS
+        @SuppressLint("SetJavaScriptEnabled")
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
+        @Suppress("DEPRECATION")
         settings.databaseEnabled = true
         
         // Acceso a archivos locales (para assets)
         settings.allowFileAccess = true
         settings.allowContentAccess = true
+        @Suppress("DEPRECATION")
         settings.allowFileAccessFromFileURLs = true
+        @Suppress("DEPRECATION")
         settings.allowUniversalAccessFromFileURLs = true
         
         // Configuración de Viewport para DP exactos
@@ -126,13 +133,16 @@ object LogoWebViewConfig {
         // Mixed content (para desarrollo)
         settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         
+        
         // Cache optimizado para assets locales
         settings.cacheMode = android.webkit.WebSettings.LOAD_CACHE_ELSE_NETWORK
-        
+
         // Renderizado acelerado (importante para WebGL)
+        @Suppress("DEPRECATION")
         settings.setRenderPriority(android.webkit.WebSettings.RenderPriority.HIGH)
     }
     
+    @SuppressLint("ClickableViewAccessibility")
     private fun configureVisualProperties(webView: WebView) {
         // Fondo transparente
         webView.setBackgroundColor(0x00000000)
@@ -147,7 +157,13 @@ object LogoWebViewConfig {
         webView.isFocusableInTouchMode = false
         
         // Bloquear cualquier intento de interacción consumiendo los eventos
-        webView.setOnTouchListener { _, _ -> true }
+        // Accesibilidad: Llamamos a performClick para cumplir con los estándares
+        webView.setOnTouchListener { view, event ->
+            if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                view.performClick()
+            }
+            true 
+        }
         
         // Deshabilitar barras de desplazamiento (horizontal y vertical)
         webView.isHorizontalScrollBarEnabled = false

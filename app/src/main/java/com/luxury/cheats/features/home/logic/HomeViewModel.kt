@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import androidx.lifecycle.viewModelScope
 
 /**
@@ -56,15 +58,27 @@ class HomeViewModel(
                 if (toShow != null) _uiState.update { it.copy(currentInAppNotification = toShow) }
             } catch (ignored: Exception) {}
 
-            // Preload weights
+            // Preload weights in parallel
             val downloadService = com.luxury.cheats.features.download.service.DownloadService()
-            val weightsMap = mutableMapOf<String, String>()
-            listOf("Aimbot", "Holograma", "WallHack", "AimFov").forEach { name ->
-                try {
-                    val info = downloadService.getDownloadInfo(name)
-                    if (info.url.isNotEmpty()) weightsMap[name] = downloadService.getFileSize(info.url)
-                } catch (ignored: Exception) {}
+            val cheatNames = listOf("Aimbot", "Holograma", "WallHack", "AimFov")
+            
+            val deferredWeights = cheatNames.map { name ->
+                async {
+                    try {
+                        val info = downloadService.getDownloadInfo(name)
+                        if (info.url.isNotEmpty()) {
+                            name to downloadService.getFileSize(info.url)
+                        } else null
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
             }
+            
+            val weightsMap = deferredWeights.awaitAll()
+                .filterNotNull()
+                .toMap()
+                
             _uiState.update { it.copy(fileWeightsCache = weightsMap) }
         }
     }

@@ -53,10 +53,10 @@ private object SaludoConstants {
  */
 @Composable
 fun HomeSaludoSection(
+    modifier: Modifier = Modifier,
     userName: String = "",
     greeting: String = "",
-    subtitle: String = "",
-    modifier: Modifier = Modifier
+    subtitle: String = ""
 ) {
     val icon = getGreetingIcon()
 

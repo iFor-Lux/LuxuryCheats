@@ -8,9 +8,9 @@
 # Log.v, Log.d y Log.i no se incluyen en el APK final
 # Log.w y Log.e permanecen activos
 -assumenosideeffects class android.util.Log {
-    public static * v(...);
-    public static * d(...);
-    public static * i(...);
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
 }
 
 

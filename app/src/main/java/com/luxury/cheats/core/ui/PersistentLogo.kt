@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -15,7 +14,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.luxury.cheats.features.welcome.page1.bienvenida.ui.WELCOME_PAGE1_ROUTE
@@ -69,10 +71,10 @@ fun PersistentLogo(
     // Si no es visible ni está animando, no renderizamos nada para no bloquear la pantalla
     if (!isVisibleRoute && logoAlpha == 0f) return
 
-    BoxWithConstraints(
+    Box(
         modifier = modifier.fillMaxSize()
     ) {
-        val animatedOffsetY = calculateLogoOffset(currentRoute, maxHeight, LOGO_BASE_SIZE_DP)
+        val animatedOffsetY = calculateLogoOffset(currentRoute, LOGO_BASE_SIZE_DP)
 
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -81,7 +83,7 @@ fun PersistentLogo(
                     .align(Alignment.TopCenter)
                     .offset(x = HORIZONTAL_CENTER_OFFSET_DP, y = animatedOffsetY)
             ) {
-                LogoWebView(logoAlpha, finalScale, isVisibleRoute)
+                LogoWebView(logoAlpha, finalScale)
             }
         }
     }
@@ -91,9 +93,15 @@ fun PersistentLogo(
 @Composable
 private fun calculateLogoOffset(
     currentRoute: String?,
-    screenHeight: Dp,
     logoBaseSize: Dp
 ): Dp {
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current
+    
+    // Obtenemos el tamaño del contenedor en Px y lo convertimos a Dp
+    val containerSize: IntSize = windowInfo.containerSize
+    val screenHeight = with(density) { containerSize.height.toDp() }
+    
     val splashCenterOffset = (screenHeight - logoBaseSize) / 2
     val page1Offset = PAGE1_OFFSET_Y
     val page2Offset = PAGE2_OFFSET_Y
@@ -111,7 +119,7 @@ private fun calculateLogoOffset(
 }
 
 @Composable
-private fun LogoWebView(alpha: Float, scale: Float, isInteractive: Boolean) {
+private fun LogoWebView(alpha: Float, scale: Float) {
     AndroidView(
         factory = { ctx ->
             LogoWebViewManager.getOrCreateWebView(ctx).apply {
@@ -123,8 +131,14 @@ private fun LogoWebView(alpha: Float, scale: Float, isInteractive: Boolean) {
                 isClickable = false
                 isFocusable = false
                 isFocusableInTouchMode = false
-                // IMPORTANTE: Consumir eventos para que el WebView no los procese
-                setOnTouchListener { _, _ -> true } 
+                
+                // Accesibilidad: Si usamos setOnTouchListener, debemos manejar performClick o silenciarlo
+                setOnTouchListener { view, event ->
+                    if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                        view.performClick()
+                    }
+                    true // Consumir para evitar interacción con el WebView
+                }
                 setBackgroundColor(0x00000000)
             }
         },
@@ -132,8 +146,7 @@ private fun LogoWebView(alpha: Float, scale: Float, isInteractive: Boolean) {
             webView.alpha = alpha
             // Se oculta completamente si no es visible para no bloquear toques
             webView.visibility = if (alpha > 0f) android.view.View.VISIBLE else android.view.View.GONE
-            // Al ser un logo visual, capturamos los toques para que el WebView no los procese
-            webView.setOnTouchListener { _, _ -> true }
+            
             webView.evaluateJavascript(LOGO_CANVAS_SCRIPT, null)
         },
         modifier = Modifier.fillMaxSize().graphicsLayer {

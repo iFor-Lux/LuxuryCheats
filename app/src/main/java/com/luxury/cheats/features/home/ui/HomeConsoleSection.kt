@@ -34,10 +34,10 @@ import androidx.compose.ui.draw.clip
  */
 @Composable
 fun HomeConsoleSection(
+    modifier: Modifier = Modifier,
     consoleText: String = "",
     isExpanded: Boolean = false,
-    onExpandClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onExpandClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier

@@ -42,11 +42,11 @@ import androidx.compose.foundation.text.KeyboardOptions
  */
 @Composable
 fun HomeIdSection(
+    modifier: Modifier = Modifier,
     idValue: String = "",
     onIdValueChange: (String) -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onSaveClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onSaveClick: () -> Unit = {}
 ) {
     val focusRequester = remember { FocusRequester() }
 

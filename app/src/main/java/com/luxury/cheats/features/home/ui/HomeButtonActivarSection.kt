@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun HomeButtonActivarSection(
-    onActivarClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onActivarClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
