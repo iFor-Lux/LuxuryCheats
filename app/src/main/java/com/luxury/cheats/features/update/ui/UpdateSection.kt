@@ -257,7 +257,7 @@ private fun DownloadStatusInfo(update: com.luxury.cheats.features.update.logic.A
         val releaseText = if (update?.timestamp?.length ?: 0 >= DATE_LENGTH) {
             update?.timestamp?.substring(0, DATE_LENGTH)
         } else "..."
-        
+
         Text(
             text = "Release $releaseText",
             color = MaterialTheme.colorScheme.onSurfaceVariant,

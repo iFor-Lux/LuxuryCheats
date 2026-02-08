@@ -1,5 +1,8 @@
 # Luxury Cheats - Android
 
+[![Ask DeepWiki](https://img.shields.io/badge/Ask%20DeepWiki-blue)](https://deepwiki.com/github/iFor-Lux/LuxuryCheats)
+
+
 Luxury Cheats is a premium, minimalist Android application built with Jetpack Compose following the MVVM architecture. It focuses on clean UI, intentional design, and seamless integration with Firebase and an external dashboard.
 
 ## 🚀 Features
