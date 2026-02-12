@@ -1,12 +1,14 @@
 package com.luxury.cheats.core
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.FirebaseDatabase
 
 /**
  * Clase de aplicación personalizada para configuraciones globales.
  */
+@HiltAndroidApp
 class LuxuryApp : Application() {
     override fun onCreate() {
         super.onCreate()

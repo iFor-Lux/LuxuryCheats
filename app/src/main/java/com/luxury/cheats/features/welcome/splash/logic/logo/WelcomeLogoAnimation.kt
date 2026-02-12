@@ -1,5 +1,6 @@
 package com.luxury.cheats.features.welcome.splash.logic.logo
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
@@ -36,35 +37,24 @@ object WelcomeLogoAnimation {
      */
     @Composable
     fun getLogoScaleAnimation(isReady: Boolean): Float {
-        var startAnimation by remember { mutableStateOf(false) }
-        
-        // Activar animación cuando el logo esté listo
+        // Usar Animatable para mayor control
+        val scale = remember { androidx.compose.animation.core.Animatable(SCALE_INITIAL) }
+
         LaunchedEffect(isReady) {
-            if (isReady && !startAnimation) {
-                startAnimation = true
+            if (isReady) {
+                scale.animateTo(
+                    targetValue = SCALE_FINAL,
+                    animationSpec = keyframes {
+                        durationMillis = LOGO_ANIM_DURATION
+                        SCALE_INITIAL at 0
+                        SCALE_PEAK at LOGO_JUMP_TIME
+                        SCALE_FINAL at LOGO_ANIM_DURATION
+                    }
+                )
             }
         }
-        
-        // Animación con keyframes: atrás -> salto adelante -> normal
-        val scale by animateFloatAsState(
-            targetValue = if (startAnimation) SCALE_FINAL else SCALE_INITIAL,
-            animationSpec = if (startAnimation) {
-                keyframes {
-                    durationMillis = LOGO_ANIM_DURATION
-                    SCALE_INITIAL at 0
-                    SCALE_PEAK at LOGO_JUMP_TIME
-                    SCALE_FINAL at LOGO_ANIM_DURATION
-                }
-            } else {
-                tween(
-                    durationMillis = 0,
-                    easing = LinearEasing
-                )
-            },
-            label = "logo_scale_animation"
-        )
-        
-        return scale
+
+        return scale.value
     }
 
     

@@ -19,23 +19,23 @@ import androidx.graphics.shapes.toPath
 class HomeMorphingShape(private val progress: Float) : Shape {
 
     private object ShapeConstants {
-        const val MORPH_DURATION = 0.5f
+        const val MORPH_DURATION = 0.4f // Más rápido para responder a Springs
         const val EASE_THRESHOLD = 0.5f
         const val EASE_FACTOR = 2f
         const val ONE_F = 1f
         
-        const val RADIUS_SCALE_STD = 0.85f
+        const val RADIUS_SCALE_STD = 0.9f
         const val RADIUS_SCALE_FULL = 1f
-        const val RADIUS_SCALE_WIDE = 1.2f
+        const val RADIUS_SCALE_WIDE = 1.15f
         
-        const val SMOOTHING = 0.8f
+        const val SMOOTHING = 0.95f // Máximo suavizado M3 Expressive
         
         const val COOKIE_VERTICES = 4
         const val STAR_VERTICES = 8
-        const val CIRCLE_VERTICES = 12
+        const val CIRCLE_VERTICES = 16 // Más vértices para círculo perfecto
         
-        const val STAR_INNER_COOKIE = 0.56f
-        const val STAR_INNER_STD = 0.55f
+        const val STAR_INNER_COOKIE = 0.5f
+        const val STAR_INNER_STD = 0.6f
 
         const val TRIANGLE_VERTICES = 3
         const val SQUARE_VERTICES = 4

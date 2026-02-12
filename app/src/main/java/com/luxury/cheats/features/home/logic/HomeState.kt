@@ -24,5 +24,6 @@ data class HomeState(
     val isDownloadArchivoVisible: Boolean = false,
     val downloadingFileName: String = "",
     val downloadingFileWeight: String = "",
+    val cheatOptions: Map<String, Boolean> = emptyMap(), // Caché de estado de trampas (Aimbot, etc.)
     val fileWeightsCache: Map<String, String> = emptyMap() // Caché de pesos pre-cargados
 )

@@ -16,7 +16,15 @@ import androidx.lifecycle.viewModelScope
  * ViewModel para la pantalla Home
  * Gestiona la visibilidad condicional de las secciones y el estado del usuario.
  */
-class HomeViewModel(
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+/**
+ * ViewModel para la pantalla Home
+ * Gestiona la visibilidad condicional de las secciones y el estado del usuario.
+ */
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val preferencesService: com.luxury.cheats.services.UserPreferencesService,
     private val playerRepository: com.luxury.cheats.services.PlayerRepository,
     private val updateService: com.luxury.cheats.features.update.service.UpdateService,
@@ -107,7 +115,17 @@ class HomeViewModel(
             HomeAction.DismissUpdateAnuncio -> _uiState.update { it.copy(appUpdate = null) }
             HomeAction.DismissInAppNotification -> handleDismissInAppNotification()
             is HomeAction.ShowDownloadArchivo -> handleShowDownloadArchivo(action.cheatName)
+            is HomeAction.ToggleCheat -> handleToggleCheat(action.cheatName, action.enable)
             HomeAction.DismissDownloadArchivo -> _uiState.update { it.copy(isDownloadArchivoVisible = false) }
+        }
+    }
+
+    private fun handleToggleCheat(cheatName: String, enable: Boolean) {
+        _uiState.update { 
+            it.copy(cheatOptions = it.cheatOptions + (cheatName to enable)) 
+        }
+        if (enable) {
+            handleShowDownloadArchivo(cheatName)
         }
     }
 

@@ -4,10 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.luxury.cheats.BuildConfig
 
+import javax.inject.Inject
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 /**
  * Servicio para persistir datos locales del usuario (Credenciales, Configuración).
  */
-class UserPreferencesService(context: Context) {
+class UserPreferencesService @Inject constructor(@ApplicationContext context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("luxury_prefs", Context.MODE_PRIVATE)
 

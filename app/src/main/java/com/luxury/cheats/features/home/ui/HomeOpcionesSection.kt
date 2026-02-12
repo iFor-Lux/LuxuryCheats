@@ -111,6 +111,7 @@ data class CheatOption(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeOpcionesSection(
+    uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -137,7 +138,7 @@ fun HomeOpcionesSection(
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HomeOptionsCarousel(options, carouselState, scope, screenCenterX, onAction)
+        HomeOptionsCarousel(options, uiState.cheatOptions, carouselState, scope, screenCenterX, onAction)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -151,6 +152,7 @@ fun HomeOpcionesSection(
 @Composable
 private fun HomeOptionsCarousel(
     options: List<CheatOption>,
+    cheatOptions: Map<String, Boolean>,
     carouselState: androidx.compose.material3.carousel.CarouselState,
     scope: kotlinx.coroutines.CoroutineScope,
     screenCenterX: Float,
@@ -176,6 +178,7 @@ private fun HomeOptionsCarousel(
 
         OptionCard(
             option = option,
+            checked = cheatOptions[option.title] ?: option.initialValue,
             screenCenterX = screenCenterX,
             onAction = onAction,
             modifier = Modifier
@@ -195,11 +198,12 @@ private fun HomeOptionsCarousel(
 @Composable
 fun OptionCard(
     option: CheatOption,
+    checked: Boolean,
     screenCenterX: Float,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var checked by remember { mutableStateOf(option.initialValue) }
+    // State removed in favor of hoisting
     var itemCenterX by remember { mutableFloatStateOf(0f) }
 
     val isCollapsed by remember {
@@ -238,8 +242,7 @@ fun OptionCard(
             checked = checked,
             alpha = alpha,
             onCheckedChange = { isChecked ->
-                checked = isChecked
-                if (isChecked) onAction(HomeAction.ShowDownloadArchivo(option.title))
+                onAction(HomeAction.ToggleCheat(option.title, isChecked))
             }
         )
     }
@@ -473,6 +476,6 @@ fun TopographicBackground(
 @Composable
 fun HomeOpcionesSectionPreview() {
     LuxuryCheatsTheme {
-        HomeOpcionesSection(onAction = {})
+        HomeOpcionesSection(uiState = com.luxury.cheats.features.home.logic.HomeState(), onAction = {})
     }
 }

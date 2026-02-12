@@ -18,15 +18,13 @@ import com.luxury.cheats.features.welcome.page2.permisos.ui.WelcomePage2Screen
 import com.luxury.cheats.features.welcome.page3.shizuku.ui.WelcomePage3Screen
 import com.luxury.cheats.features.welcome.splash.ui.WelcomeSplashScreen
 import com.luxury.cheats.features.update.ui.DownloadUpdateScreen
+import androidx.navigation.navigation
 
 private const val TRANSITION_DURATION = 400
 
 /**
  * Grafo de navegación principal de la aplicación.
- * Define todas las rutas y transiciones entre pantallas.
- *
- * @param navController El controlador de navegación de Jetpack Compose.
- * @param onLogoReady Callback invocado cuando el logo del Splash está listo.
+ * Organizado en grafos anidados para separar el flujo de autenticación del principal.
  */
 @Composable
 fun AppNavHost(
@@ -35,7 +33,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.SPLASH,
+        startDestination = AuthGraph,
         modifier = Modifier.fillMaxSize(),
         enterTransition = {
             fadeIn(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
@@ -50,8 +48,23 @@ fun AppNavHost(
             fadeOut(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
         }
     ) {
-        welcomeGraph(navController, onLogoReady)
-        mainGraph(navController)
+        navigation<AuthGraph>(startDestination = Splash) {
+            welcomeGraph(navController, onLogoReady)
+            
+            composable<Login> {
+                LoginPantallaScreen(
+                    onLoginSuccess = {
+                        navController.navigate(MainGraph) {
+                            popUpTo<AuthGraph> { inclusive = true }
+                        }
+                    }
+                )
+            }
+        }
+
+        navigation<MainGraph>(startDestination = Home) {
+            mainGraph(navController)
+        }
     }
 }
 
@@ -59,36 +72,36 @@ private fun androidx.navigation.NavGraphBuilder.welcomeGraph(
     navController: NavHostController,
     onLogoReady: () -> Unit
 ) {
-    composable(NavRoutes.SPLASH) {
+    composable<Splash> {
         WelcomeSplashScreen(
             onNavigateToPage1 = {
-                navController.navigate(NavRoutes.WELCOME_PAGE1) {
-                    popUpTo(NavRoutes.SPLASH) { inclusive = true }
+                navController.navigate(WelcomePage1) {
+                    popUpTo<Splash> { inclusive = true }
                 }
             },
             onLogoReady = onLogoReady
         )
     }
 
-    composable(NavRoutes.WELCOME_PAGE1) {
+    composable<WelcomePage1> {
         WelcomePage1Screen(
             onNavigateBack = { navController.popBackStack() },
-            onNavigateNext = { navController.navigate(NavRoutes.WELCOME_PAGE2) }
+            onNavigateNext = { navController.navigate(WelcomePage2) }
         )
     }
 
-    composable(NavRoutes.WELCOME_PAGE2) {
+    composable<WelcomePage2> {
         WelcomePage2Screen(
             onNavigateBack = { navController.popBackStack() },
-            onNavigateNext = { navController.navigate(NavRoutes.WELCOME_PAGE3) }
+            onNavigateNext = { navController.navigate(WelcomePage3) }
         )
     }
 
-    composable(NavRoutes.WELCOME_PAGE3) {
+    composable<WelcomePage3> {
         WelcomePage3Screen(
             onNavigateBack = { navController.popBackStack() },
             onNavigateNext = {
-                navController.navigate(NavRoutes.LOGIN)
+                navController.navigate(Login)
             }
         )
     }
@@ -97,23 +110,15 @@ private fun androidx.navigation.NavGraphBuilder.welcomeGraph(
 private fun androidx.navigation.NavGraphBuilder.mainGraph(
     navController: NavHostController
 ) {
-    composable(NavRoutes.LOGIN) {
-        LoginPantallaScreen(
-            onLoginSuccess = {
-                navController.navigate(NavRoutes.HOME)
-            }
-        )
-    }
-
-    composable(NavRoutes.HOME) {
+    composable<Home> {
         HomeScreen(navController = navController)
     }
 
-    composable(NavRoutes.PERFIL) {
+    composable<Perfil> {
         PerfilScreen()
     }
 
-    composable(NavRoutes.UPDATE) {
+    composable<Update> {
         DownloadUpdateScreen(
             onBackClick = { navController.popBackStack() }
         )

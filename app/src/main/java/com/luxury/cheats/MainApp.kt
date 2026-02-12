@@ -15,11 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.luxury.cheats.core.ui.LogoWebViewManager
+import androidx.navigation.NavDestination.Companion.hasRoute
+import com.luxury.cheats.navigations.*
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.luxury.cheats.core.ui.LogoViewModel
 import com.luxury.cheats.core.ui.LuxuryNavigationBar
 import com.luxury.cheats.core.ui.PersistentLogo
 import com.luxury.cheats.navigations.AppNavHost
-import com.luxury.cheats.navigations.NavRoutes
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 
@@ -28,9 +31,12 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
  * Gestiona el controlador de navegación, la barra de navegación persistente y el logo global.
  */
 @Composable
-fun LuxuryCheatsApp() {
+fun LuxuryCheatsApp(
+    viewModel: LogoViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
-    var isLogoReady by remember { mutableStateOf<Boolean>(LogoWebViewManager.isWebViewReady()) }
+    val isLogoReady by viewModel.isReadyFlow.collectAsState()
+    val webView = viewModel.getOrCreateWebView()
     val backdrop = rememberLayerBackdrop()
 
     // Observar la ruta actual para UI condicional (NavigationBar, Logo)
@@ -46,12 +52,15 @@ fun LuxuryCheatsApp() {
             Box(modifier = Modifier.fillMaxSize().layerBackdrop(backdrop)) {
                 AppNavHost(
                     navController = navController,
-                    onLogoReady = { isLogoReady = true }
+                    onLogoReady = { /* No-op: Managed by ViewModel state */ }
                 )
             }
 
+            val isHome = navBackStackEntry?.destination?.hasRoute<Home>() == true
+            val isPerfil = navBackStackEntry?.destination?.hasRoute<Perfil>() == true
+
             // CAPA 2: Navigation Bar (Overlay)
-            if (currentRoute == NavRoutes.HOME || currentRoute == NavRoutes.PERFIL) {
+            if (isHome || isPerfil) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -59,15 +68,18 @@ fun LuxuryCheatsApp() {
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     LuxuryNavigationBar(
-                        activeTab = if (currentRoute == NavRoutes.HOME) "Inicio" else "Perfil",
+                        activeTab = if (isHome) "Inicio" else "Perfil",
                         backdrop = backdrop,
                         onTabSelected = { tab ->
-                            val targetRoute = if (tab == "Inicio") NavRoutes.HOME else NavRoutes.PERFIL
-                            if (currentRoute != targetRoute) {
-                                navController.navigate(targetRoute) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            if (tab == "Inicio" && !isHome) {
+                                navController.navigate(Home) {
+                                    popUpTo<Home> { inclusive = true }
                                     launchSingleTop = true
-                                    restoreState = true
+                                }
+                            } else if (tab == "Perfil" && !isPerfil) {
+                                navController.navigate(Perfil) {
+                                    popUpTo<Home> { inclusive = false }
+                                    launchSingleTop = true
                                 }
                             }
                         }
@@ -77,8 +89,9 @@ fun LuxuryCheatsApp() {
 
             // CAPA 3: Logo Persistente
             PersistentLogo(
-                currentRoute = currentRoute,
-                isLogoReady = isLogoReady
+                navDestination = navBackStackEntry?.destination,
+                isLogoReady = isLogoReady,
+                webView = webView
             )
         }
     }

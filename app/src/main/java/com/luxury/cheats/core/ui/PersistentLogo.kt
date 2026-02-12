@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.luxury.cheats.features.welcome.page1.bienvenida.ui.WELCOME_PAGE1_ROUTE
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
+import com.luxury.cheats.navigations.*
 import com.luxury.cheats.features.welcome.splash.logic.logo.WelcomeLogoAnimation
-import com.luxury.cheats.features.welcome.page2.permisos.ui.WELCOME_PAGE2_ROUTE
-import com.luxury.cheats.features.welcome.splash.ui.SPLASH_ROUTE
 
 // Constantes para Detekt y legibilidad
 private val LOGO_BASE_SIZE_DP = 500.dp
@@ -43,16 +43,21 @@ private val PAGE2_OFFSET_Y = (-100).dp // Lo movemos muy arriba en Page 2
  */
 @Composable
 fun PersistentLogo(
-    currentRoute: String?,
+    navDestination: NavDestination?,
     isLogoReady: Boolean,
+    webView: android.webkit.WebView, // [NEW] Recibimos el WebView explícitamente
     modifier: Modifier = Modifier
 ) {
     val entranceScale = WelcomeLogoAnimation.getLogoScaleAnimation(isLogoReady)
+    val isSplash = navDestination?.hasRoute<Splash>() == true || navDestination == null
+    val isPage1 = navDestination?.hasRoute<WelcomePage1>() == true
+    val isPage2 = navDestination?.hasRoute<WelcomePage2>() == true
+
     val persistentScale by animateFloatAsState(
-        targetValue = when (currentRoute) {
-            WELCOME_PAGE1_ROUTE -> PAGE1_SCALE
-            WELCOME_PAGE2_ROUTE -> PAGE2_SCALE
-            SPLASH_ROUTE, null -> SPLASH_SCALE
+        targetValue = when {
+            isPage1 -> PAGE1_SCALE
+            isPage2 -> PAGE2_SCALE
+            isSplash -> SPLASH_SCALE
             else -> SPLASH_SCALE
         },
         animationSpec = tween(ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
@@ -61,7 +66,7 @@ fun PersistentLogo(
     val finalScale = entranceScale * persistentScale
     
     // Solo visible en Splash y Page 1. En Page 2 lo ocultamos pero mantenemos arriba.
-    val isVisibleRoute = currentRoute == null || currentRoute == SPLASH_ROUTE || currentRoute == WELCOME_PAGE1_ROUTE
+    val isVisibleRoute = isSplash || isPage1
     val logoAlpha by animateFloatAsState(
         targetValue = if (isLogoReady && isVisibleRoute) 1f else 0f,
         animationSpec = tween(OPACITY_DURATION_MS),
@@ -74,7 +79,7 @@ fun PersistentLogo(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        val animatedOffsetY = calculateLogoOffset(currentRoute, LOGO_BASE_SIZE_DP)
+        val animatedOffsetY = calculateLogoOffset(navDestination, LOGO_BASE_SIZE_DP)
 
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -83,7 +88,7 @@ fun PersistentLogo(
                     .align(Alignment.TopCenter)
                     .offset(x = HORIZONTAL_CENTER_OFFSET_DP, y = animatedOffsetY)
             ) {
-                LogoWebView(logoAlpha, finalScale)
+                LogoWebView(logoAlpha, finalScale, webView)
             }
         }
     }
@@ -92,7 +97,7 @@ fun PersistentLogo(
 
 @Composable
 private fun calculateLogoOffset(
-    currentRoute: String?,
+    navDestination: NavDestination?,
     logoBaseSize: Dp
 ): Dp {
     val windowInfo = LocalWindowInfo.current
@@ -106,10 +111,14 @@ private fun calculateLogoOffset(
     val page1Offset = PAGE1_OFFSET_Y
     val page2Offset = PAGE2_OFFSET_Y
     
+    val isSplash = navDestination?.hasRoute<Splash>() == true || navDestination == null
+    val isPage1 = navDestination?.hasRoute<WelcomePage1>() == true
+    val isPage2 = navDestination?.hasRoute<WelcomePage2>() == true
+
     val animatedOffsetY by animateDpAsState(
-        targetValue = when (currentRoute) {
-            WELCOME_PAGE1_ROUTE -> page1Offset
-            WELCOME_PAGE2_ROUTE -> page2Offset
+        targetValue = when {
+            isPage1 -> page1Offset
+            isPage2 -> page2Offset
             else -> splashCenterOffset
         },
         animationSpec = tween(ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
@@ -119,25 +128,28 @@ private fun calculateLogoOffset(
 }
 
 @Composable
-private fun LogoWebView(alpha: Float, scale: Float) {
+private fun LogoWebView(alpha: Float, scale: Float, webView: android.webkit.WebView) {
     AndroidView(
-        factory = { ctx ->
-            LogoWebViewManager.getOrCreateWebView(ctx).apply {
+        factory = { _ ->
+            // Ya no usamos el singleton, usamos la instancia pasada
+            webView.apply {
                 (parent as? ViewGroup)?.removeView(this)
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
+                
+                // Las propiedades visuales ya vienen configuradas, pero aseguramos
                 isClickable = false
                 isFocusable = false
                 isFocusableInTouchMode = false
                 
-                // Accesibilidad: Si usamos setOnTouchListener, debemos manejar performClick o silenciarlo
+                // Accesibilidad
                 setOnTouchListener { view, event ->
                     if (event.action == android.view.MotionEvent.ACTION_DOWN) {
                         view.performClick()
                     }
-                    true // Consumir para evitar interacción con el WebView
+                    true 
                 }
                 setBackgroundColor(0x00000000)
             }
@@ -147,7 +159,7 @@ private fun LogoWebView(alpha: Float, scale: Float) {
             // Se oculta completamente si no es visible para no bloquear toques
             webView.visibility = if (alpha > 0f) android.view.View.VISIBLE else android.view.View.GONE
             
-            webView.evaluateJavascript(LOGO_CANVAS_SCRIPT, null)
+            webView.evaluateJavascript("if (window.updateCanvasSize) window.updateCanvasSize(500, 500);", null)
         },
         modifier = Modifier.fillMaxSize().graphicsLayer {
             scaleX = scale

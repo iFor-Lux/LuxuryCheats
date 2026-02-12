@@ -10,8 +10,14 @@ import kotlinx.coroutines.launch
  * Repositorio para gestionar la búsqueda y obtención de datos de jugadores.
  * Centraliza la lógica de búsqueda multirregión.
  */
-class PlayerRepository(
-    private val ffApiService: FreeFireApiService = FreeFireApiService.create()
+import javax.inject.Inject
+
+/**
+ * Repositorio para gestionar la búsqueda y obtención de datos de jugadores.
+ * Centraliza la lógica de búsqueda multirregión.
+ */
+class PlayerRepository @Inject constructor(
+    private val ffApiService: FreeFireApiService
 ) {
     /**
      * Busca un jugador en múltiples regiones.

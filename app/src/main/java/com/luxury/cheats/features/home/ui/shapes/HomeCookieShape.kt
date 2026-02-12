@@ -29,14 +29,14 @@ val HomeCookieShape: Shape = object : Shape {
         val radius = minSize / 2f
 
         val rounding = CornerRounding(
-            radius = minSize * COOKIE_ROUNDING_RATIO,
-            smoothing = 0.8f
+            radius = minSize * 0.25f, // Ligeramente más redondeado
+            smoothing = 0.95f         // Máximo suavizado para look orgánico (Expressive)
         )
 
         val polygon = RoundedPolygon.star(
             numVerticesPerRadius = 4,
             radius = radius,
-            innerRadius = radius * COOKIE_INNER_RADIUS_RATIO,
+            innerRadius = radius * 0.45f, // Menos pronunciado, más sólido
             rounding = rounding,
             innerRounding = rounding,
             centerX = width / 2f,

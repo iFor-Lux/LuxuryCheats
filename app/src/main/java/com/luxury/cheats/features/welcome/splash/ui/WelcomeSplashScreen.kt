@@ -28,29 +28,22 @@ fun WelcomeSplashScreen(
     onNavigateToPage1: () -> Unit = {},
     onLogoReady: () -> Unit = {}
 ) {
-    val state by viewModel.state.collectAsState()
-    var isLogoReadyInternal by remember { mutableStateOf(false) }
+    // Obtenemos el LogoViewModel para saber cuándo está listo el WebView
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = context as? androidx.lifecycle.ViewModelStoreOwner 
+        ?: throw IllegalStateException("Context must be a ViewModelStoreOwner")
+    val logoViewModel: com.luxury.cheats.core.ui.LogoViewModel = androidx.hilt.navigation.compose.hiltViewModel(activity)
 
-    // Detectar cuando el logo está listo y las animaciones han terminado
-    LaunchedEffect(isLogoReadyInternal) {
-        if (isLogoReadyInternal) {
-            // 1. Esperamos un poco después de que los sprays inicien
-            delay(1)
-
-            onLogoReady()
-            // 2. Dar tiempo para que el usuario aprecie el logo y el texto LUXURY
-            delay(SPLASH_AUTO_NAV_DELAY)
-            viewModel.markAsReady()
-        }
+    // Secuencia de inicio centralizada
+    LaunchedEffect(Unit) {
+        viewModel.startSplashSequence(
+            isLogoReadyFlow = logoViewModel.isReadyFlow,
+            onLogoReady = onLogoReady,
+            onReadyToNavigate = onNavigateToPage1
+        )
     }
 
-
-    // Observar estado y navegar cuando esté listo
-    LaunchedEffect(state.isReadyToNavigate) {
-        if (state.isReadyToNavigate) {
-            onNavigateToPage1()
-        }
-    }
+    // Ya no necesitamos observar estados locales ni efectos secundarios dispersos
 
     Box(modifier = modifier.fillMaxSize()) {
         // 🌌 Background animado
@@ -62,9 +55,9 @@ fun WelcomeSplashScreen(
         // 🌑 Eclipse decorativo
         WelcomeEclipseSection()
 
-        // 🧩 Logo centrado (notifica cuando está listo)
+        // 🧩 Logo centrado
         WelcomeLogoSection(
-            onReady = { isLogoReadyInternal = true }
+            onReady = { /* No-op: Gestionado por LogoViewModel flow en startSplashSequence */ }
         )
 
         // ✨ Texto "LUXURY" centrado

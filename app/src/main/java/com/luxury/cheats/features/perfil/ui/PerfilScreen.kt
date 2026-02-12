@@ -23,7 +23,6 @@ import com.luxury.cheats.features.perfil.logic.PerfilViewModel
 import com.luxury.cheats.features.perfil.logic.PerfilState
 import com.luxury.cheats.features.perfil.logic.PerfilAction
 
-const val PERFIL_ROUTE = "perfil_screen"
 
 /**
  * Pantalla de perfil principal

@@ -26,6 +26,8 @@ sealed class HomeAction {
     object DismissInAppNotification : HomeAction()
     /** Acción para mostrar el bottom sheet de descarga. */
     data class ShowDownloadArchivo(val cheatName: String) : HomeAction()
+    /** Acción para alternar el estado de una trampa. */
+    data class ToggleCheat(val cheatName: String, val enable: Boolean) : HomeAction()
     /** Acción para cerrar el bottom sheet de descarga. */
     object DismissDownloadArchivo : HomeAction()
 }

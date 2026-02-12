@@ -23,7 +23,7 @@
     │       │   │       │   ├── ui
     │       │   │       │   │   ├── DotPatternBackground.kt
     │       │   │       │   │   ├── LogoWebViewConfig.kt
-    │       │   │       │   │   ├── LogoWebViewManager.kt
+    │       │   │       │   │   ├── LogoViewModel.kt
     │       │   │       │   │   ├── PersistentLogo.kt
     │       │   │       │   │   └── WelcomeEclipseSection.kt
     │       │   │       │   ├── security

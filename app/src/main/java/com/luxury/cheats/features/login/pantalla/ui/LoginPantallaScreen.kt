@@ -43,7 +43,6 @@ import com.luxury.cheats.features.login.pantalla.logic.LoginPantallaAction
 import com.luxury.cheats.features.login.pantalla.logic.LoginPantallaViewModel
 import com.luxury.cheats.features.login.pantalla.logic.LoginPantallaState
 
-const val LOGIN_ROUTE = "login_screen"
 
 /**
  * Pantalla principal de inicio de sesión.

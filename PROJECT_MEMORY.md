@@ -633,3 +633,44 @@
     - `HomeViewModel`: Gestiona qué notificación mostrar basándose en la frecuencia (si es "once" se guarda como vista).
     - `InfoMessageSection`: Refactorizado para usar `AsyncImage` (Coil) y mostrar datos dinámicos.
 - **Resultado**: Los anuncios e información importante se pueden gestionar remotamente desde Firebase, permitiendo mensajes de un solo uso o recurrentes.
+
+### Refactorización y Optimización de Core y UI (Febrero 2026)
+**Fecha**: Febrero 2026
+
+- **Contexto**: Se identificaron cuellos de botella en rendimiento (animaciones, recomposición) y problemas de arquitectura (estado local, condiciones de carrera en navegación).
+- **Decisiones**:
+  - **State Hoisting en Home**: Se movió el estado de las opciones de trucos (`cheatOptions`) de `HomeOpcionesSection` a `HomeViewModel`.
+    - **Razón**: Permitir persistencia, testabilidad y control centralizado del estado de los switches.
+  - **Optimización Gráfica**: Refactorización de `DotPatternBackground` para usar `drawWithCache`.
+    - **Razón**: Evitar recalcular posiciones trigonométricas en cada frame, mejorando drásticamente el rendimiento de renderizado.
+  - **Animaciones Eficientes**: Migración de `WelcomeLogoAnimation` a `Animatable` (API de bajo nivel de Compose).
+    - **Razón**: `animateFloatAsState` causaba recomposiciones innecesarias en animaciones de un solo disparo ("one-shot").
+  - **Gestión de Ciclo de Vida de WebView**: Reemplazo de `LogoWebViewManager` (Singleton) por `LogoViewModel` (Hilt ViewModel).
+    - **Razón**: Vincular el WebView al ciclo de vida de la UI de forma segura, evitando memory leaks y crashes por contextos destruidos.
+  - **Navegación Robusta en Splash**: Centralización de la secuencia de inicio en `WelcomeSplashViewModel`.
+    - **Razón**: Eliminar condiciones de carrera causadas por múltiples `LaunchedEffect` en la UI.
+- **Resultado**: Aplicación más estable, código más limpio alineado con MVVM, y eliminación de "hacks" temporales como `delay(1)`.
+
+### Implementación de Sistema Tipográfico Material 3 Expressive (Febrero 2026)
+**Fecha**: Febrero 2026
+
+- **Contexto**: La tipografía de la app estaba incompleta, usando solo valores por defecto de Compose.
+- **Decisión**: Implementar la escala completa de Material 3 usando Google Fonts con fuentes variables (`Roboto Flex`).
+- **Implementación**:
+  - Inclusión de dependencia `androidx.compose.ui:ui-text-google-fonts`.
+  - Configuración de certificados en `font_certs.xml`.
+  - Definición completa de `display*`, `headline*`, `title*`, `body*` y `label*` en `Type.kt`.
+- **Resultado**: Jerarquía visual profesional y consistente en toda la aplicación, alineada con la estética "Luxury" y configurada para ser "Expressive".
+
+### Refactorización de Sistema de Colores Dinámicos (Febrero 2026)
+**Fecha**: Febrero 2026
+
+- **Contexto**: La implementación previa de Dynamic Colors manipulaba manualmente la vibrancia, rompiendo la armonía tonal de Material You.
+- **Decisión**: Eliminar el boost de vibrancia manual y adoptar armonización basada en HCT (Hue, Chroma, Tone).
+- **Implementación**:
+  - Eliminación de `boostVibrancy` en `ThemeManager` y `Color.kt`.
+  - Integración de `material-color-utilities`.
+  - Rediseño de `harmonizeWithPrimary` para usar el modelo HCT de Material Color Utilities.
+- **Resultado**: Integración perfecta con el sistema del usuario y una estética más natural y profesional.
+
+

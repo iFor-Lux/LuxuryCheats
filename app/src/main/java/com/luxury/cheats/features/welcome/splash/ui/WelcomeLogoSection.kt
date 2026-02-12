@@ -10,20 +10,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.luxury.cheats.core.ui.LogoWebViewManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
+import com.luxury.cheats.core.ui.LogoViewModel
 
 /**
  * Logo principal del Welcome / Splash
  * - Ahora es un placeholder (el WebView vive en MainApp)
+ * - Observa el ViewModel compartido para notificar cuando está listo.
  */
 @Composable
 fun WelcomeLogoSection(
     modifier: Modifier = Modifier,
     onReady: (() -> Unit)? = null
 ) {
-    val isWebViewReady by LogoWebViewManager.isReadyFlow.collectAsState()
+    // Obtenemos el ViewModel scopped a la Activity para compartir la instancia de MainApp
+    val context = LocalContext.current
+    val activity = context as? ViewModelStoreOwner 
+        ?: throw IllegalStateException("Context must be a ViewModelStoreOwner")
+    
+    val viewModel: LogoViewModel = hiltViewModel(activity)
+    val isWebViewReady by viewModel.isReadyFlow.collectAsState()
 
-    // Notificar que el logo está listo basándonos en el Manager
+    // Notificar que el logo está listo basándonos en el ViewModel
     LaunchedEffect(isWebViewReady) {
         if (isWebViewReady) {
             onReady?.invoke()

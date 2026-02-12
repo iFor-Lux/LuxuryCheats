@@ -14,7 +14,12 @@ import kotlin.coroutines.resumeWithException
 /**
  * Servicio para gestionar la lógica de actualizaciones desde Firebase.
  */
-class UpdateService {
+import javax.inject.Inject
+
+/**
+ * Servicio para gestionar la lógica de actualizaciones desde Firebase.
+ */
+class UpdateService @Inject constructor() {
 
     private val db = FirebaseDatabase.getInstance().getReference("app_update")
 

@@ -14,7 +14,12 @@ import kotlin.coroutines.resumeWithException
 /**
  * Servicio para obtener notificaciones in-app desde Firebase.
  */
-class InAppNotificationService {
+import javax.inject.Inject
+
+/**
+ * Servicio para obtener notificaciones in-app desde Firebase.
+ */
+class InAppNotificationService @Inject constructor() {
 
     private val db = FirebaseDatabase.getInstance().getReference("notifications")
 

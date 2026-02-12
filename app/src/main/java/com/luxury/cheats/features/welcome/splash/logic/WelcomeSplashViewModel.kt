@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -31,13 +32,28 @@ class WelcomeSplashViewModel : ViewModel() {
     }
 
     /**
-     * Marca el splash como listo para navegar
-     * (llamado cuando las animaciones han terminado)
+     * Inicia la secuencia de splash:
+     * 1. Espera a que el logo esté listo (SharedFlow/StateFlow)
+     * 2. Notifica a la UI que muestre el logo
+     * 3. Espera el tiempo de apreciación
+     * 4. Navega a la siguiente pantalla
      */
-    fun markAsReady() {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isReadyToNavigate = true)
-        }
+    suspend fun startSplashSequence(
+        isLogoReadyFlow: StateFlow<Boolean>,
+        onLogoReady: () -> Unit,
+        onReadyToNavigate: () -> Unit
+    ) {
+        // 1. Esperar señal de WebView/Logo listo
+        isLogoReadyFlow.first { it }
+        
+        // 2. Notificar UI (animaciones de entrada, etc)
+        onLogoReady()
+        
+        // 3. Delay de apreciación (1.5s)
+        kotlinx.coroutines.delay(1500L)
+        
+        // 4. Navegar
+        onReadyToNavigate()
     }
 }
 

@@ -26,7 +26,8 @@ import com.luxury.cheats.features.download.logic.DownloadParams
 import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
 import com.luxury.cheats.features.widgets.InfoMessageDialog
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
-import com.luxury.cheats.navigations.NavRoutes
+import com.luxury.cheats.navigations.Update
+import androidx.hilt.navigation.compose.hiltViewModel
 
 
 
@@ -34,6 +35,8 @@ private object HomeUIConstants {
     const val NOTIFICATION_DELAY = 3000L
     const val TOAST_TOP_PADDING = 50
 }
+
+
 
 /**
  * Pantalla principal de la aplicación (Home).
@@ -43,27 +46,10 @@ private object HomeUIConstants {
 fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val viewModel: HomeViewModel = viewModel(
-        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val appContext = context.applicationContext
-                val prefsService = com.luxury.cheats.services.UserPreferencesService(appContext)
-                val playerRepo = com.luxury.cheats.services.PlayerRepository()
-                val updateService = com.luxury.cheats.features.update.service.UpdateService()
-                val notificationService = com.luxury.cheats.features.home.service.InAppNotificationService()
-
-                @Suppress("UNCHECKED_CAST")
-                return HomeViewModel(
-                    preferencesService = prefsService,
-                    playerRepository = playerRepo,
-                    updateService = updateService,
-                    notificationService = notificationService
-                ) as T
-            }
-        }
-    )
+    // Factory removed in favor of Hilt
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
     val density = androidx.compose.ui.platform.LocalDensity.current
@@ -117,7 +103,7 @@ private fun HomeOverlays(
                 description = update.description,
                 onUpdateClick = {
                     onAction(HomeAction.DismissUpdateAnuncio)
-                    navController.navigate(NavRoutes.UPDATE)
+                    navController.navigate(Update)
                 }
             )
         }
@@ -191,6 +177,7 @@ private fun HomeSectionsList(
 
         if (uiState.isSeguridadUnlocked && uiState.isOpcionesVisible) {
             HomeOpcionesSection(
+                uiState = uiState,
                 onAction = { viewModel.onAction(it) }
             )
         }

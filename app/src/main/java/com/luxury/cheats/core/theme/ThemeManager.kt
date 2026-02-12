@@ -19,10 +19,6 @@ import androidx.compose.ui.platform.LocalContext
  * - Sin overrides sucios de lógica en tiempo de ejecución
  */
 object ThemeManager {
-    private const val PRIMARY_VIBRANCY_BOOST = 1.4f
-    private const val SECONDARY_VIBRANCY_BOOST = 1.3f
-    private const val TERTIARY_VIBRANCY_BOOST = 1.3f
-    private const val CONTAINER_VIBRANCY_BOOST = 1.2f
 
     /**
      * Obtiene el ColorScheme según el tema del sistema y Material You
@@ -38,21 +34,8 @@ object ThemeManager {
         
         // Si Material You está disponible, usarlo directamente
         if (useDynamicColor && isDynamicAvailable) {
-            val scheme = if (darkTheme) {
-                dynamicDarkColorScheme(context)
-            } else {
-                dynamicLightColorScheme(context)
-            }
-            
-            // Aplicar boost de vibrancia para colores más impactantes
-            return scheme.copy(
-                primary = scheme.primary.boostVibrancy(PRIMARY_VIBRANCY_BOOST),
-                secondary = scheme.secondary.boostVibrancy(SECONDARY_VIBRANCY_BOOST),
-                tertiary = scheme.tertiary.boostVibrancy(TERTIARY_VIBRANCY_BOOST),
-                primaryContainer = scheme.primaryContainer.boostVibrancy(CONTAINER_VIBRANCY_BOOST),
-                secondaryContainer = scheme.secondaryContainer.boostVibrancy(CONTAINER_VIBRANCY_BOOST),
-                tertiaryContainer = scheme.tertiaryContainer.boostVibrancy(CONTAINER_VIBRANCY_BOOST)
-            )
+            return if (darkTheme) dynamicDarkColorScheme(context)
+            else dynamicLightColorScheme(context)
         }
 
         

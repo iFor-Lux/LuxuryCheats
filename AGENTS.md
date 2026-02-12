@@ -143,10 +143,23 @@ This project relies heavily on AI assistance and long-term context retention.
   - project structure is reorganized
 
 ## Skills & Specialized Capabilities
-This project includes a library of specialized "skills" located in `.agent/skills/`.
-- Each skill is a folder containing a `SKILL.md` file with detailed instructions.
-- The AI **MUST** browse and consult the relevant `SKILL.md` before performing complex tasks in those areas (e.g., Security, UI/UX, Architecture, Firebase).
-- These skills extend the AI's capabilities and must be followed as part of the project's standard operating procedure.
+Este proyecto utiliza una biblioteca de habilidades especializadas en `.agent/skills/`.
+Para asegurar que se use la habilidad correcta, consulta esta guía de selección:
+
+| Categoría | Skill a Consultar | Triggers / Cuándo Usar |
+| :--- | :--- | :--- |
+| **Android Core** | `android-kotlin-development` | MVVM, Hilt, Room, Retrofit, State Management |
+| **Diseño UI/UX** | `ui-ux-pro-max`, `mobile-android-design` | Material 3, Jetpack Compose, Layouts, Accesibilidad |
+| **Material 3 Exp.** | `m3-expressive` | Shapes, Animations, MotionScheme, Dynamic Color |
+| **Arquitectura** | `architecture`, `software-architecture` | ADRs, Patrones, Decisiones de estructura |
+| **Seguridad** | `vulnerability-scanner`, `Security Scanning Tools` | OWASP, Escaneo, Análisis de riesgos, Cifrado |
+| **Firebase** | `firebase` | Firestore, Auth, Storage, Cloud Functions |
+| **Calidad / Clean** | `clean-code` | Refactorización, Naming, Funciones pequeñas |
+| **Gestión** | `risk-management-specialist`, `quality-documentation-manager` | Documentación técnica, ISO standards, Riesgos |
+| **IA / Prompts** | `senior-prompt-engineer`, `agent-memory-mcp` | Optimización de prompts, Memoria de proyecto |
+
+- El AI **DEBE** revisar esta tabla al inicio de cada tarea compleja.
+- Si una tarea coincide con un "Trigger", se debe abrir el `SKILL.md` correspondiente antes de programar.
 
 ## What NOT to do
 - Do not introduce XML layouts
