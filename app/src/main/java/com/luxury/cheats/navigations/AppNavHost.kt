@@ -18,7 +18,13 @@ import com.luxury.cheats.features.welcome.page2.permisos.ui.WelcomePage2Screen
 import com.luxury.cheats.features.welcome.page3.shizuku.ui.WelcomePage3Screen
 import com.luxury.cheats.features.welcome.splash.ui.WelcomeSplashScreen
 import com.luxury.cheats.features.update.ui.DownloadUpdateScreen
+import com.luxury.cheats.core.ui.DotPatternBackground
+import com.luxury.cheats.core.ui.WelcomeEclipseSection
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.getValue
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
+import com.kyant.backdrop.backdrops.layerBackdrop
 
 private const val TRANSITION_DURATION = 400
 
@@ -29,41 +35,71 @@ private const val TRANSITION_DURATION = 400
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    onLogoReady: () -> Unit
+    onLogoReady: () -> Unit,
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = AuthGraph,
-        modifier = Modifier.fillMaxSize(),
-        enterTransition = {
-            fadeIn(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-        },
-        exitTransition = {
-            fadeOut(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-        },
-        popEnterTransition = {
-            fadeIn(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-        },
-        popExitTransition = {
-            fadeOut(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-        }
-    ) {
-        navigation<AuthGraph>(startDestination = Splash) {
-            welcomeGraph(navController, onLogoReady)
-            
-            composable<Login> {
-                LoginPantallaScreen(
-                    onLoginSuccess = {
-                        navController.navigate(MainGraph) {
-                            popUpTo<AuthGraph> { inclusive = true }
-                        }
-                    }
-                )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    
+    // Lista de rutas que deben mostrar el fondo de Bienvenida (DotPattern + Eclipse)
+    val authScreenRoutes = listOf(
+        Splash::class.qualifiedName,
+        WelcomePage1::class.qualifiedName,
+        WelcomePage2::class.qualifiedName,
+        WelcomePage3::class.qualifiedName,
+        Login::class.qualifiedName
+    )
+    
+    val isAuthScreen = currentDestination?.route?.let { route ->
+        authScreenRoutes.any { route.contains(it ?: "") }
+    } ?: true // Default to true for start destination
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (isAuthScreen) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
+            ) {
+                DotPatternBackground()
+                WelcomeEclipseSection()
             }
         }
 
-        navigation<MainGraph>(startDestination = Home) {
-            mainGraph(navController)
+        NavHost(
+            navController = navController,
+            startDestination = AuthGraph,
+            modifier = Modifier.fillMaxSize(),
+            enterTransition = {
+                fadeIn(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
+            }
+        ) {
+            navigation<AuthGraph>(startDestination = Splash) {
+                welcomeGraph(navController, onLogoReady)
+                
+                composable<Login> {
+                    LoginPantallaScreen(
+                        onLoginSuccess = {
+                            navController.navigate(MainGraph) {
+                                popUpTo<AuthGraph> { inclusive = true }
+                            }
+                        }
+                    )
+                }
+            }
+
+            navigation<MainGraph>(startDestination = Home) {
+                mainGraph(navController, backdrop)
+            }
         }
     }
 }
@@ -108,10 +144,11 @@ private fun androidx.navigation.NavGraphBuilder.welcomeGraph(
 }
 
 private fun androidx.navigation.NavGraphBuilder.mainGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
 ) {
     composable<Home> {
-        HomeScreen(navController = navController)
+        HomeScreen(navController = navController, backdrop = backdrop)
     }
 
     composable<Perfil> {

@@ -23,6 +23,9 @@ class UserPreferencesService @Inject constructor(@ApplicationContext context: Co
         private const val KEY_SEGURIDAD_UNLOCKED = "seguridad_unlocked"
         private const val KEY_ID_CONSOLE_VISIBLE = "id_console_visible"
         private const val KEY_OPCIONES_VISIBLE = "opciones_visible"
+        private const val KEY_CONSOLE_OUTPUT = "console_output"
+        private const val KEY_SEARCH_SUCCESSFUL = "search_successful"
+        private const val KEY_CHEAT_OPTIONS = "cheat_options"
         private const val KEY_PROFILE_IMAGE = "profile_image_uri"
         private const val KEY_BANNER_IMAGE = "banner_image_uri"
         private const val KEY_PROFILE_ID = "profile_id"
@@ -89,6 +92,34 @@ class UserPreferencesService @Inject constructor(@ApplicationContext context: Co
             prefs.getBoolean(KEY_ID_CONSOLE_VISIBLE, false),
             prefs.getBoolean(KEY_OPCIONES_VISIBLE, false)
         )
+    }
+
+    /** Gestiona el estado extendido de Home (consola y búsqueda). */
+    fun saveExtendedHomeState(console: String, searchSuccessful: Boolean) {
+        prefs.edit()
+            .putString(KEY_CONSOLE_OUTPUT, console)
+            .putBoolean(KEY_SEARCH_SUCCESSFUL, searchSuccessful)
+            .apply()
+    }
+
+    fun getExtendedHomeState(): Pair<String, Boolean> {
+        return (prefs.getString(KEY_CONSOLE_OUTPUT, "") ?: "") to 
+               prefs.getBoolean(KEY_SEARCH_SUCCESSFUL, false)
+    }
+
+    /** Gestiona los cheats activos. */
+    fun saveCheatOptions(options: Map<String, Boolean>) {
+        val encoded = options.entries.joinToString(",") { "${it.key}:${it.value}" }
+        prefs.edit().putString(KEY_CHEAT_OPTIONS, encoded).apply()
+    }
+
+    fun getCheatOptions(): Map<String, Boolean> {
+        val encoded = prefs.getString(KEY_CHEAT_OPTIONS, "") ?: ""
+        if (encoded.isEmpty()) return emptyMap()
+        return encoded.split(",").associate {
+            val parts = it.split(":")
+            parts[0] to parts[1].toBoolean()
+        }
     }
 
     /** Acceso a imágenes de perfil/banner. */

@@ -48,11 +48,12 @@ fun LuxuryCheatsApp(
         color = MaterialTheme.colorScheme.background
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // CAPA 1: NavHost con captura de backdrop
-            Box(modifier = Modifier.fillMaxSize().layerBackdrop(backdrop)) {
+            // CAPA 1: NavHost (Sin captura global para evitar recursión en overlays)
+            Box(modifier = Modifier.fillMaxSize()) {
                 AppNavHost(
                     navController = navController,
-                    onLogoReady = { /* No-op: Managed by ViewModel state */ }
+                    onLogoReady = { /* No-op: Managed by ViewModel state */ },
+                    backdrop = backdrop
                 )
             }
 
@@ -73,13 +74,20 @@ fun LuxuryCheatsApp(
                         onTabSelected = { tab ->
                             if (tab == "Inicio" && !isHome) {
                                 navController.navigate(Home) {
-                                    popUpTo<Home> { inclusive = true }
+                                    popUpTo<Home> { 
+                                        saveState = true
+                                        inclusive = false
+                                    }
                                     launchSingleTop = true
+                                    restoreState = true
                                 }
                             } else if (tab == "Perfil" && !isPerfil) {
                                 navController.navigate(Perfil) {
-                                    popUpTo<Home> { inclusive = false }
+                                    popUpTo<Home> { 
+                                        saveState = true
+                                    }
                                     launchSingleTop = true
+                                    restoreState = true
                                 }
                             }
                         }

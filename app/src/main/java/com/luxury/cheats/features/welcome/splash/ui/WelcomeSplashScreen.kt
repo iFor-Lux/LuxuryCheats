@@ -46,14 +46,8 @@ fun WelcomeSplashScreen(
     // Ya no necesitamos observar estados locales ni efectos secundarios dispersos
 
     Box(modifier = modifier.fillMaxSize()) {
-        // 🌌 Background animado
-        DotPatternBackground()
-
         // 🎨 Sprays decorativos
         WelcomeSpraysSection()
-
-        // 🌑 Eclipse decorativo
-        WelcomeEclipseSection()
 
         // 🧩 Logo centrado
         WelcomeLogoSection(

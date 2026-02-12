@@ -37,8 +37,6 @@ fun WelcomePage1Screen(
     val state by viewModel.state.collectAsState()
 
     Box(modifier = modifier.fillMaxSize()) {
-        DotPatternBackground()
-        WelcomeEclipseSection()
         WelcomePage1LanguageSection(
             modifier = Modifier
                 .align(Alignment.TopEnd)

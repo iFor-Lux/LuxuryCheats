@@ -36,11 +36,17 @@ class HomeViewModel @Inject constructor(
 
     init {
         initializeData()
+        val extendedState = preferencesService.getExtendedHomeState()
+        val savedCheats = preferencesService.getCheatOptions()
+        
         _uiState.update { 
             it.copy(
-                isSeguridadUnlocked = false,
+                isSeguridadUnlocked = false, // Protocolo: Siempre cerrado al iniciar app
                 isIdAndConsoleVisible = false,
                 isOpcionesVisible = false,
+                consoleOutput = extendedState.first,
+                isSearchSuccessful = extendedState.second,
+                cheatOptions = savedCheats,
                 idValue = preferencesService.accessPlayerId() ?: it.idValue
             ) 
         }
@@ -105,6 +111,7 @@ class HomeViewModel @Inject constructor(
             HomeAction.ToggleSeguridad -> handleToggle("seguridad")
             HomeAction.ToggleIdAndConsole -> handleToggle("id_console")
             HomeAction.ToggleOpciones -> handleToggle("opciones")
+            HomeAction.ToggleControlPanel -> handleToggle("control_panel")
             HomeAction.ToggleConsoleExpansion -> handleToggle("console_expansion")
             is HomeAction.OnIdValueChange -> _uiState.update { 
                 it.copy(idValue = action.value, isSearchSuccessful = false) 
@@ -117,12 +124,15 @@ class HomeViewModel @Inject constructor(
             is HomeAction.ShowDownloadArchivo -> handleShowDownloadArchivo(action.cheatName)
             is HomeAction.ToggleCheat -> handleToggleCheat(action.cheatName, action.enable)
             HomeAction.DismissDownloadArchivo -> _uiState.update { it.copy(isDownloadArchivoVisible = false) }
+            HomeAction.RequestFloatingPanel -> handleToggle("control_panel")
         }
     }
 
     private fun handleToggleCheat(cheatName: String, enable: Boolean) {
         _uiState.update { 
             it.copy(cheatOptions = it.cheatOptions + (cheatName to enable)) 
+        }.also { 
+            preferencesService.saveCheatOptions(_uiState.value.cheatOptions)
         }
         if (enable) {
             handleShowDownloadArchivo(cheatName)
@@ -156,10 +166,21 @@ class HomeViewModel @Inject constructor(
                         state
                     }
                 }
+                "control_panel" -> {
+                    if (state.isOpcionesVisible) {
+                        // El lanzamiento del servicio se manejará en la UI (HomeScreen)
+                        // vía una acción que la UI observe o simplemente permitiendo que el estado cambie
+                        // para que HomeScreen reaccione.
+                        state.copy(isFloatingServiceRunning = !state.isFloatingServiceRunning)
+                    } else {
+                        addNotification("DEBE ACTIVAR EL PANEL DE OPCIONES PRIMERO", NotificationType.WARNING)
+                        state
+                    }
+                }
                 "console_expansion" -> state.copy(isConsoleExpanded = !state.isConsoleExpanded)
                 else -> state
             }
-        }.also { saveCurrentHomeState() }
+        }
     }
 
     private fun handleShowDownloadArchivo(cheatName: String) {
@@ -203,7 +224,12 @@ class HomeViewModel @Inject constructor(
                 ) 
             }
             val foundData = playerRepository.searchAcrossRegions(uid) { msg ->
-                _uiState.update { it.copy(consoleOutput = it.consoleOutput + msg) }
+                _uiState.update { 
+                    val newOutput = it.consoleOutput + msg
+                    it.copy(consoleOutput = newOutput).also {
+                        preferencesService.saveExtendedHomeState(newOutput, it.isSearchSuccessful)
+                    }
+                }
             }
             
             _uiState.update { currentState ->
@@ -224,19 +250,14 @@ class HomeViewModel @Inject constructor(
                     isSearchSuccessful = isSuccessful,
                     notifications = currentState.notifications + notification,
                     isLoadingPlayer = false
-                )
+                ).also { 
+                    preferencesService.saveExtendedHomeState(it.consoleOutput, it.isSearchSuccessful)
+                }
             }
         }
     }
 
     private fun addNotification(message: String, type: NotificationType) {
         _uiState.update { it.copy(notifications = it.notifications + AppNotification(message = message, type = type)) }
-    }
-
-    private fun saveCurrentHomeState() {
-        val state = _uiState.value
-        preferencesService.accessHomeState(
-            Triple(state.isSeguridadUnlocked, state.isIdAndConsoleVisible, state.isOpcionesVisible)
-        )
     }
 }

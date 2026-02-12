@@ -103,7 +103,6 @@ fun DownloadUpdateScreen(
                 directPath = "",
                 preloadedWeight = ""
             ),
-            viewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
             onDismissRequest = { viewModel.onAction(UpdateAction.DismissDownloadSheet) }
         )
     }

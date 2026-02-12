@@ -8,6 +8,7 @@ import com.luxury.cheats.core.ui.AppNotification
 data class HomeState(
     val isIdAndConsoleVisible: Boolean = false,
     val isOpcionesVisible: Boolean = false,
+    val isFloatingServiceRunning: Boolean = false,
     val userName: String = "",
     val idValue: String = "",
     val greeting: String = "",

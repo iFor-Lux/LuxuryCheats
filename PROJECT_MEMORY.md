@@ -674,3 +674,16 @@
 - **Resultado**: Integración perfecta con el sistema del usuario y una estética más natural y profesional.
 
 
+### OrganizaciÃ³n del Panel de Control Flotante
+**Fecha**: Febrero 2026
+
+- **Contexto**: El sistema de Panel de Control Flotante (Overlay) creciÃ³ en complejidad y requerÃ­a una ubicaciÃ³n mÃ¡s clara que no contaminara el `core`.
+- **DecisiÃ³n**: Mover todos los componentes del Panel Flotante (Servicio y UI) a un subpaquete dedicado dentro de `home`.
+- **ImplementaciÃ³n**:
+  - `features/home/floating/service/`: Contiene `FloatingService.kt`.
+  - `features/home/floating/ui/`: Contiene `FloatingBubble.kt` y `HomeControlPanelSection.kt`.
+- **RazÃ³n**: 
+  - Centraliza la lÃ³gica de superposiciÃ³n dentro de la feature que la controla.
+  - Facilita la identificaciÃ³n de componentes de UI y lÃ³gica de sistema.
+  - Cumple con la solicitud de organizaciÃ³n "dentro de home nomas".
+- **Resultado**: Estructura mÃ¡s limpia y modular, fÃ¡cil de mantener y expandir.

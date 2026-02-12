@@ -143,7 +143,11 @@ fun HomeOpcionesSection(
         Spacer(modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-            WideOptionCard("PANEL DE CONTROL", "Ajustes avanzados y configuración")
+            WideOptionCard(
+                title = "PANEL DE CONTROL",
+                description = "Ajustes avanzados y configuración",
+                modifier = Modifier.clickable { onAction(HomeAction.ToggleControlPanel) }
+            )
         }
     }
 }
@@ -377,9 +381,9 @@ private fun OptionCardFooter(title: String, description: String) {
  * @param description Descripción detallada de la opción.
  */
 @Composable
-fun WideOptionCard(title: String, description: String) {
+fun WideOptionCard(title: String, description: String, modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(WIDE_CARD_HEIGHT.dp)
             .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(20.dp))

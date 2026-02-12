@@ -44,9 +44,6 @@ fun WelcomePage2Screen(
     PermissionLifecycleObserver(viewModel)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        DotPatternBackground()
-        WelcomeEclipseSection()
-
         Column(
             modifier = Modifier
                 .fillMaxSize()

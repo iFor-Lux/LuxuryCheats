@@ -34,6 +34,8 @@ interface FreeFireApiService {
          */
         fun create(): FreeFireApiService {
             val client = okhttp3.OkHttpClient.Builder()
+                .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
                 .addInterceptor { chain ->
                     val userAgent = "Mozilla/5.0 (Linux; Android 13; Pixel 7) " +
                             "AppleWebKit/537.36 (KHTML, like Gecko) " +

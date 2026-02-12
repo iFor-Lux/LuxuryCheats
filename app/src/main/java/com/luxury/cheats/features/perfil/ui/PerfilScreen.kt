@@ -14,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Box
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 import androidx.compose.runtime.collectAsState
@@ -66,17 +69,23 @@ fun PerfilScreen(
         }
     }
 
-    PerfilContent(
-        uiState = uiState,
-        modifier = modifier,
-        onAction = { action ->
-            when (action) {
-                PerfilAction.ProfileImageClicked -> profilePicker.launch("image/*")
-                PerfilAction.BannerImageClicked -> bannerPicker.launch("image/*")
-                else -> viewModel.handleAction(action)
-            }
+    val backdrop = rememberLayerBackdrop()
+    
+    Box(modifier = modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().layerBackdrop(backdrop)) {
+            PerfilContent(
+                uiState = uiState,
+                modifier = Modifier,
+                onAction = { action ->
+                    when (action) {
+                        PerfilAction.ProfileImageClicked -> profilePicker.launch("image/*")
+                        PerfilAction.BannerImageClicked -> bannerPicker.launch("image/*")
+                        else -> viewModel.handleAction(action)
+                    }
+                }
+            )
         }
-    )
+    }
 }
 
 @Composable

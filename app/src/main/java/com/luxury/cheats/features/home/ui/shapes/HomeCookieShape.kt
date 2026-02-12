@@ -11,8 +11,8 @@ import androidx.graphics.shapes.star
 import androidx.graphics.shapes.toPath
 
 // Parámetros específicos para la Cookie de 4 lados (Estado bloqueado)
-private const val COOKIE_INNER_RADIUS_RATIO = 0.35f 
-private const val COOKIE_ROUNDING_RATIO = 0.22f     
+private const val COOKIE_INNER_RADIUS_RATIO = 0.35f
+private const val COOKIE_ROUNDING_RATIO = 0.22f
 
 /**
  * Shape de "Cookie" de 4 lados al estilo Material Design 3 Expressive.

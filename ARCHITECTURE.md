@@ -172,9 +172,16 @@
     │       │   │       │   │   ├── ui
     │       │   │       │   │   │   ├── HomeRoute.kt
     │       │   │       │   │   │   └── HomeScreen.kt
-    │       │   │       │   │   └── logic
-    │       │   │       │   │       ├── HomeViewModel.kt
-    │       │   │       │   │       └── HomeState.kt
+    │       │   │       │   │   ├── logic
+    │       │   │       │   │   │   ├── HomeViewModel.kt
+    │       │   │       │   │   │   └── HomeState.kt
+    │       │   │       │   │   └── floating
+    │       │   │       │   │       ├── ui
+    │       │   │       │   │       │   ├── FloatingBubble.kt
+    │       │   │       │   │       │   ├── HomeControlPanelSection.kt
+    │       │   │       │   │       │   └── HomeFloatingPanel.kt
+    │       │   │       │   │       └── service
+    │       │   │       │   │           └── FloatingService.kt
     │       │   │       │   ├── perfil
     │       │   │       │   │   ├── ui
     │       │   │       │   │   │   ├── PerfilScreen.kt

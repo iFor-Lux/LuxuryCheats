@@ -28,6 +28,7 @@ import com.luxury.cheats.features.widgets.InfoMessageDialog
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.navigations.Update
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kyant.backdrop.backdrops.layerBackdrop
 
 
 
@@ -46,13 +47,34 @@ private object HomeUIConstants {
 fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     // Factory removed in favor of Hilt
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
     val density = androidx.compose.ui.platform.LocalDensity.current
+
+    androidx.compose.runtime.LaunchedEffect(uiState.isFloatingServiceRunning) {
+        if (uiState.isFloatingServiceRunning) {
+            if (!android.provider.Settings.canDrawOverlays(context)) {
+                val intent = android.content.Intent(
+                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    android.net.Uri.parse("package:${context.packageName}")
+                )
+                context.startActivity(intent)
+                // Reset state to false so user can try again after granting permission
+                viewModel.onAction(HomeAction.ToggleControlPanel)
+            } else {
+                val intent = android.content.Intent(context, com.luxury.cheats.features.home.floating.service.FloatingService::class.java)
+                context.startForegroundService(intent)
+            }
+        } else {
+            val intent = android.content.Intent(context, com.luxury.cheats.features.home.floating.service.FloatingService::class.java)
+            context.stopService(intent)
+        }
+    }
 
     androidx.compose.runtime.LaunchedEffect(uiState.isConsoleExpanded) {
         if (uiState.isConsoleExpanded) {
@@ -64,12 +86,21 @@ fun HomeScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        HomeSectionsList(uiState, scrollState, viewModel)
+        // CAPA DE CAPTURA: Solo el contenido de fondo
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
+        ) {
+            HomeSectionsList(uiState, scrollState, viewModel)
+        }
 
+        // CAPA DE OVERLAYS: Fuera de la captura para evitar SIGSEGV
         HomeOverlays(
             uiState = uiState,
             onAction = { viewModel.onAction(it) },
-            navController = navController
+            navController = navController,
+            backdrop = backdrop
         )
     }
 }
@@ -79,7 +110,8 @@ fun HomeScreen(
 private fun HomeOverlays(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
 ) {
     com.luxury.cheats.core.ui.AppToast(
         notifications = uiState.notifications,

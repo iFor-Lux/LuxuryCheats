@@ -45,7 +45,7 @@ class PlayerRepository @Inject constructor(
                         resultDeferred.complete(response.body())
                     }
                 } catch (e: Exception) {
-                    // Ignoramos errores individuales para permitir que otras regiones sigan buscando
+                    onConsoleLog("\nERROR EN REGIÓN ${server.uppercase()}: ${e.message ?: "TIEMPO AGOTADO"}")
                 }
             }
         }
