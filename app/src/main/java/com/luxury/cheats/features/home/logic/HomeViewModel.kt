@@ -25,8 +25,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val preferencesService: com.luxury.cheats.services.UserPreferencesService,
-    private val playerRepository: com.luxury.cheats.services.PlayerRepository,
+    private val preferencesService: com.luxury.cheats.services.storage.UserPreferencesService,
+    private val playerRepository: com.luxury.cheats.services.freefireapi.PlayerRepository,
     private val updateService: com.luxury.cheats.features.update.service.UpdateService,
     private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService
 ) : ViewModel() {
@@ -37,7 +37,6 @@ class HomeViewModel @Inject constructor(
     init {
         initializeData()
         val extendedState = preferencesService.getExtendedHomeState()
-        val savedCheats = preferencesService.getCheatOptions()
         
         _uiState.update { 
             it.copy(
@@ -46,7 +45,7 @@ class HomeViewModel @Inject constructor(
                 isOpcionesVisible = false,
                 consoleOutput = extendedState.first,
                 isSearchSuccessful = extendedState.second,
-                cheatOptions = savedCheats,
+                cheatOptions = emptyMap(),
                 idValue = preferencesService.accessPlayerId() ?: it.idValue
             ) 
         }
@@ -131,8 +130,6 @@ class HomeViewModel @Inject constructor(
     private fun handleToggleCheat(cheatName: String, enable: Boolean) {
         _uiState.update { 
             it.copy(cheatOptions = it.cheatOptions + (cheatName to enable)) 
-        }.also { 
-            preferencesService.saveCheatOptions(_uiState.value.cheatOptions)
         }
         if (enable) {
             handleShowDownloadArchivo(cheatName)

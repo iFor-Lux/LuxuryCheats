@@ -1,6 +1,7 @@
 package com.luxury.cheats.di
 
-import com.luxury.cheats.services.FreeFireApiService
+import com.luxury.cheats.services.freefireapi.FreeFireApiService
+import com.luxury.cheats.services.firebase.UrlService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.luxury.cheats.services
+package com.luxury.cheats.services.freefireapi
 
 import retrofit2.Response
 import retrofit2.Retrofit

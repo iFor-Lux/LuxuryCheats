@@ -1,4 +1,4 @@
-package com.luxury.cheats.services
+package com.luxury.cheats.services.freefireapi
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job

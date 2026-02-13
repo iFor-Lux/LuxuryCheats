@@ -57,7 +57,7 @@ object HomeGreetingProvider {
     /**
      * Formatea los datos de un jugador en un string para la consola.
      */
-    fun formatPlayerData(data: com.luxury.cheats.services.PlayerResponse): String {
+    fun formatPlayerData(data: com.luxury.cheats.services.freefireapi.PlayerResponse): String {
         val b = data.basicInfo ?: return "ERROR EN PROTOCOLO DE DATOS."
         val s = data.socialInfo
         val c = data.clanInfo

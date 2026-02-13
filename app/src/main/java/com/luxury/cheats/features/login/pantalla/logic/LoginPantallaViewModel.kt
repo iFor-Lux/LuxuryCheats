@@ -2,8 +2,8 @@ package com.luxury.cheats.features.login.pantalla.logic
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.luxury.cheats.services.AuthService
-import com.luxury.cheats.services.UserPreferencesService
+import com.luxury.cheats.services.firebase.AuthService
+import com.luxury.cheats.services.storage.UserPreferencesService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
  */
 class UpdateViewModel(
     private val updateService: com.luxury.cheats.features.update.service.UpdateService,
-    private val preferencesService: com.luxury.cheats.services.UserPreferencesService
+    private val preferencesService: com.luxury.cheats.services.storage.UserPreferencesService
 ) : androidx.lifecycle.ViewModel() {
 
     /** Constantes para formateo de fechas. */

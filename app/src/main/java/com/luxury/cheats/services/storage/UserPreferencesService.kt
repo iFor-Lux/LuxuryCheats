@@ -1,4 +1,4 @@
-package com.luxury.cheats.services
+package com.luxury.cheats.services.storage
 
 import android.content.Context
 import android.content.SharedPreferences

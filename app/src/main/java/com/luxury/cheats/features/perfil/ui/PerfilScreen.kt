@@ -36,15 +36,16 @@ import com.luxury.cheats.features.perfil.logic.PerfilAction
 @Composable
 fun PerfilScreen(
     modifier: Modifier = Modifier,
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val viewModel = viewModel<PerfilViewModel>(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 val appContext = context.applicationContext
-                val prefsService = com.luxury.cheats.services.UserPreferencesService(appContext)
-                val authService = com.luxury.cheats.services.AuthService()
-                val fileService = com.luxury.cheats.services.FileService(appContext)
+                val prefsService = com.luxury.cheats.services.storage.UserPreferencesService(appContext)
+                val authService = com.luxury.cheats.services.firebase.AuthService()
+                val fileService = com.luxury.cheats.services.storage.FileService(appContext)
                 return PerfilViewModel(prefsService, authService, appContext, fileService) as T
             }
         }
@@ -69,10 +70,9 @@ fun PerfilScreen(
         }
     }
 
-    val backdrop = rememberLayerBackdrop()
     
     Box(modifier = modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxSize().layerBackdrop(backdrop)) {
+        Box(modifier = Modifier.fillMaxSize().then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)) {
             PerfilContent(
                 uiState = uiState,
                 modifier = Modifier,

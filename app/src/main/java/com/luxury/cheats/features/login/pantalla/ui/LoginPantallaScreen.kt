@@ -56,8 +56,8 @@ fun LoginPantallaScreen(
     val viewModel: LoginPantallaViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val authService = com.luxury.cheats.services.AuthService()
-                val prefsService = com.luxury.cheats.services.UserPreferencesService(context)
+                val authService = com.luxury.cheats.services.firebase.AuthService()
+                val prefsService = com.luxury.cheats.services.storage.UserPreferencesService(context)
                 return LoginPantallaViewModel(authService, prefsService) as T
             }
         }

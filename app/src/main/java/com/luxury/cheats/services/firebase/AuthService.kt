@@ -1,4 +1,4 @@
-package com.luxury.cheats.services
+package com.luxury.cheats.services.firebase
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

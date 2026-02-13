@@ -152,7 +152,7 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
     }
 
     composable<Perfil> {
-        PerfilScreen()
+        PerfilScreen(backdrop = backdrop)
     }
 
     composable<Update> {
