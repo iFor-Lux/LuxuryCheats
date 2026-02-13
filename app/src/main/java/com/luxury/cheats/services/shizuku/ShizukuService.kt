@@ -18,10 +18,15 @@ class ShizukuService @Inject constructor() {
     private var isBinderReceived = false
 
     init {
-        Shizuku.addBinderReceivedListener {
-            isBinderReceived = true
-        }
-        Shizuku.addBinderDeadListener {
+        try {
+            Shizuku.addBinderReceivedListener {
+                isBinderReceived = true
+            }
+            Shizuku.addBinderDeadListener {
+                isBinderReceived = false
+            }
+        } catch (e: Exception) {
+            // Shizuku no está disponible - esto es normal si no está instalado
             isBinderReceived = false
         }
     }

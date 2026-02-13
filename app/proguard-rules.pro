@@ -43,3 +43,9 @@
 -keep class dagger.hilt.internal.** { *; }
 -keepnames class javax.inject.**
 -keepnames class javax.annotation.**
+
+# AndroidX Graphics Shapes (Material 3 Expressive)
+# Necesario para HomeCookieShape y HomeMorphingShape
+-keep class androidx.graphics.shapes.** { *; }
+-keepclassmembers class androidx.graphics.shapes.** { *; }
+-dontwarn androidx.graphics.shapes.**

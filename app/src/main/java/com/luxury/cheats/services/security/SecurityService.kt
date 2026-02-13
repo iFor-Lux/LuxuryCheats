@@ -27,30 +27,49 @@ class SecurityService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
+        try {
+            createNotificationChannel()
+        } catch (e: Exception) {
+            android.util.Log.e("SecurityService", "Error creating notification channel", e)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification = createNotification()
-        startForeground(NOTIF_ID, notification)
+        try {
+            val notification = createNotification()
+            startForeground(NOTIF_ID, notification)
+        } catch (e: Exception) {
+            android.util.Log.e("SecurityService", "Error starting foreground", e)
+            stopSelf()
+        }
         return START_STICKY
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         // Este método se llama cuando el usuario cierra la app desde recientes
-        runBlocking {
-            cleanupFiles()
+        try {
+            runBlocking {
+                cleanupFiles()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SecurityService", "Error cleaning up files", e)
         }
         stopSelf()
         super.onTaskRemoved(rootIntent)
     }
 
     private suspend fun cleanupFiles() {
-        val files = securityRepository.getInstalledFiles()
-        files.forEach { path ->
-            shizukuFileUtil.deleteFile(path)
+        try {
+            if (::securityRepository.isInitialized && ::shizukuFileUtil.isInitialized) {
+                val files = securityRepository.getInstalledFiles()
+                files.forEach { path ->
+                    shizukuFileUtil.deleteFile(path)
+                }
+                securityRepository.clearRegistry()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SecurityService", "Error in cleanupFiles", e)
         }
-        securityRepository.clearRegistry()
     }
 
     private fun createNotification(): Notification {

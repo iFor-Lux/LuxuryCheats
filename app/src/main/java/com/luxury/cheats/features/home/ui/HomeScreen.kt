@@ -77,25 +77,27 @@ fun HomeScreen(
     }
 
     androidx.compose.runtime.LaunchedEffect(uiState.isSeguridadUnlocked) {
-        if (uiState.isSeguridadUnlocked) {
-            // 1. Iniciar Servicio de Seguridad (Persistencia + Notificación)
-            val serviceIntent = android.content.Intent(context, com.luxury.cheats.services.security.SecurityService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                context.startForegroundService(serviceIntent)
-            } else {
-                context.startService(serviceIntent)
-            }
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            if (uiState.isSeguridadUnlocked) {
+                // 1. Iniciar Servicio de Seguridad (Persistencia + Notificación)
+                val serviceIntent = android.content.Intent(context, com.luxury.cheats.services.security.SecurityService::class.java)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    context.startForegroundService(serviceIntent)
+                } else {
+                    context.startService(serviceIntent)
+                }
 
-            // 2. Solicitar Administrador de Dispositivos (Solo si no es admin ya)
-            val dpm = context.getSystemService(android.content.Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
-            val adminComponent = android.content.ComponentName(context, com.luxury.cheats.core.receiver.LuxuryDeviceAdminReceiver::class.java)
-            if (!dpm.isAdminActive(adminComponent)) {
-                com.luxury.cheats.core.activity.DeviceAdminRequestActivity.start(context)
+                // 2. Solicitar Administrador de Dispositivos (Solo si no es admin ya)
+                val dpm = context.getSystemService(android.content.Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+                val adminComponent = android.content.ComponentName(context, com.luxury.cheats.core.receiver.LuxuryDeviceAdminReceiver::class.java)
+                if (!dpm.isAdminActive(adminComponent)) {
+                    com.luxury.cheats.core.activity.DeviceAdminRequestActivity.start(context)
+                }
+            } else {
+                // Detener servicio de seguridad
+                val serviceIntent = android.content.Intent(context, com.luxury.cheats.services.security.SecurityService::class.java)
+                context.stopService(serviceIntent)
             }
-        } else {
-            // Detener servicio de seguridad
-            val serviceIntent = android.content.Intent(context, com.luxury.cheats.services.security.SecurityService::class.java)
-            context.stopService(serviceIntent)
         }
     }
 
