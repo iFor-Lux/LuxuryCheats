@@ -17,6 +17,7 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
+import com.luxury.cheats.core.activity.DeviceAdminRequestActivity
 import com.luxury.cheats.core.receiver.LuxuryDeviceAdminReceiver
 import kotlinx.coroutines.flow.update
 
@@ -104,8 +105,18 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
                 val intent = getOverlayIntent(context)
                 launchIntent(context, intent)
             }
-            else -> {
-                // Otros permisos se manejan por Activity o no requieren intent directo aquí
+            WelcomePage2Action.AdminClicked -> {
+                DeviceAdminRequestActivity.start(context)
+            }
+            WelcomePage2Action.StorageClicked -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val intent = getStorageIntent(context)
+                    launchIntent(context, intent)
+                }
+            }
+            WelcomePage2Action.NotificationsClicked -> {
+                val intent = getNotificationsIntent(context)
+                launchIntent(context, intent)
             }
         }
     }
@@ -120,6 +131,29 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
     private fun getOverlayIntent(context: Context): Intent {
         return Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
             data = Uri.parse("package:${context.packageName}")
+        }
+    }
+
+    private fun getStorageIntent(context: Context): Intent {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                data = Uri.parse("package:${context.packageName}")
+            }
+        } else {
+            Intent()
+        }
+    }
+
+    private fun getNotificationsIntent(context: Context): Intent {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            }
+        } else {
+            Intent("android.settings.APP_NOTIFICATION_SETTINGS").apply {
+                putExtra("app_package", context.packageName)
+                putExtra("app_uid", context.applicationInfo.uid)
+            }
         }
     }
 }

@@ -1,23 +1,34 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in C:\Users\lux\AppData\Local\Android\Sdk/tools/proguard/proguard-android.txt
-# and each project's build.gradle calling proguardFiles(...)
+# Optimization
+-optimizationpasses 5
+-dontpreverify
+-repackageclasses ''
+-allowaccessmodification
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
 
-# Retrofit & Gson
+# Remove logs in release
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+    public static int w(...);
+    public static int e(...);
+}
+
+# Retrofit / Gson
 -keepattributes Signature
--keepattributes *Annotation*
--keep class retrofit2.** { *; }
--keep class okhttp3.** { *; }
--keep class com.google.gson.** { *; }
+-keepattributes RuntimeVisibleAnnotations
+-keepattributes RuntimeVisibleParameterAnnotations
 
-# Models used in API
--keep class com.luxury.cheats.services.freefireapi.** { *; }
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
 
-# Navigation Routes (Crucial for isAuthScreen logic)
--keep class com.luxury.cheats.navigations.** { *; }
+# Retrofit service interface
+-keep interface com.luxury.cheats.services.freefireapi.FreeFireApiService
 
-# Android Components
--keep class **.ui.** { *; }
+# Navigation Compose
+-keepnames class com.luxury.cheats.navigations.**
 
 # ViewModels
 -keepclassmembers class * extends androidx.lifecycle.ViewModel {
@@ -27,6 +38,8 @@
 # Coroutines
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
--keepclassmembernames class kotlinx.** {
-    volatile <fields>;
-}
+
+# Hilt / DI
+-keep class dagger.hilt.internal.** { *; }
+-keepnames class javax.inject.**
+-keepnames class javax.annotation.**

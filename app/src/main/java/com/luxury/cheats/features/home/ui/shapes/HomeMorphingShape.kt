@@ -19,7 +19,7 @@ import androidx.graphics.shapes.toPath
 class HomeMorphingShape(private val progress: Float) : Shape {
 
     private object ShapeConstants {
-        const val MORPH_DURATION = 0.4f // Más rápido para responder a Springs
+        const val MORPH_DURATION = 0.4f
         const val EASE_THRESHOLD = 0.5f
         const val EASE_FACTOR = 2f
         const val ONE_F = 1f
@@ -28,11 +28,11 @@ class HomeMorphingShape(private val progress: Float) : Shape {
         const val RADIUS_SCALE_FULL = 1f
         const val RADIUS_SCALE_WIDE = 1.15f
         
-        const val SMOOTHING = 0.95f // Máximo suavizado M3 Expressive
+        const val SMOOTHING = 0.95f
         
         const val COOKIE_VERTICES = 4
         const val STAR_VERTICES = 8
-        const val CIRCLE_VERTICES = 16 // Más vértices para círculo perfecto
+        const val CIRCLE_VERTICES = 16 
         
         const val STAR_INNER_COOKIE = 0.5f
         const val STAR_INNER_STD = 0.6f
@@ -43,25 +43,49 @@ class HomeMorphingShape(private val progress: Float) : Shape {
         const val HEXAGON_VERTICES = 6
     }
 
+    companion object {
+        // Cache global para evitar re-calculo entre instancias si el radio es el mismo
+        private var cachedRadius = -1f
+        private var cachedShapes = listOf<RoundedPolygon>()
+        private val morphCache = mutableMapOf<Pair<Int, Int>, Morph>()
+
+        private fun getShapes(radius: Float, centerX: Float, centerY: Float): List<RoundedPolygon> {
+            if (radius != cachedRadius) {
+                cachedRadius = radius
+                cachedShapes = MorphingHelper.createShapes(radius, centerX, centerY)
+                morphCache.clear()
+            }
+            return cachedShapes
+        }
+
+        private fun getMorph(fromIndex: Int, toIndex: Int, shapes: List<RoundedPolygon>): Morph {
+            val key = fromIndex to toIndex
+            return morphCache.getOrPut(key) {
+                Morph(shapes[fromIndex], shapes[toIndex])
+            }
+        }
+    }
+
     override fun createOutline(
         size: androidx.compose.ui.geometry.Size,
         layoutDirection: LayoutDirection,
         density: Density
     ): Outline {
         val radius = minOf(size.width, size.height) / 2f
-        val shapes = MorphingHelper.createShapes(radius, size.width / 2f, size.height / 2f)
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
         
+        val shapes = getShapes(radius, centerX, centerY)
         val totalShapes = shapes.size
-        val duration = ShapeConstants.MORPH_DURATION
-
+        
         val scaledProgress = progress * totalShapes % totalShapes
         val currentIndex = scaledProgress.toInt()
         val nextIndex = (currentIndex + 1) % totalShapes
 
         val localProgress = scaledProgress - currentIndex
-        val morphProgress = calculateMorphProgress(localProgress, duration)
+        val morphProgress = calculateMorphProgress(localProgress, ShapeConstants.MORPH_DURATION)
 
-        val morph = Morph(shapes[currentIndex], shapes[nextIndex])
+        val morph = getMorph(currentIndex, nextIndex, shapes)
         val morphedPath = morph.toPath(morphProgress).asComposePath()
 
         return Outline.Generic(morphedPath)
@@ -93,63 +117,19 @@ class HomeMorphingShape(private val progress: Float) : Shape {
             return listOf(
                 createStarShape(radius, centerX, centerY, cookieRounding, isCookie = true),
                 createCircleShape(radius, centerX, centerY),
-                createPolygonShape(
-                    ShapeConstants.SQUARE_VERTICES, 
-                    radius * ShapeConstants.RADIUS_SCALE_STD, 
-                    centerX, 
-                    centerY, 
-                    stdRounding
-                ),
-                createPolygonShape(
-                    ShapeConstants.TRIANGLE_VERTICES, 
-                    radius * ShapeConstants.RADIUS_SCALE_FULL, 
-                    centerX, 
-                    centerY, 
-                    stdRounding
-                ),
-                createPolygonShape(
-                    ShapeConstants.PENTAGON_VERTICES, 
-                    radius * ShapeConstants.RADIUS_SCALE_STD, 
-                    centerX, 
-                    centerY, 
-                    stdRounding
-                ),
-                createPolygonShape(
-                    ShapeConstants.HEXAGON_VERTICES, 
-                    radius * ShapeConstants.RADIUS_SCALE_STD, 
-                    centerX, 
-                    centerY, 
-                    stdRounding
-                ),
-                createStarShape(
-                    radius * ShapeConstants.RADIUS_SCALE_WIDE, 
-                    centerX, 
-                    centerY, 
-                    stdRounding, 
-                    isCookie = false
-                )
+                createPolygonShape(ShapeConstants.SQUARE_VERTICES, radius * ShapeConstants.RADIUS_SCALE_STD, centerX, centerY, stdRounding),
+                createPolygonShape(ShapeConstants.TRIANGLE_VERTICES, radius * ShapeConstants.RADIUS_SCALE_FULL, centerX, centerY, stdRounding),
+                createPolygonShape(ShapeConstants.PENTAGON_VERTICES, radius * ShapeConstants.RADIUS_SCALE_STD, centerX, centerY, stdRounding),
+                createPolygonShape(ShapeConstants.HEXAGON_VERTICES, radius * ShapeConstants.RADIUS_SCALE_STD, centerX, centerY, stdRounding),
+                createStarShape(radius * ShapeConstants.RADIUS_SCALE_WIDE, centerX, centerY, stdRounding, isCookie = false)
             )
         }
 
-        private fun createStarShape(
-            radius: Float, 
-            centerX: Float, 
-            centerY: Float, 
-            rounding: CornerRounding,
-            isCookie: Boolean
-        ): RoundedPolygon {
+        private fun createStarShape(radius: Float, centerX: Float, centerY: Float, rounding: CornerRounding, isCookie: Boolean): RoundedPolygon {
             return RoundedPolygon.star(
-                numVerticesPerRadius = if (isCookie) {
-                    ShapeConstants.COOKIE_VERTICES
-                } else {
-                    ShapeConstants.STAR_VERTICES
-                },
+                numVerticesPerRadius = if (isCookie) ShapeConstants.COOKIE_VERTICES else ShapeConstants.STAR_VERTICES,
                 radius = radius,
-                innerRadius = radius * if (isCookie) {
-                    ShapeConstants.STAR_INNER_COOKIE
-                } else {
-                    ShapeConstants.STAR_INNER_STD
-                },
+                innerRadius = radius * if (isCookie) ShapeConstants.STAR_INNER_COOKIE else ShapeConstants.STAR_INNER_STD,
                 rounding = rounding,
                 innerRounding = if (isCookie) rounding else CornerRounding.Unrounded,
                 centerX = centerX,
@@ -166,13 +146,7 @@ class HomeMorphingShape(private val progress: Float) : Shape {
             )
         }
 
-        private fun createPolygonShape(
-            vertices: Int, 
-            radius: Float, 
-            centerX: Float, 
-            centerY: Float, 
-            rounding: CornerRounding
-        ): RoundedPolygon {
+        private fun createPolygonShape(vertices: Int, radius: Float, centerX: Float, centerY: Float, rounding: CornerRounding): RoundedPolygon {
             return RoundedPolygon(
                 numVertices = vertices,
                 radius = radius,

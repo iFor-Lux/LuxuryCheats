@@ -7,10 +7,14 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import javax.inject.Inject
 
 /**
  * Modelo de datos para la información de descarga de un cheat.
@@ -24,7 +28,7 @@ data class DownloadItem(
 /**
  * Servicio para gestionar la obtención de enlaces de descarga desde Firebase.
  */
-class DownloadService {
+class DownloadService @Inject constructor() {
 
     /** Constantes de configuración de red y conversión de unidades. */
     companion object {
@@ -93,6 +97,57 @@ class DownloadService {
             "Error de red"
         }
     }
+
+    /**
+     * Descarga un archivo desde una URL a un archivo destino reportando el progreso.
+     * @param url La URL de descarga.
+     * @param destFile El archivo local donde se guardará.
+     * @return Flow que emite el progreso de 0.0 a 1.0.
+     */
+    fun downloadFile(url: String, destFile: java.io.File): Flow<Float> = flow {
+        var connection: HttpURLConnection? = null
+        try {
+            val urlObj = URL(url)
+            connection = withContext(Dispatchers.IO) {
+                urlObj.openConnection() as HttpURLConnection
+            }
+            connection.connect()
+
+            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+                throw java.io.IOException("Server returned HTTP ${connection.responseCode} ${connection.responseMessage}")
+            }
+
+            val fileLength = connection.contentLength
+            val input = connection.inputStream
+            val output = java.io.FileOutputStream(destFile)
+
+            val data = ByteArray(4096)
+            var total: Long = 0
+            var count: Int
+            
+            // Si no sabemos el tamaño, emitiremos progreso indeterminado o simulado parcial, 
+            // pero por ahora asumimos que funciona mejor con Content-Length.
+            
+            while (withContext(Dispatchers.IO) { input.read(data) }.also { count = it } != -1) {
+                withContext(Dispatchers.IO) { output.write(data, 0, count) }
+                total += count
+                if (fileLength > 0) {
+                    emit(total.toFloat() / fileLength)
+                }
+            }
+            emit(1f) // Asegurar 100% al finalizar
+
+            withContext(Dispatchers.IO) {
+                output.flush()
+                output.close()
+                input.close()
+            }
+        } catch (e: Exception) {
+            throw e
+        } finally {
+            connection?.disconnect()
+        }
+    }.flowOn(Dispatchers.IO)
 
     private fun formatFileSize(size: Long): String {
         val kb = size / BYTES_PER_KB

@@ -27,7 +27,9 @@ fun DotPatternBackground(
 ) {
     val isDark = isSystemInDarkTheme()
     val dotColor = getDotColor(isDark, MaterialTheme.colorScheme.onBackground)
-    val backgroundColor = MaterialTheme.colorScheme.background
+    
+    // Optimización: Reducir límite máximo para evitar freeze en pantallas grandes
+    val safeMaxLimit = 100 // Antes 200
 
     androidx.compose.foundation.layout.Spacer(
         modifier = modifier
@@ -37,38 +39,42 @@ fun DotPatternBackground(
                 val heightPx = size.height
 
                 // Cálculo de posiciones
-                val cols = ceil(widthPx / dotSpacingX).toInt().coerceAtMost(MAX_DOT_LIMIT)
-                val rows = ceil(heightPx / dotSpacingY).toInt().coerceAtMost(MAX_DOT_LIMIT)
+                val cols = ceil(widthPx / dotSpacingX).toInt().coerceAtMost(safeMaxLimit)
+                val rows = ceil(heightPx / dotSpacingY).toInt().coerceAtMost(safeMaxLimit)
 
                 val startX = (widthPx - (cols - 1) * dotSpacingX) / 2f
                 val startY = (heightPx - (rows - 1) * dotSpacingY) / 2f
 
-                val dots = buildList {
-                    for (r in 0 until rows) {
-                        for (c in 0 until cols) {
-                            val x = startX + c * dotSpacingX
-                            val y = startY + r * dotSpacingY
-                            val fadeAlpha = calculateFadeAlpha(y)
-                            
-                            add(
-                                Triple(
-                                    Offset(x, y),
-                                    dotRadius,
-                                    dotColor.copy(alpha = dotColor.alpha * fadeAlpha)
-                                )
-                            )
-                        }
+                // Batch circles by alpha to minimize draw calls
+                // Key: Alpha (0..100 int for map key), Value: List of offsets
+                val pointsByAlpha = mutableMapOf<Int, MutableList<Offset>>()
+
+                for (r in 0 until rows) {
+                    val y = startY + r * dotSpacingY
+                    val fadeAlpha = calculateFadeAlpha(y)
+                    
+                    if (fadeAlpha <= 0f) continue // Skip invisible dots
+
+                    val alphaKey = (fadeAlpha * 100).toInt()
+                    val list = pointsByAlpha.getOrPut(alphaKey) { mutableListOf() }
+
+                    for (c in 0 until cols) {
+                        val x = startX + c * dotSpacingX
+                        list.add(Offset(x, y))
                     }
                 }
 
                 onDrawBehind {
-                    // drawRect(color = backgroundColor) // Eliminado para transparencia
-                    
-                    dots.forEach { (offset, radius, color) ->
-                        drawCircle(
+                    pointsByAlpha.forEach { (alphaKey, offsets) ->
+                        val alpha = alphaKey / 100f
+                        val color = dotColor.copy(alpha = dotColor.alpha * alpha)
+                        
+                        drawPoints(
+                            points = offsets,
+                            pointMode = androidx.compose.ui.graphics.PointMode.Points,
                             color = color,
-                            radius = radius,
-                            center = offset
+                            strokeWidth = dotRadius * 2,
+                            cap = androidx.compose.ui.graphics.StrokeCap.Round
                         )
                     }
                 }

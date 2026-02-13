@@ -16,6 +16,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.luxury.cheats.R
 import com.luxury.cheats.features.welcome.splash.logic.sprays.WelcomeSpraysAnimations
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
+
 
 /**
  * Sección de Sprays decorativos
@@ -68,6 +72,8 @@ fun WelcomeSpraysSection(
     }
 }
 
+
+
 @Composable
 private fun SpraySprite(
     drawableRes: Int,
@@ -76,8 +82,11 @@ private fun SpraySprite(
     offsetY: Dp,
     animationOffset: Pair<Dp, Dp>
 ) {
-    Image(
-        painter = painterResource(id = drawableRes),
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(drawableRes)
+            .crossfade(true)
+            .build(),
         contentDescription = null,
         modifier = Modifier
             .size(size)

@@ -58,15 +58,7 @@ import com.luxury.cheats.features.download.logic.DownloadViewModel
 fun DownloadArchivoBottomSheet(
     params: DownloadParams,
     onDismissRequest: () -> Unit,
-    viewModel: DownloadViewModel = viewModel(
-        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val service = com.luxury.cheats.features.download.service.DownloadService()
-                @Suppress("UNCHECKED_CAST")
-                return DownloadViewModel(service) as T
-            }
-        }
-    ),
+    viewModel: DownloadViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     sheetState: SheetState = rememberModalBottomSheetState()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -83,6 +75,8 @@ fun DownloadArchivoBottomSheet(
         )
     }
 
+    val (showDetail, setShowDetail) = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
@@ -90,21 +84,51 @@ fun DownloadArchivoBottomSheet(
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f),
         shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
         dragHandle = {
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 24.dp)
-                    .size(width = 32.dp, height = 4.dp)
-                    .clip(RoundedCornerShape(2.5.dp))
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
-            )
+            if (uiState.status != DownloadStatus.COMPLETED && uiState.status != DownloadStatus.ERROR) {
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = 24.dp)
+                        .size(width = 32.dp, height = 4.dp)
+                        .clip(RoundedCornerShape(2.5.dp))
+                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                )
+            }
         }
     ) {
-        DownloadArchivoContent(
-            fileName = uiState.fileName,
-            fileWeight = uiState.fileWeight,
-            progress = uiState.progress,
-            status = uiState.status
-        )
+        when (uiState.status) {
+            DownloadStatus.COMPLETED -> {
+                com.luxury.cheats.features.widgets.BienContent(
+                    onContinueClick = { onDismissRequest() }
+                )
+            }
+            DownloadStatus.ERROR -> {
+                com.luxury.cheats.features.widgets.MalContent(
+                    onViewProblemsClick = { setShowDetail(true) },
+                    onExitClick = { onDismissRequest() }
+                )
+                
+                if (showDetail) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = { setShowDetail(false) },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(onClick = { setShowDetail(false) }) {
+                                Text("OK")
+                            }
+                        },
+                        title = { Text("Detalle del Error") },
+                        text = { Text(uiState.fileWeight) } // fileWeight contiene el mensaje de error en estado ERROR
+                    )
+                }
+            }
+            else -> {
+                DownloadArchivoContent(
+                    fileName = uiState.fileName,
+                    fileWeight = uiState.fileWeight,
+                    progress = uiState.progress,
+                    status = uiState.status
+                )
+            }
+        }
     }
 }
 

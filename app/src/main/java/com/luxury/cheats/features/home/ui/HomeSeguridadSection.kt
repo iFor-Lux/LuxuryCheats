@@ -47,35 +47,53 @@ fun HomeSeguridadSection(
     onClick: () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val infiniteTransition = rememberInfiniteTransition(label = "morph")
+    
+    // Optimización 1: Solo ejecutar animaciones si está desbloqueado
+    // Si no, usamos valores estáticos para evitar recomposición infinita
+    val morphProgress: Float
+    val rotation: Float
+    
+    if (isUnlocked) {
+        val infiniteTransition = rememberInfiniteTransition(label = "morph")
+        
+        val morphProgressAnim by infiniteTransition.animateFloat(
+            initialValue = 0f, targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                tween(SeguridadConstants.MORPH_DURATION, easing = LinearEasing)
+            ),
+            label = "morphProgress"
+        )
+        morphProgress = morphProgressAnim
 
-    val morphProgressRaw by infiniteTransition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            tween(SeguridadConstants.MORPH_DURATION, easing = LinearEasing)
-        ),
-        label = "morphProgress"
-    )
+        val rotationAnim by infiniteTransition.animateFloat(
+            initialValue = 0f, targetValue = SeguridadConstants.ROTATION_END,
+            animationSpec = infiniteRepeatable(
+                tween(SeguridadConstants.ROTATION_DURATION, easing = LinearEasing)
+            ),
+            label = "rotation"
+        )
+        rotation = rotationAnim
+    } else {
+        morphProgress = 0f
+        rotation = 0f
+    }
 
-    val rotationRaw by infiniteTransition.animateFloat(
-        initialValue = 0f, targetValue = SeguridadConstants.ROTATION_END,
-        animationSpec = infiniteRepeatable(
-            tween(SeguridadConstants.ROTATION_DURATION, easing = LinearEasing)
-        ),
-        label = "rotation"
-    )
+    // Instancias de shapes con caché independiente
+    val outerCookieShape = remember { HomeCookieShape() }
+    val innerCookieShape = remember { HomeCookieShape() }
 
-    val config = remember(isUnlocked, morphProgressRaw, rotationRaw) {
-        val morphProgress = if (isUnlocked) morphProgressRaw else 0f
+    // Optimización 2: Configuración estable (sin valores animados)
+    // Esto evita que 'config' cambie en cada frame
+    val config = remember(isUnlocked) {
         SecurityConfig(
-            morphProgress = morphProgress,
-            rotation = if (isUnlocked) rotationRaw else 0f,
-            outerShape = if (isUnlocked) CircleShape else HomeCookieShape,
-            innerShape = if (isUnlocked) HomeMorphingShape(morphProgress) else HomeCookieShape,
+            outerShape = if (isUnlocked) CircleShape else outerCookieShape,
             sizeOuter = if (isUnlocked) 160.dp else 280.dp,
             sizeInner = if (isUnlocked) 140.dp else 220.dp
         )
     }
+    
+    // Shape dinámico solo si es necesario (el único que depende de progreso)
+    val innerShape = if (isUnlocked) HomeMorphingShape(morphProgress) else innerCookieShape
 
     Box(
         modifier = modifier.requiredSize(280.dp),
@@ -94,16 +112,18 @@ fun HomeSeguridadSection(
             contentAlignment = Alignment.Center
         ) {
             SecurityBackground(config.outerShape)
-            SecurityButton(config)
+            SecurityButton(
+                config = config, 
+                innerShape = innerShape,
+                rotation = rotation
+            )
         }
     }
 }
 
+// Optimización 3: Data class inmutable y estable
 private data class SecurityConfig(
-    val morphProgress: Float,
-    val rotation: Float,
     val outerShape: androidx.compose.ui.graphics.Shape,
-    val innerShape: androidx.compose.ui.graphics.Shape,
     val sizeOuter: androidx.compose.ui.unit.Dp,
     val sizeInner: androidx.compose.ui.unit.Dp
 )
@@ -119,12 +139,17 @@ private fun BoxScope.SecurityBackground(shape: androidx.compose.ui.graphics.Shap
 }
 
 @Composable
-private fun SecurityButton(config: SecurityConfig) {
+private fun SecurityButton(
+    config: SecurityConfig,
+    innerShape: androidx.compose.ui.graphics.Shape,
+    rotation: Float
+) {
     Box(
         modifier = Modifier
             .requiredSize(config.sizeInner)
-            .graphicsLayer { rotationZ = config.rotation }
-            .clip(config.innerShape)
+            // Optimización 4: Rotación en layer (GPU) sin recomposición
+            .graphicsLayer { rotationZ = rotation }
+            .clip(innerShape)
             .background(MaterialTheme.colorScheme.tertiary),
         contentAlignment = Alignment.Center
     ) {
@@ -134,7 +159,8 @@ private fun SecurityButton(config: SecurityConfig) {
             tint = MaterialTheme.colorScheme.onTertiary,
             modifier = Modifier
                 .size(SeguridadConstants.ICON_SIZE.dp)
-                .graphicsLayer { rotationZ = -config.rotation }
+                // Contra-rotación también en layer
+                .graphicsLayer { rotationZ = -rotation }
         )
     }
 }

@@ -17,12 +17,25 @@ private const val COOKIE_ROUNDING_RATIO = 0.22f
 /**
  * Shape de "Cookie" de 4 lados al estilo Material Design 3 Expressive.
  */
-val HomeCookieShape: Shape = object : Shape {
+/**
+ * Shape de "Cookie" de 4 lados al estilo Material Design 3 Expressive.
+ * Convertido a clase para permitir cache local por instancia.
+ */
+class HomeCookieShape : Shape {
+    // Cache para evitar recomposiciones costosas
+    private var cachedSize: androidx.compose.ui.geometry.Size? = null
+    private var cachedOutline: Outline? = null
+
     override fun createOutline(
         size: androidx.compose.ui.geometry.Size,
         layoutDirection: LayoutDirection,
         density: Density
     ): Outline {
+        // Retornar caché si el tamaño no ha cambiado
+        if (size == cachedSize && cachedOutline != null) {
+            return cachedOutline!!
+        }
+
         val width = size.width
         val height = size.height
         val minSize = minOf(width, height)
@@ -44,6 +57,12 @@ val HomeCookieShape: Shape = object : Shape {
         )
 
         val path = polygon.toPath().asComposePath()
-        return Outline.Generic(path)
+        val outline = Outline.Generic(path)
+
+        // Actualizar caché
+        cachedSize = size
+        cachedOutline = outline
+
+        return outline
     }
 }

@@ -11,12 +11,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import androidx.lifecycle.viewModelScope
+import android.content.Intent
 
 /**
  * ViewModel para la pantalla Home
  * Gestiona la visibilidad condicional de las secciones y el estado del usuario.
  */
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 /**
@@ -28,7 +30,8 @@ class HomeViewModel @Inject constructor(
     private val preferencesService: com.luxury.cheats.services.storage.UserPreferencesService,
     private val playerRepository: com.luxury.cheats.services.freefireapi.PlayerRepository,
     private val updateService: com.luxury.cheats.features.update.service.UpdateService,
-    private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService
+    private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService,
+    @ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -141,6 +144,12 @@ class HomeViewModel @Inject constructor(
             when (type) {
                 "seguridad" -> {
                     val newUnlocked = !state.isSeguridadUnlocked
+                    if (newUnlocked) {
+                        addNotification("SEGURIDAD ACTIVADA", NotificationType.SUCCESS)
+                    } else {
+                        addNotification("SEGURIDAD DESACTIVADA", NotificationType.INFO)
+                    }
+
                     state.copy(
                         isSeguridadUnlocked = newUnlocked,
                         isIdAndConsoleVisible = if (!newUnlocked) false else state.isIdAndConsoleVisible,
