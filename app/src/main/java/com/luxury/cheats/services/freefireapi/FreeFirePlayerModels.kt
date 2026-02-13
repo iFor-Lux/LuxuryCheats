@@ -1,10 +1,12 @@
 package com.luxury.cheats.services.freefireapi
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
 /**
  * Respuesta principal de la API de búsqueda de jugadores.
  */
+@Keep
 data class PlayerResponse(
     @SerializedName("basicinfo") val basicInfo: BasicInfo? = null,
     @SerializedName("socialinfo") val socialInfo: SocialInfo? = null,
@@ -14,6 +16,7 @@ data class PlayerResponse(
 )
 
 /** Información básica y de rango del jugador. */
+@Keep
 data class BasicInfo(
     @SerializedName("accountid") val accountId: String? = null,
     @SerializedName("nickname") val nickname: String? = null,
@@ -30,6 +33,7 @@ data class BasicInfo(
 )
 
 /** Información social y de perfil. */
+@Keep
 data class SocialInfo(
     @SerializedName("gender") val gender: String? = null,
     @SerializedName("language") val language: String? = null,
@@ -37,6 +41,7 @@ data class SocialInfo(
 )
 
 /** Información del clan al que pertenece el jugador. */
+@Keep
 data class ClanInfo(
     @SerializedName("clanname") val clanName: String? = null,
     @SerializedName("clanlevel") val clanLevel: Int? = null,
@@ -45,6 +50,7 @@ data class ClanInfo(
 )
 
 /** Información de la mascota equipada. */
+@Keep
 data class PetInfo(
     @SerializedName("name") val name: String? = null,
     @SerializedName("level") val level: Int? = null,
@@ -52,6 +58,7 @@ data class PetInfo(
 )
 
 /** Información del puntaje de crédito y recompensas. */
+@Keep
 data class CreditInfo(
     @SerializedName("creditscore") val creditScore: Int? = null,
     @SerializedName("rewardstate") val rewardState: String? = null

@@ -51,6 +51,7 @@ import com.luxury.cheats.features.login.pantalla.logic.LoginPantallaState
 fun LoginPantallaScreen(
     onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier,
+    onUpdateBackgroundVisibility: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     val viewModel: LoginPantallaViewModel = viewModel(
@@ -67,6 +68,12 @@ fun LoginPantallaScreen(
 
     LaunchedEffect(state.isLoginSuccessful) {
         if (state.isLoginSuccessful) onLoginSuccess()
+    }
+
+    // Controlar la visibilidad del fondo global basado en el estado de interacción
+    LaunchedEffect(state.interactionState) {
+        val isVisible = state.interactionState != LoginInteractionState.EXPANDED
+        onUpdateBackgroundVisibility(isVisible)
     }
 
     LoginScreenContent(
@@ -98,6 +105,8 @@ private fun LoginScreenContent(
             },
         contentAlignment = Alignment.Center
     ) {
+        // Fondo local eliminado para usar el global y evitar parpadeos
+
         LoginMainCard(state, onAction, onLoginSuccess)
 
         com.luxury.cheats.features.login.teclado.ui.LoginTecladoSection(

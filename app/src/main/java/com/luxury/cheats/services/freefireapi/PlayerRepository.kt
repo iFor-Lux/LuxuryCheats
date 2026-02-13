@@ -29,7 +29,7 @@ class PlayerRepository @Inject constructor(
     suspend fun searchAcrossRegions(
         uid: String,
         onConsoleLog: (String) -> Unit
-    ): PlayerResponse? = coroutineScope {
+    ): PlayerResponse? = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val servers = listOf("us", "br", "ind", "sg", "id")
         val resultDeferred = CompletableDeferred<PlayerResponse?>()
         
@@ -38,14 +38,23 @@ class PlayerRepository @Inject constructor(
             launch {
                 try {
                     onConsoleLog("\nRASTREANDO REGIÓN: ${server.uppercase()}...")
-                    val response = ffApiService.getPlayerInfo(server, uid)
+                    val call = ffApiService.getPlayerInfo(server, uid)
+                    val response = call.execute()
                     
                     if (response.isSuccessful && response.body()?.basicInfo != null) {
                         // Si encontramos al jugador, completamos el resultado
                         resultDeferred.complete(response.body())
+                    } else {
+                         // Loguear si la respuesta no fue exitosa o body nulo para depuración
+                         if (!response.isSuccessful) {
+                             onConsoleLog("\nFALLO REGIÓN ${server.uppercase()}: Code ${response.code()}")
+                         }
                     }
                 } catch (e: Exception) {
-                    onConsoleLog("\nERROR EN REGIÓN ${server.uppercase()}: ${e.message ?: "TIEMPO AGOTADO"}")
+                    // Log completo del error para depuración
+                    val errorMsg = e.message ?: e.toString()
+                    onConsoleLog("\nERROR EN REGIÓN ${server.uppercase()}: $errorMsg")
+                    e.printStackTrace() // Para logcat
                 }
             }
         }

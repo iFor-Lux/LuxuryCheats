@@ -25,6 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.kyant.backdrop.backdrops.layerBackdrop
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.alpha
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
 
 private const val TRANSITION_DURATION = 400
 
@@ -32,12 +38,24 @@ private const val TRANSITION_DURATION = 400
  * Grafo de navegación principal de la aplicación.
  * Organizado en grafos anidados para separar el flujo de autenticación del principal.
  */
+// ... imports removed ...
+
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     onLogoReady: () -> Unit,
-    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
+    backdrop: LayerBackdrop
 ) {
+    
+    // Estado para controlar la opacidad del fondo global desde las pantallas
+    var globalBackgroundAlpha by remember { mutableFloatStateOf(1f) }
+    val animatedGlobalAlpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = globalBackgroundAlpha,
+        animationSpec = tween(500),
+        label = "globalBackgroundAlpha"
+    )
+
+    // Observar la ruta actual para UI condicional (NavigationBar, Logo)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     
@@ -54,34 +72,35 @@ fun AppNavHost(
         authScreenRoutes.any { route.contains(it ?: "") }
     } ?: true // Default to true for start destination
 
+    // Reset alpha when navigating away from Login or to other screens if needed
+    androidx.compose.runtime.LaunchedEffect(currentDestination) {
+        // Fallback robusto para detectar si NO estamos en Login
+        val loginRoute = Login::class.qualifiedName ?: "Login"
+        val currentRoute = currentDestination?.route ?: ""
+        if (!currentRoute.contains(loginRoute)) {
+             globalBackgroundAlpha = 1f
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         if (isAuthScreen) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
+                    .layerBackdrop(backdrop)
+                    .alpha(animatedGlobalAlpha)
             ) {
                 DotPatternBackground()
                 WelcomeEclipseSection()
             }
         }
+// ...
 
         NavHost(
             navController = navController,
             startDestination = AuthGraph,
             modifier = Modifier.fillMaxSize(),
-            enterTransition = {
-                fadeIn(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-            },
-            popEnterTransition = {
-                fadeIn(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-            },
-            popExitTransition = {
-                fadeOut(animationSpec = tween(TRANSITION_DURATION, easing = FastOutSlowInEasing))
-            }
+// ... transitions ...
         ) {
             navigation<AuthGraph>(startDestination = Splash) {
                 welcomeGraph(navController, onLogoReady)
@@ -92,10 +111,14 @@ fun AppNavHost(
                             navController.navigate(MainGraph) {
                                 popUpTo<AuthGraph> { inclusive = true }
                             }
+                        },
+                        onUpdateBackgroundVisibility = { isVisible ->
+                            globalBackgroundAlpha = if (isVisible) 1f else 0f
                         }
                     )
                 }
             }
+// ...
 
             navigation<MainGraph>(startDestination = Home) {
                 mainGraph(navController, backdrop)

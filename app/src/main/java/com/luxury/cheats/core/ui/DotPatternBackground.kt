@@ -11,10 +11,9 @@ import androidx.compose.ui.geometry.Offset
 import kotlin.math.ceil
 
 // Constantes para Detekt y legibilidad
-private const val FADE_HEIGHT_PX = 1500f
-private const val MAX_DOT_LIMIT = 150
-private const val DOT_COLOR_ALPHA_DARK = 0.3f
-private const val DOT_COLOR_ALPHA_LIGHT = 0.7f
+private const val MAX_DOT_LIMIT = 200
+private const val DOT_COLOR_ALPHA_DARK = 0.5f // Aumentado un poco más
+private const val DOT_COLOR_ALPHA_LIGHT = 0.6f
 
 /**
  * Background estático de puntos (Dot Pattern)
@@ -22,9 +21,9 @@ private const val DOT_COLOR_ALPHA_LIGHT = 0.7f
 @Composable
 fun DotPatternBackground(
     modifier: Modifier = Modifier,
-    dotSpacingX: Float = 40f,
-    dotSpacingY: Float = 40f,
-    dotRadius: Float = 2f
+    dotSpacingX: Float = 50f,
+    dotSpacingY: Float = 50f,
+    dotRadius: Float = 3f
 ) {
     val isDark = isSystemInDarkTheme()
     val dotColor = getDotColor(isDark, MaterialTheme.colorScheme.onBackground)
@@ -37,21 +36,20 @@ fun DotPatternBackground(
                 val widthPx = size.width
                 val heightPx = size.height
 
-                // Cálculo de posiciones (solo se ejecuta cuando cambia el tamaño)
+                // Cálculo de posiciones
                 val cols = ceil(widthPx / dotSpacingX).toInt().coerceAtMost(MAX_DOT_LIMIT)
                 val rows = ceil(heightPx / dotSpacingY).toInt().coerceAtMost(MAX_DOT_LIMIT)
 
                 val startX = (widthPx - (cols - 1) * dotSpacingX) / 2f
                 val startY = (heightPx - (rows - 1) * dotSpacingY) / 2f
 
-                // Pre-calculamos los puntos para no iterar y calcular alphas en cada draw
                 val dots = buildList {
                     for (r in 0 until rows) {
                         for (c in 0 until cols) {
                             val x = startX + c * dotSpacingX
                             val y = startY + r * dotSpacingY
                             val fadeAlpha = calculateFadeAlpha(y)
-                            // Almacenamos posición y color final premultiplicado
+                            
                             add(
                                 Triple(
                                     Offset(x, y),
@@ -64,7 +62,7 @@ fun DotPatternBackground(
                 }
 
                 onDrawBehind {
-                    drawRect(color = backgroundColor)
+                    // drawRect(color = backgroundColor) // Eliminado para transparencia
                     
                     dots.forEach { (offset, radius, color) ->
                         drawCircle(
@@ -87,12 +85,16 @@ private fun getDotColor(isDark: Boolean, onBackground: Color): Color {
     }
 }
 
+private const val FADE_START_Y = 80f // Ajustado: Empieza casi desde arriba
+private const val FADE_END_Y = 2500f
 
 private fun calculateFadeAlpha(y: Float): Float {
-    return if (y < FADE_HEIGHT_PX) {
-        val progress = y / FADE_HEIGHT_PX
-        progress * progress
-    } else 1f
+    return when {
+        y < FADE_START_Y -> 0f // Completamente transparente al inicio
+        y < FADE_END_Y -> {
+            val progress = (y - FADE_START_Y) / (FADE_END_Y - FADE_START_Y)
+            progress * progress // Interpolación cuadrática para suavidad premium
+        }
+        else -> 1f
+    }
 }
-
-

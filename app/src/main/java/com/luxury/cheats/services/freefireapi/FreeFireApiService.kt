@@ -1,14 +1,17 @@
 package com.luxury.cheats.services.freefireapi
 
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import androidx.annotation.Keep
 
 /**
  * Interfaz de Retrofit para la API de Free Fire.
  */
+@Keep
 interface FreeFireApiService {
     /**
      * Obtiene la información pública de un jugador.
@@ -18,10 +21,10 @@ interface FreeFireApiService {
      * @return [Response] con los datos del [PlayerResponse].
      */
     @GET("get_player_personal_show")
-    suspend fun getPlayerInfo(
+    fun getPlayerInfo(
         @Query("server") server: String,
         @Query("uid") uid: String
-    ): Response<PlayerResponse>
+    ): Call<PlayerResponse>
 
     /** Fábrica para crear instancias del servicio de API. */
     companion object {
