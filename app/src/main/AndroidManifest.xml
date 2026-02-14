@@ -23,7 +23,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LuxuryCheats"
-        android:networkSecurityConfig="@xml/network_security_config">
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:enableOnBackInvokedCallback="true">
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
@@ -36,15 +37,7 @@
             android:name="moe.shizuku.client.V3_SUPPORT"
             android:value="true" />
 
-        <service
-            android:name=".features.home.floating.service.FloatingService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
-                android:value="System overlay for gaming control panel and quick adjustments outside the app main activity." />
-        </service>
+
 
         <service
             android:name=".services.security.SecurityService"

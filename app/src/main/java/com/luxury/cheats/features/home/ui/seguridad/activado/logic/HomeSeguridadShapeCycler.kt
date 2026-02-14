@@ -15,23 +15,23 @@ import androidx.graphics.shapes.RoundedPolygon
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 object HomeSeguridadShapeCycler {
-    
     /**
      * Lista de formas disponibles para ciclar.
      * Cada forma es un RoundedPolygon de MaterialShapes.
      * Solo incluye formas confirmadas disponibles en Material 3 Expressive.
      */
-    private val availableShapes = listOf(
-        ShapeInfo("Cookie7Sided", MaterialShapes.Cookie7Sided),
-        ShapeInfo("Cookie9Sided", MaterialShapes.Cookie9Sided),
-        ShapeInfo("Cookie4Sided", MaterialShapes.Cookie4Sided),
-        ShapeInfo("Cookie6Sided", MaterialShapes.Cookie6Sided),
-        ShapeInfo("Gem", MaterialShapes.Gem),
-        ShapeInfo("SoftBurst", MaterialShapes.SoftBurst),
-        ShapeInfo("Clover4Leaf", MaterialShapes.Clover4Leaf),
-        ShapeInfo("Pill", MaterialShapes.Pill)
-    )
-    
+    private val availableShapes =
+        listOf(
+            ShapeInfo("Cookie7Sided", MaterialShapes.Cookie7Sided),
+            ShapeInfo("Cookie9Sided", MaterialShapes.Cookie9Sided),
+            ShapeInfo("Cookie4Sided", MaterialShapes.Cookie4Sided),
+            ShapeInfo("Cookie6Sided", MaterialShapes.Cookie6Sided),
+            ShapeInfo("Gem", MaterialShapes.Gem),
+            ShapeInfo("SoftBurst", MaterialShapes.SoftBurst),
+            ShapeInfo("Clover4Leaf", MaterialShapes.Clover4Leaf),
+            ShapeInfo("Pill", MaterialShapes.Pill),
+        )
+
     /**
      * Composable que gestiona el estado del índice de forma actual.
      * Retorna la forma actual y una función para avanzar al siguiente.
@@ -39,14 +39,14 @@ object HomeSeguridadShapeCycler {
     @Composable
     fun rememberShapeCycleState(): ShapeCycleState {
         var currentIndex by remember { mutableIntStateOf(0) }
-        
+
         return ShapeCycleState(
             currentShape = availableShapes[currentIndex],
             nextShape = {
                 currentIndex = (currentIndex + 1) % availableShapes.size
             },
             currentIndex = currentIndex,
-            totalShapes = availableShapes.size
+            totalShapes = availableShapes.size,
         )
     }
 }
@@ -56,7 +56,7 @@ object HomeSeguridadShapeCycler {
  */
 data class ShapeInfo(
     val name: String,
-    val polygon: RoundedPolygon
+    val polygon: RoundedPolygon,
 )
 
 /**
@@ -66,5 +66,5 @@ data class ShapeCycleState(
     val currentShape: ShapeInfo,
     val nextShape: () -> Unit,
     val currentIndex: Int,
-    val totalShapes: Int
+    val totalShapes: Int,
 )

@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
-import org.json.JSONObject
 
 /**
  * ViewModel para la pantalla de Perfil.
@@ -21,7 +21,7 @@ class PerfilViewModel(
     private val preferencesService: com.luxury.cheats.services.storage.UserPreferencesService,
     private val authService: com.luxury.cheats.services.firebase.AuthService,
     private val context: android.content.Context,
-    private val fileService: com.luxury.cheats.services.storage.FileService
+    private val fileService: com.luxury.cheats.services.storage.FileService,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PerfilState())
     val uiState: StateFlow<PerfilState> = _uiState.asStateFlow()
@@ -44,32 +44,36 @@ class PerfilViewModel(
 
     private suspend fun loadAllData() {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            val credentials = preferencesService.getCredentials()
+            val credentials = preferencesService.accessCredentials()
             val username = credentials?.first ?: return@withContext
-            
+
             val cache = preferencesService.accessProfileCache()
-            
+
             _uiState.update { state ->
+                val images = preferencesService.accessImages()
                 state.copy(
                     username = username,
                     userId = cache?.get("id") ?: username,
-                    profileImageUri = preferencesService.getProfileImage(),
-                    bannerImageUri = preferencesService.getBannerImage(),
+                    profileImageUri = images.first,
+                    bannerImageUri = images.second,
                     androidVersion = android.os.Build.VERSION.RELEASE,
                     targetSdk = android.os.Build.VERSION.SDK_INT.toString(),
                     architecture = (android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "").uppercase(),
                     appVersion = getAppVersion(),
-                    ram = getRamInfo()
+                    ram = getRamInfo(),
                 )
             }
 
             if (cache != null) {
-                processUserData(JSONObject().apply {
-                    put("_key", cache["id"])
-                    put("createdAt", cache["created"])
-                    put("expirationDate", cache["expiry"])
-                    put("device", cache["device"])
-                }, persistInCache = false)
+                processUserData(
+                    JSONObject().apply {
+                        put("_key", cache["id"])
+                        put("createdAt", cache["created"])
+                        put("expirationDate", cache["expiry"])
+                        put("device", cache["device"])
+                    },
+                    persistInCache = false,
+                )
             }
 
             fetchRemoteData(username)
@@ -118,12 +122,15 @@ class PerfilViewModel(
         }
     }
 
-    private fun processUserData(userData: JSONObject, persistInCache: Boolean = true) {
+    private fun processUserData(
+        userData: JSONObject,
+        persistInCache: Boolean = true,
+    ) {
         val createdAt = userData.optString("createdAt")
         val expirationDate = userData.optString("expirationDate")
         val firebaseId = userData.optString("_key")
         val deviceFromDb = userData.optString("device")
-        
+
         val (creationDate, creationHour) = parseCreationDate(createdAt)
         val (expiryDateText, remainingDays, isVip) = parseExpirationDate(expirationDate)
 
@@ -133,12 +140,12 @@ class PerfilViewModel(
                     "id" to (firebaseId ?: ""),
                     "created" to createdAt,
                     "expiry" to expirationDate,
-                    "device" to deviceFromDb
-                )
+                    "device" to deviceFromDb,
+                ),
             )
         }
 
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 userId = firebaseId,
                 isVip = isVip,
@@ -146,23 +153,24 @@ class PerfilViewModel(
                 creationHour = creationHour,
                 expiryDate = expiryDateText,
                 remainingDays = remainingDays,
-                model = deviceFromDb.uppercase()
-            ) 
+                model = deviceFromDb.uppercase(),
+            )
         }
     }
 
     private fun parseCreationDate(createdAt: String): Pair<String, String> {
         if (createdAt.isEmpty()) return "" to ""
-        
+
         return try {
             val zoneId = java.time.ZoneId.systemDefault()
-            val createdZoned = if (createdAt.all { it.isDigit() }) {
-                ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(createdAt.toLong()), zoneId)
-            } else {
-                ZonedDateTime.parse(createdAt, DateTimeFormatter.ISO_ZONED_DATE_TIME).withZoneSameInstant(zoneId)
-            }
-            createdZoned.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) to 
-                    createdZoned.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH))
+            val createdZoned =
+                if (createdAt.all { it.isDigit() }) {
+                    ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(createdAt.toLong()), zoneId)
+                } else {
+                    ZonedDateTime.parse(createdAt, DateTimeFormatter.ISO_ZONED_DATE_TIME).withZoneSameInstant(zoneId)
+                }
+            createdZoned.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) to
+                createdZoned.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH))
         } catch (ignored: Exception) {
             parseLegacyDate(createdAt)
         }
@@ -170,20 +178,23 @@ class PerfilViewModel(
 
     private fun parseLegacyDate(createdAt: String): Pair<String, String> {
         if (!createdAt.contains(" ")) return createdAt to ""
-        
+
         val parts = createdAt.split(" ")
         val datePart = parts[0].replace("-", "/")
-        val formattedDate = if (datePart.contains("/") && datePart.split("/")[0].length == YEAR_CHARS) {
-            val d = datePart.split("/")
-            "${d[2]}/${d[1]}/${d[0]}"
-        } else datePart
-        
+        val formattedDate =
+            if (datePart.contains("/") && datePart.split("/")[0].length == YEAR_CHARS) {
+                val d = datePart.split("/")
+                "${d[2]}/${d[1]}/${d[0]}"
+            } else {
+                datePart
+            }
+
         return formattedDate to parts[1].take(TIME_CHARS)
     }
 
     private fun parseExpirationDate(expirationDate: String): Triple<String, String, Boolean> {
         if (expirationDate.isEmpty() || expirationDate == "null") return Triple("", "", false)
-        
+
         return try {
             val expiryZoned = ZonedDateTime.parse(expirationDate, DateTimeFormatter.ISO_ZONED_DATE_TIME)
             val days = ChronoUnit.DAYS.between(ZonedDateTime.now(), expiryZoned)
@@ -201,7 +212,7 @@ class PerfilViewModel(
      */
     fun handleAction(action: PerfilAction) {
         when (action) {
-            PerfilAction.LogoutClicked -> preferencesService.clearCredentials()
+            PerfilAction.LogoutClicked -> preferencesService.accessCredentials(clear = true)
             is PerfilAction.ProfileImageSelected -> updateProfileImage(action.uri)
             is PerfilAction.BannerImageSelected -> updateBannerImage(action.uri)
             else -> {}
@@ -210,15 +221,15 @@ class PerfilViewModel(
 
     private fun updateProfileImage(uri: String) {
         val prefix = "profile.jpg"
-        val localUri = fileService?.saveImageToInternal(uri, prefix) ?: uri
-        preferencesService.saveImage(isBanner = false, uri = localUri)
+        val localUri = fileService.saveImageToInternal(uri, prefix)
+        preferencesService.accessImages(profile = localUri)
         _uiState.update { it.copy(profileImageUri = localUri) }
     }
 
     private fun updateBannerImage(uri: String) {
         val prefix = "banner.jpg"
-        val localUri = fileService?.saveImageToInternal(uri, prefix) ?: uri
-        preferencesService.saveImage(isBanner = true, uri = localUri)
+        val localUri = fileService.saveImageToInternal(uri, prefix)
+        preferencesService.accessImages(banner = localUri)
         _uiState.update { it.copy(bannerImageUri = localUri) }
     }
 }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
  */
 class WelcomePage3ViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(WelcomePage3State())
+
     /** Estado de la UI expuesto como StateFlow. */
     val uiState: StateFlow<WelcomePage3State> = _uiState.asStateFlow()
 
@@ -36,7 +37,7 @@ class WelcomePage3ViewModel : ViewModel() {
 
     /** Verifica el estado actual de Shizuku en el dispositivo. */
     fun checkShizukuStatus() {
-        _uiState.update { 
+        _uiState.update {
             it.copy(statusMessage = "Verificando estado de Shizuku...")
         }
         // Simulación de verificación

@@ -9,10 +9,12 @@ sealed class DownloadAction {
         val cheatName: String,
         val directUrl: String? = null,
         val directPath: String? = null,
-        val preloadedWeight: String = ""
+        val preloadedWeight: String = "",
     ) : DownloadAction()
+
     /** Ejecuta el proceso de descarga del archivo. */
     object StartDownload : DownloadAction()
+
     /** Reinicia el estado de la descarga. */
     object Reset : DownloadAction()
 }

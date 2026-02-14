@@ -9,20 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.luxury.cheats.core.ui.DotPatternBackground
-import com.luxury.cheats.core.ui.WelcomeEclipseSection
-import com.luxury.cheats.core.ui.WelcomeNavBarSection
-
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.luxury.cheats.core.ui.welcomeNavBarSection
 import com.luxury.cheats.features.welcome.page3.shizuku.logic.WelcomePage3ViewModel
 
 /**
@@ -33,20 +30,21 @@ import com.luxury.cheats.features.welcome.page3.shizuku.logic.WelcomePage3ViewMo
  * @param viewModel ViewModel encargado de la lógica de Shizuku.
  */
 @Composable
-fun WelcomePage3Screen(
+fun welcomePage3Screen(
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit,
-    viewModel: WelcomePage3ViewModel = viewModel()
+    viewModel: WelcomePage3ViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.checkShizukuStatus()
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    viewModel.checkShizukuStatus()
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -55,32 +53,34 @@ fun WelcomePage3Screen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(100.dp))
-            WelcomePage3TextSection()
+            welcomePage3TextSection()
 
             Spacer(modifier = Modifier.height(24.dp))
-            WelcomePage3Imagen()
+            welcomePage3Imagen()
 
             Spacer(modifier = Modifier.height(30.dp)) // Reducido para mejor ajuste
-            WelcomePage3Mensaje()
-            
+            welcomePage3Mensaje()
+
             // Espacio extra al final para que el contenido no quede debajo de la Nav Bar
             Spacer(modifier = Modifier.height(140.dp))
         }
 
-        WelcomeNavBarSection(
+        welcomeNavBarSection(
             currentPage = "3/4",
             onBack = onNavigateBack,
             onNext = onNavigateNext,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 40.dp, start = 24.dp, end = 24.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 40.dp, start = 24.dp, end = 24.dp),
         )
     }
 }

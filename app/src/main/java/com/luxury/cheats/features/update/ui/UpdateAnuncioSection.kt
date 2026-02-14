@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.core.theme.luxuryCheatsTheme
 
 /**
  * Widget de anuncio de actualización diseñado con estética Premium.
@@ -37,119 +37,128 @@ import com.luxury.cheats.core.theme.LuxuryCheatsTheme
  * - Soporte para Material You y temas Claro/Oscuro.
  */
 @Composable
-fun UpdateAnuncioSection(
+fun updateAnuncioSection(
     modifier: Modifier = Modifier,
     title: String = "NUEVA ACTUALIZACION",
-    description: String = "Actualiza la aplicación hoy mismo para desbloquear funciones increíbles, " +
-        "disfrutar de mejoras significativas en el rendimiento y descubrir una " +
-        "experiencia de usuario optimizada en toda la plataforma.",
-    onUpdateClick: () -> Unit = {}
+    description: String =
+        "Actualiza la aplicación hoy mismo para desbloquear funciones increíbles, " +
+            "disfrutar de mejoras significativas en el rendimiento y descubrir una " +
+            "experiencia de usuario optimizada en toda la plataforma.",
+    onUpdateClick: () -> Unit = {},
 ) {
     Box(
-        modifier = modifier
-            .width(350.dp)
-            .heightIn(min = 394.dp)
-            .clip(RoundedCornerShape(30.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.46f),
-                shape = RoundedCornerShape(30.dp)
-            )
-            .padding(24.dp),
-        contentAlignment = Alignment.TopCenter
+        modifier =
+            modifier
+                .width(350.dp)
+                .heightIn(min = 394.dp)
+                .clip(RoundedCornerShape(30.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.46f),
+                    shape = RoundedCornerShape(30.dp),
+                )
+                .padding(24.dp),
+        contentAlignment = Alignment.TopCenter,
     ) {
         Column(
             modifier = Modifier.padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            UpdateBanner()
-            UpdateTitle(title)
-            UpdateDescription(description)
+            updateBanner()
+            updateTitle(title)
+            updateDescription(description)
             Spacer(modifier = Modifier.padding(vertical = 4.dp))
-            UpdateButton(onUpdateClick)
+            updateButton(onUpdateClick)
         }
     }
 }
 
 @Composable
-private fun UpdateBanner() {
+private fun updateBanner() {
     val isPreview = LocalInspectionMode.current
     Box(
-        modifier = Modifier
-            .size(width = 300.dp, height = 140.dp)
-            .clip(RoundedCornerShape(25.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .size(width = 300.dp, height = 140.dp)
+                .clip(RoundedCornerShape(25.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center,
     ) {
         if (isPreview) {
             // Placeholder para evitar errores de renderizado con AVIF en el Preview
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = "Banner Placeholder",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         } else {
             // Placeholder Box (Removed local resource)
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)),
             )
         }
     }
 }
 
 @Composable
-private fun UpdateTitle(title: String) {
+private fun updateTitle(title: String) {
     Text(
         text = title.uppercase(),
-        color = MaterialTheme.colorScheme.primary, // Material You impact
+        color = MaterialTheme.colorScheme.primary,
+        // Material You impact
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Composable
-private fun UpdateDescription(description: String) {
+private fun updateDescription(description: String) {
     Text(
         text = description,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
         lineHeight = 18.sp,
-        textAlign = TextAlign.Start, // Align to left
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp)
+        textAlign = TextAlign.Start,
+        // Align to left
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp),
     )
 }
 
 @Composable
-private fun UpdateButton(onClick: () -> Unit) {
+private fun updateButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier.size(width = 187.dp, height = 40.dp),
         shape = RoundedCornerShape(25.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-        ),
-        contentPadding = PaddingValues(0.dp)
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ),
+        contentPadding = PaddingValues(0.dp),
     ) {
         Text(
             text = "IR A ACTUALIZAR",
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
         )
     }
 }
@@ -157,11 +166,11 @@ private fun UpdateButton(onClick: () -> Unit) {
 /** Preview del anuncio de actualización en tema oscuro. */
 @Preview(name = "Update Anuncio Dark", showBackground = true)
 @Composable
-fun UpdateAnuncioSectionPreviewDark() {
-    LuxuryCheatsTheme(darkTheme = true) {
+fun updateAnuncioSectionPreviewDark() {
+    luxuryCheatsTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
             Box(Modifier.padding(20.dp)) {
-                UpdateAnuncioSection()
+                updateAnuncioSection()
             }
         }
     }
@@ -170,11 +179,11 @@ fun UpdateAnuncioSectionPreviewDark() {
 /** Preview del anuncio de actualización en tema claro. */
 @Preview(name = "Update Anuncio Light", showBackground = true)
 @Composable
-fun UpdateAnuncioSectionPreviewLight() {
-    LuxuryCheatsTheme(darkTheme = false) {
+fun updateAnuncioSectionPreviewLight() {
+    luxuryCheatsTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
             Box(Modifier.padding(20.dp)) {
-                UpdateAnuncioSection()
+                updateAnuncioSection()
             }
         }
     }

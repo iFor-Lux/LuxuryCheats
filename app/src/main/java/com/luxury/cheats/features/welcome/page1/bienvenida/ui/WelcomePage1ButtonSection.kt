@@ -38,38 +38,38 @@ private object ButtonConstants {
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun WelcomePage1ButtonSection(
+fun welcomePage1ButtonSection(
     onNavigateNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
     val radius by animateDpAsState(
         if (pressed) ButtonConstants.PRESSED_RADIUS else ButtonConstants.DEFAULT_RADIUS,
-        label = "radius"
+        label = "radius",
     )
 
     Button(
         onClick = onNavigateNext,
         interactionSource = interactionSource,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = ButtonConstants.HORIZONTAL_PADDING)
-            .height(ButtonConstants.HEIGHT),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = ButtonConstants.HORIZONTAL_PADDING)
+                .height(ButtonConstants.HEIGHT),
         shape = RoundedCornerShape(radius),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        ),
-        border = BorderStroke(ButtonConstants.BORDER_WIDTH, MaterialTheme.colorScheme.tertiary)
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+        border = BorderStroke(ButtonConstants.BORDER_WIDTH, MaterialTheme.colorScheme.tertiary),
     ) {
         Text(
             text = stringResource(R.string.welcome_page1_start),
             fontSize = ButtonConstants.FONT_SIZE,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
     }
 }
-
-

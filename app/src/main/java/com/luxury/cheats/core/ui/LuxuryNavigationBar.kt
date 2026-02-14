@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -23,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,110 +41,123 @@ import com.kyant.backdrop.effects.vibrancy
  * Dimensiones: 190dp x 99dp
  */
 @Composable
-fun LuxuryNavigationBar(
+fun luxuryNavigationBar(
     modifier: Modifier = Modifier,
     activeTab: String = "Inicio",
     backdrop: LayerBackdrop? = null,
-    onTabSelected: (String) -> Unit = {}
+    onTabSelected: (String) -> Unit = {},
 ) {
     val shape = RoundedCornerShape(30.dp)
 
     Box(
         modifier = modifier.size(width = 190.dp, height = 99.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
-        LuxuryNavBarBackground(backdrop, shape)
-        LuxuryNavBarItems(activeTab, onTabSelected)
+        luxuryNavBarBackground(backdrop, shape)
+        luxuryNavBarItems(activeTab, onTabSelected)
     }
 }
 
 @Composable
-private fun LuxuryNavBarBackground(backdrop: LayerBackdrop?, shape: RoundedCornerShape) {
+private fun luxuryNavBarBackground(
+    backdrop: LayerBackdrop?,
+    shape: RoundedCornerShape,
+) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clip(shape)
-            .then(
-                if (backdrop != null) {
-                    Modifier.drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { shape },
-                        effects = {
-                            lens(refractionHeight = 4f, refractionAmount = 0.5f)
-                            blur(radius = 15f)
-                            vibrancy()
-                        }
-                    )
-                } else Modifier.background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.7f))
-            )
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .clip(shape)
+                .then(
+                    if (backdrop != null) {
+                        Modifier.drawBackdrop(
+                            backdrop = backdrop,
+                            shape = { shape },
+                            effects = {
+                                lens(refractionHeight = 4f, refractionAmount = 0.5f)
+                                blur(radius = 15f)
+                                vibrancy()
+                            },
+                        )
+                    } else {
+                        Modifier.background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.7f))
+                    },
+                ),
     )
 }
 
 @Composable
-private fun LuxuryNavBarItems(activeTab: String, onTabSelected: (String) -> Unit) {
+private fun luxuryNavBarItems(
+    activeTab: String,
+    onTabSelected: (String) -> Unit,
+) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(30.dp)
-            )
-            .padding(horizontal = 12.dp),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(30.dp),
+                )
+                .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            NavItem(
+            navItem(
                 label = "Inicio",
                 icon = Icons.Default.Home,
                 isActive = activeTab == "Inicio",
                 activeColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                onSelect = { onTabSelected("Inicio") }
+                onSelect = { onTabSelected("Inicio") },
             )
 
-            NavItem(
+            navItem(
                 label = "Perfil",
                 icon = Icons.Default.Person,
                 isActive = activeTab == "Perfil",
                 activeColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f),
-                onSelect = { onTabSelected("Perfil") }
+                onSelect = { onTabSelected("Perfil") },
             )
         }
     }
 }
 
 @Composable
-private fun NavItem(
+private fun navItem(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     isActive: Boolean,
     activeColor: Color,
-    onSelect: () -> Unit
+    onSelect: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null // Sin ripple para mantener estética premium minimalista
-        ) { onSelect() },
+        modifier =
+            Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                // Sin ripple para mantener estética premium minimalista
+                indication = null,
+            ) { onSelect() },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Box(
-            modifier = Modifier
-                .size(width = 72.dp, height = 46.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(if (isActive) activeColor else Color.Transparent),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(width = 72.dp, height = 46.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(if (isActive) activeColor else Color.Transparent),
+            contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
                 tint = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             )
         }
 
@@ -154,7 +167,7 @@ private fun NavItem(
             text = label,
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
         )
     }
 }

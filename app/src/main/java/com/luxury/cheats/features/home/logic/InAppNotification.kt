@@ -8,9 +8,10 @@ data class InAppNotification(
     val active: Boolean = false,
     val title: String = "",
     val description: String = "",
-    val frequency: String = "always", // "always", "once"
+    // "always", "once"
+    val frequency: String = "always",
     val image: String = "",
     val type: String = "in-app",
     val timestamp: String = "",
-    val sent: Boolean = false
+    val sent: Boolean = false,
 )

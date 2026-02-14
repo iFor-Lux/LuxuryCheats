@@ -55,9 +55,7 @@ private object LanguageConstants {
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun WelcomePage1LanguageSection(
-    modifier: Modifier = Modifier
-) {
+fun welcomePage1LanguageSection(modifier: Modifier = Modifier) {
     var isExpanded by remember { mutableStateOf(false) }
     val initialLanguage = stringResource(R.string.welcome_page1_language)
     var selectedLanguage by remember { mutableStateOf(initialLanguage) }
@@ -66,60 +64,62 @@ fun WelcomePage1LanguageSection(
     val contentColor = MaterialTheme.colorScheme.onSurface
 
     Box(
-        modifier = modifier
-            .padding(
-                top = LanguageConstants.TOP_PADDING,
-                start = LanguageConstants.HORIZONTAL_PADDING,
-                end = LanguageConstants.HORIZONTAL_PADDING
-            )
-            .wrapContentSize(),
-        contentAlignment = Alignment.TopEnd
+        modifier =
+            modifier
+                .padding(
+                    top = LanguageConstants.TOP_PADDING,
+                    start = LanguageConstants.HORIZONTAL_PADDING,
+                    end = LanguageConstants.HORIZONTAL_PADDING,
+                )
+                .wrapContentSize(),
+        contentAlignment = Alignment.TopEnd,
     ) {
         SplitButtonLayout(
             leadingButton = {
-                LanguageLeadingButton(
+                languageLeadingButton(
                     containerColor = containerColor,
                     contentColor = contentColor,
                     selectedLanguage = selectedLanguage,
-                    onClick = { isExpanded = !isExpanded }
+                    onClick = { isExpanded = !isExpanded },
                 )
             },
             trailingButton = {
-                LanguageTrailingButton(
+                languageTrailingButton(
                     isExpanded = isExpanded,
                     containerColor = containerColor,
                     contentColor = contentColor,
-                    onCheckedChange = { isExpanded = it }
+                    onCheckedChange = { isExpanded = it },
                 )
             },
         )
 
-        LanguageDropdownMenu(
+        languageDropdownMenu(
             isExpanded = isExpanded,
             contentColor = contentColor,
             onDismissRequest = { isExpanded = false },
             onLanguageSelected = {
                 selectedLanguage = it
                 isExpanded = false
-            }
+            },
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun LanguageLeadingButton(
+private fun languageLeadingButton(
     containerColor: Color,
     contentColor: Color,
     selectedLanguage: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     SplitButtonDefaults.LeadingButton(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+            ),
         content = {
             Icon(
                 imageVector = Icons.Default.Language,
@@ -130,30 +130,32 @@ private fun LanguageLeadingButton(
             Text(
                 text = selectedLanguage,
                 fontSize = LanguageConstants.FONT_SIZE,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
-        }
+        },
     )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun LanguageTrailingButton(
+private fun languageTrailingButton(
     isExpanded: Boolean,
     containerColor: Color,
     contentColor: Color,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     SplitButtonDefaults.TrailingButton(
         checked = isExpanded,
         onCheckedChange = onCheckedChange,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-        modifier = Modifier.semantics {
-            stateDescription = if (isExpanded) "Expanded" else "Collapsed"
-        },
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+            ),
+        modifier =
+            Modifier.semantics {
+                stateDescription = if (isExpanded) "Expanded" else "Collapsed"
+            },
         content = {
             val rotation: Float by animateFloatAsState(
                 targetValue = if (isExpanded) 180f else 0f,
@@ -162,40 +164,41 @@ private fun LanguageTrailingButton(
             )
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                modifier = Modifier
-                    .size(SplitButtonDefaults.TrailingIconSize)
-                    .graphicsLayer {
-                        this.rotationZ = rotation
-                    },
+                modifier =
+                    Modifier
+                        .size(SplitButtonDefaults.TrailingIconSize)
+                        .graphicsLayer {
+                            this.rotationZ = rotation
+                        },
                 contentDescription = stringResource(R.string.welcome_page1_select_language),
             )
-        }
+        },
     )
 }
 
 @Composable
-private fun LanguageDropdownMenu(
+private fun languageDropdownMenu(
     isExpanded: Boolean,
     contentColor: Color,
     onDismissRequest: () -> Unit,
-    onLanguageSelected: (String) -> Unit
+    onLanguageSelected: (String) -> Unit,
 ) {
     DropdownMenu(
         expanded = isExpanded,
         onDismissRequest = onDismissRequest,
-        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh),
     ) {
         val spanish = stringResource(R.string.welcome_page1_spanish)
         val english = stringResource(R.string.welcome_page1_english)
 
         DropdownMenuItem(
             text = { Text(spanish, color = contentColor) },
-            onClick = { onLanguageSelected(spanish) }
+            onClick = { onLanguageSelected(spanish) },
         )
         HorizontalDivider(color = contentColor.copy(alpha = LanguageConstants.DIVIDER_ALPHA))
         DropdownMenuItem(
             text = { Text(english, color = contentColor) },
-            onClick = { onLanguageSelected(english) }
+            onClick = { onLanguageSelected(english) },
         )
     }
 }

@@ -16,4 +16,3 @@ sealed interface WelcomePage1Action {
      */
     object BackClicked : WelcomePage1Action
 }
-

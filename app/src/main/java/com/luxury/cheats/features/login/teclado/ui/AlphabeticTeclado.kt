@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,60 +22,61 @@ private const val SPECIAL_KEY_WEIGHT = 1.5f
  * Se eliminaron las teclas de espacio y enter por petición del usuario.
  */
 @Composable
-fun AlphabeticTeclado(
+fun alphabeticTeclado(
     isUpperCase: Boolean,
     onKeyPress: (String) -> Unit,
     onDelete: () -> Unit,
-    onToggleCase: () -> Unit
+    onToggleCase: () -> Unit,
 ) {
-    val rows = listOf(
-        listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"),
-        listOf("A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"),
-        listOf("Z", "X", "C", "V", "B", "N", "M")
-    )
+    val rows =
+        listOf(
+            listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"),
+            listOf("A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"),
+            listOf("Z", "X", "C", "V", "B", "N", "M"),
+        )
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         val actions = TecladoRowActions(onKeyPress, onDelete, onToggleCase)
         rows.forEachIndexed { index, row ->
-            TecladoRow(
+            tecladoRow(
                 index = index,
                 row = row,
                 isUpperCase = isUpperCase,
-                actions = actions
+                actions = actions,
             )
         }
     }
 }
 
 @Composable
-private fun TecladoRow(
+private fun tecladoRow(
     index: Int,
     row: List<String>,
     isUpperCase: Boolean,
-    actions: TecladoRowActions
+    actions: TecladoRowActions,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
+        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
     ) {
         if (index == 2) {
-            ToggleCaseKey(isUpperCase, actions.onToggleCase)
+            toggleCaseKey(isUpperCase, actions.onToggleCase)
         }
 
         row.forEach { char ->
             val displayText = if (isUpperCase) char.uppercase() else char.lowercase()
-            TecladoKey(
+            tecladoKey(
                 text = displayText,
                 onClick = { actions.onKeyPress(displayText) },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
 
         if (index == 2) {
-            DeleteKey(actions.onDelete)
+            deleteKey(actions.onDelete)
         }
     }
 }
@@ -83,40 +84,47 @@ private fun TecladoRow(
 private data class TecladoRowActions(
     val onKeyPress: (String) -> Unit,
     val onDelete: () -> Unit,
-    val onToggleCase: () -> Unit
+    val onToggleCase: () -> Unit,
 )
 
 @Composable
-private fun RowScope.ToggleCaseKey(isUpperCase: Boolean, onToggleCase: () -> Unit) {
-    TecladoIconKey(
+private fun RowScope.toggleCaseKey(
+    isUpperCase: Boolean,
+    onToggleCase: () -> Unit,
+) {
+    tecladoIconKey(
         icon = if (isUpperCase) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
         onClick = onToggleCase,
         modifier = Modifier.weight(SPECIAL_KEY_WEIGHT),
-        style = TecladoKeyStyle(
-            itemColor = if (isUpperCase) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.secondaryContainer
-            },
-            contentColor = if (isUpperCase) {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            } else {
-                MaterialTheme.colorScheme.onSecondaryContainer
-            }
-        )
+        style =
+            TecladoKeyStyle(
+                itemColor =
+                    if (isUpperCase) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.secondaryContainer
+                    },
+                contentColor =
+                    if (isUpperCase) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSecondaryContainer
+                    },
+            ),
     )
 }
 
 @Composable
-private fun RowScope.DeleteKey(onDelete: () -> Unit) {
-    TecladoIconKey(
-        icon = Icons.Default.Backspace,
+private fun RowScope.deleteKey(onDelete: () -> Unit) {
+    tecladoIconKey(
+        icon = Icons.AutoMirrored.Filled.Backspace,
         onClick = onDelete,
         modifier = Modifier.weight(SPECIAL_KEY_WEIGHT),
-        style = TecladoKeyStyle(
-            itemColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer,
-            enableRepeat = true
-        )
+        style =
+            TecladoKeyStyle(
+                itemColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                enableRepeat = true,
+            ),
     )
 }

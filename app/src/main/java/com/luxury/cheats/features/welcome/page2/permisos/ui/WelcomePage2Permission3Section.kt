@@ -38,95 +38,100 @@ import androidx.compose.ui.unit.sp
  * @param onClick Callback para disparar la solicitud del permiso.
  */
 @Composable
-fun WelcomePage2Permission3Section(
+fun welcomePage2Permission3Section(
     isGranted: Boolean = false,
     isDenied: Boolean = false,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     val containerColor = MaterialTheme.colorScheme.surfaceContainer
-    val iconBgColor = when {
-        isGranted -> MaterialTheme.colorScheme.primaryContainer
-        isDenied -> MaterialTheme.colorScheme.errorContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-    val iconTint = when {
-        isGranted -> MaterialTheme.colorScheme.primary
-        isDenied -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-    }
+    val iconBgColor =
+        when {
+            isGranted -> MaterialTheme.colorScheme.primaryContainer
+            isDenied -> MaterialTheme.colorScheme.errorContainer
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        }
+    val iconTint =
+        when {
+            isGranted -> MaterialTheme.colorScheme.primary
+            isDenied -> MaterialTheme.colorScheme.error
+            else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        }
     val titleColor = MaterialTheme.colorScheme.onSurface
     val descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val borderColor = when {
-        isGranted -> MaterialTheme.colorScheme.primary
-        isDenied -> MaterialTheme.colorScheme.error
-        else -> Color.Transparent
-    }
+    val borderColor =
+        when {
+            isGranted -> MaterialTheme.colorScheme.primary
+            isDenied -> MaterialTheme.colorScheme.error
+            else -> Color.Transparent
+        }
 
     Box(
-        modifier = Modifier
-            .width(260.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(containerColor)
-            .border(2.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(),
-                onClick = onClick
-            )
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .width(260.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(containerColor)
+                .border(2.dp, borderColor, RoundedCornerShape(14.dp))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(),
+                    onClick = onClick,
+                )
+                .padding(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            PermissionIcon(
+            permissionIcon(
                 iconBgColor = iconBgColor,
-                iconTint = iconTint
+                iconTint = iconTint,
             )
             Spacer(modifier = Modifier.width(16.dp))
-            PermissionInfo(
+            permissionInfo(
                 titleColor = titleColor,
-                descriptionColor = descriptionColor
+                descriptionColor = descriptionColor,
             )
         }
     }
 }
 
 @Composable
-private fun PermissionIcon(
+private fun permissionIcon(
     iconBgColor: Color,
-    iconTint: Color
+    iconTint: Color,
 ) {
     Box(
-        modifier = Modifier
-            .size(36.dp)
-            .clip(CircleShape)
-            .background(iconBgColor),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(iconBgColor),
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = Icons.Default.Layers,
             contentDescription = null,
             tint = iconTint,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
         )
     }
 }
 
 @Composable
-private fun PermissionInfo(
+private fun permissionInfo(
     titleColor: Color,
-    descriptionColor: Color
+    descriptionColor: Color,
 ) {
     Column {
         Text(
             text = "Superposicion",
             color = titleColor,
             fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
         Text(
             text = "Mostrar el panel flotante por encima de otras apps",
             color = descriptionColor,
             fontSize = 8.sp,
-            lineHeight = 10.sp
+            lineHeight = 10.sp,
         )
     }
 }

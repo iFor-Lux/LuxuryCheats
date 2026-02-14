@@ -9,8 +9,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.luxury.cheats.core.ui.LogoViewModel
@@ -21,15 +21,16 @@ import com.luxury.cheats.core.ui.LogoViewModel
  * - Observa el ViewModel compartido para notificar cuando está listo.
  */
 @Composable
-fun WelcomeLogoSection(
+fun welcomeLogoSection(
     modifier: Modifier = Modifier,
-    onReady: (() -> Unit)? = null
+    onReady: (() -> Unit)? = null,
 ) {
     // Obtenemos el ViewModel scopped a la Activity para compartir la instancia de MainApp
     val context = LocalContext.current
-    val activity = context as? ViewModelStoreOwner 
-        ?: throw IllegalStateException("Context must be a ViewModelStoreOwner")
-    
+    val activity =
+        context as? ViewModelStoreOwner
+            ?: error("Context must be a ViewModelStoreOwner")
+
     val viewModel: LogoViewModel = hiltViewModel(activity)
     val isWebViewReady by viewModel.isReadyFlow.collectAsState()
 
@@ -42,7 +43,7 @@ fun WelcomeLogoSection(
 
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // Espacio reservado para el logo persistente
         Box(modifier = Modifier.size(500.dp))

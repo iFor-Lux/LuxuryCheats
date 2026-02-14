@@ -18,15 +18,16 @@ private const val LIGHT_PLACEHOLDER_COLOR = 0xFFE0E0E0
  * Componente visual que muestra una imagen ilustrativa sobre Shizuku.
  */
 @Composable
-fun WelcomePage3Imagen() {
+fun welcomePage3Imagen() {
     val isDark = isSystemInDarkTheme()
     val placeholderColor = if (isDark) Color(DARK_PLACEHOLDER_COLOR) else Color(LIGHT_PLACEHOLDER_COLOR)
 
     Box(
-        modifier = Modifier
-            .size(width = 300.dp, height = 210.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(placeholderColor)
+        modifier =
+            Modifier
+                .size(width = 300.dp, height = 210.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(placeholderColor),
     ) {
         // Placeholder para la imagen
         // Aquí se colocará la imagen cuando esté definida

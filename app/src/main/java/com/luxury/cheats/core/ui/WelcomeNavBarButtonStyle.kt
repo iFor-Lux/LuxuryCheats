@@ -12,5 +12,5 @@ import androidx.compose.ui.graphics.Color
 data class WelcomeNavBarButtonStyle(
     val containerColor: Color,
     val borderColor: Color,
-    val contentColor: Color
+    val contentColor: Color,
 )

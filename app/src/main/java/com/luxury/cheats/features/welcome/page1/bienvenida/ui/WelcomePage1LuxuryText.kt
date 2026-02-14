@@ -13,16 +13,13 @@ import androidx.compose.ui.unit.sp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun WelcomePage1LuxuryText(
-    modifier: Modifier = Modifier
-) {
+fun welcomePage1LuxuryText(modifier: Modifier = Modifier) {
     Text(
         text = "LUXURY",
         color = MaterialTheme.colorScheme.onBackground,
         fontSize = 40.sp,
         fontWeight = FontWeight.Bold,
         letterSpacing = 2.sp,
-        modifier = modifier
+        modifier = modifier,
     )
 }
-

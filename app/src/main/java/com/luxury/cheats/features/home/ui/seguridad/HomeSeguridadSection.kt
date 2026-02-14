@@ -15,10 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.luxury.cheats.features.home.ui.seguridad.activado.logic.homeSeguridadInnerMorphing
+import com.luxury.cheats.features.home.ui.seguridad.cambios.homeSeguridadOuter
 import com.luxury.cheats.features.home.ui.seguridad.desactivado.logic.HomeSeguridadLogic
-import com.luxury.cheats.features.home.ui.seguridad.desactivado.ui.HomeSeguridadInner as DesactivadoInner
-import com.luxury.cheats.features.home.ui.seguridad.activado.logic.HomeSeguridadInnerMorphing
-import com.luxury.cheats.features.home.ui.seguridad.cambios.HomeSeguridadOuter
+import com.luxury.cheats.features.home.ui.seguridad.desactivado.ui.homeSeguridadInner as desactivadoInner
 
 /**
  * Orquestador de Seguridad con Shape Morphing.
@@ -26,10 +26,10 @@ import com.luxury.cheats.features.home.ui.seguridad.cambios.HomeSeguridadOuter
  * - Inner: usa forma fija cuando desactivado, cicla entre formas cuando activado
  */
 @Composable
-fun HomeSeguridadSection(
+fun homeSeguridadSection(
     modifier: Modifier = Modifier,
     isActivated: Boolean = false,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     val containerSize = 280.dp
     val rotation by HomeSeguridadLogic.animateRotation(isActivated)
@@ -37,31 +37,32 @@ fun HomeSeguridadSection(
 
     Box(
         modifier = modifier.size(containerSize),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
-        HomeSeguridadOuter(
+        homeSeguridadOuter(
             size = containerSize,
             isActivated = isActivated,
             interactionSource = interactionSource,
-            onClick = onClick
+            onClick = onClick,
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                contentAlignment = Alignment.Center,
             ) {
                 if (isActivated) {
                     // Activado: Inner con morphing entre formas
-                    HomeSeguridadInnerMorphing(
+                    homeSeguridadInnerMorphing(
                         modifier = Modifier.fillMaxSize(),
-                        rotation = rotation
+                        rotation = rotation,
                     )
                 } else {
                     // Desactivado: Inner con forma fija
-                    DesactivadoInner(
+                    desactivadoInner(
                         modifier = Modifier.fillMaxSize(),
-                        rotation = rotation
+                        rotation = rotation,
                     )
                 }
             }
@@ -69,21 +70,25 @@ fun HomeSeguridadSection(
     }
 }
 
+/**
+ * Previsualización interactiva de la sección de seguridad.
+ */
 @Preview(showBackground = true, backgroundColor = 0xFFF5F5F7)
 @Composable
-private fun HomeSeguridadSectionPreview() {
+fun homeSeguridadSectionPreview() {
     var isActivated by remember { mutableStateOf(false) }
-    
+
     MaterialTheme {
         Box(
-            modifier = Modifier
-                .size(400.dp)
-                .padding(20.dp),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(400.dp)
+                    .padding(20.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            HomeSeguridadSection(
+            homeSeguridadSection(
                 isActivated = isActivated,
-                onClick = { isActivated = !isActivated }
+                onClick = { isActivated = !isActivated },
             )
         }
     }

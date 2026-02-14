@@ -10,10 +10,11 @@ import androidx.compose.ui.unit.dp
  * - Esquinas más redondeadas para una sensación orgánica y premium.
  * - Jerarquía clara entre componentes pequeños y grandes.
  */
-val LuxuryShapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
-    large = RoundedCornerShape(16.dp),
-    extraLarge = RoundedCornerShape(28.dp)
-)
+val LuxuryShapes =
+    Shapes(
+        extraSmall = RoundedCornerShape(4.dp),
+        small = RoundedCornerShape(8.dp),
+        medium = RoundedCornerShape(12.dp),
+        large = RoundedCornerShape(16.dp),
+        extraLarge = RoundedCornerShape(28.dp),
+    )

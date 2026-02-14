@@ -45,7 +45,7 @@ data class TecladoActions(
     val onKeyPress: (String) -> Unit,
     val onDelete: () -> Unit,
     val onToggleCase: () -> Unit,
-    val onDone: () -> Unit
+    val onDone: () -> Unit,
 )
 
 /**
@@ -53,100 +53,93 @@ data class TecladoActions(
  * Orquestador con transiciones ultra fluidas estilo Pixel.
  */
 @Composable
-fun LoginTecladoSection(
+fun loginTecladoSection(
     type: TecladoType,
     isUpperCase: Boolean,
     actions: TecladoActions,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
         visible = type != TecladoType.NONE,
-        enter = slideInVertically(
-            initialOffsetY = { it },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-        ) + fadeIn(),
-        exit = slideOutVertically(
-            targetOffsetY = { it },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-        ) + fadeOut(),
-        modifier = modifier
+        enter =
+            slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            ) + fadeIn(),
+        exit =
+            slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            ) + fadeOut(),
+        modifier = modifier,
     ) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { /* Consumimos el clic en los espacios entre teclas */ },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) { /* Consumimos el clic en los espacios entre teclas */ },
             color = MaterialTheme.colorScheme.surfaceContainerLow,
             tonalElevation = 8.dp,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         ) {
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 12.dp)
-                    .navigationBarsPadding(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier =
+                    Modifier
+                        .padding(horizontal = 8.dp, vertical = 12.dp)
+                        .navigationBarsPadding(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                KeyboardTransitionContent(type, isUpperCase, actions)
+                keyboardTransitionContent(type, isUpperCase, actions)
             }
         }
     }
 }
 
 @Composable
-private fun KeyboardTransitionContent(
+private fun keyboardTransitionContent(
     type: TecladoType,
     isUpperCase: Boolean,
-    actions: TecladoActions
+    actions: TecladoActions,
 ) {
     AnimatedContent(
         targetState = type,
-        transitionSpec = {
-            val isFlowingRight = targetState == TecladoType.NUMERIC
-            val fadeTween = tween<Float>(TecladoConstants.TRANSITION_DURATION)
-            val springMedium = spring<androidx.compose.ui.unit.IntOffset>(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMedium
-            )
-            val springSlow = spring<androidx.compose.ui.unit.IntOffset>(
-                stiffness = Spring.StiffnessMediumLow
-            )
-
-            val enterSlide = slideInHorizontally(
-                initialOffsetX = { if (isFlowingRight) it / 2 else -it / 2 },
-                animationSpec = springMedium
-            )
-            val exitSlide = slideOutHorizontally(
-                targetOffsetX = { if (isFlowingRight) -it / 2 else it / 2 },
-                animationSpec = springSlow
-            )
-
-            val enterAni = fadeIn(fadeTween) + enterSlide + 
-                scaleIn(initialScale = TecladoConstants.SCALE_TRANSITION)
-            val exitAni = fadeOut(fadeTween) + exitSlide + 
-                scaleOut(targetScale = TecladoConstants.SCALE_TRANSITION)
-
-            enterAni togetherWith exitAni
-        },
-        label = "keyboardLayoutTransition"
+        transitionSpec = { keyboardTransitionSpec(targetState == TecladoType.NUMERIC) },
+        label = "keyboardLayoutTransition",
     ) { targetType ->
         when (targetType) {
-            TecladoType.ALPHABETIC -> AlphabeticTeclado(
-                isUpperCase = isUpperCase,
-                onKeyPress = actions.onKeyPress,
-                onDelete = actions.onDelete,
-                onToggleCase = actions.onToggleCase
-            )
-            TecladoType.NUMERIC -> NumericTeclado(
-                onKeyPress = actions.onKeyPress,
-                onDelete = actions.onDelete
-            )
-            TecladoType.NONE -> Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(TecladoConstants.EMPTY_BOX_HEIGHT.dp)
-            )
+            TecladoType.ALPHABETIC ->
+                alphabeticTeclado(
+                    isUpperCase = isUpperCase,
+                    onKeyPress = actions.onKeyPress,
+                    onDelete = actions.onDelete,
+                    onToggleCase = actions.onToggleCase,
+                )
+            TecladoType.NUMERIC ->
+                numericTeclado(
+                    onKeyPress = actions.onKeyPress,
+                    onDelete = actions.onDelete,
+                )
+            TecladoType.NONE ->
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(TecladoConstants.EMPTY_BOX_HEIGHT.dp),
+                )
         }
     }
 }
+
+private fun keyboardTransitionSpec(isFlowingRight: Boolean) =
+    fadeIn(tween(TecladoConstants.TRANSITION_DURATION)) +
+        slideInHorizontally(
+            initialOffsetX = { if (isFlowingRight) it / 2 else -it / 2 },
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+        ) + scaleIn(initialScale = TecladoConstants.SCALE_TRANSITION) togetherWith
+        fadeOut(tween(TecladoConstants.TRANSITION_DURATION)) +
+        slideOutHorizontally(
+            targetOffsetX = { if (isFlowingRight) -it / 2 else it / 2 },
+            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        ) + scaleOut(targetScale = TecladoConstants.SCALE_TRANSITION)

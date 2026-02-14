@@ -15,5 +15,5 @@ data class LoginCredentials(
     val password: TextFieldValue,
     val debugMessage: String,
     val onUsernameChange: (TextFieldValue) -> Unit,
-    val onPasswordChange: (TextFieldValue) -> Unit
+    val onPasswordChange: (TextFieldValue) -> Unit,
 )

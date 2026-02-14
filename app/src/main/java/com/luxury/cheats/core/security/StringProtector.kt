@@ -6,8 +6,7 @@ import com.luxury.cheats.BuildConfig
  * Utilidad para desencriptar cadenas de texto protegidas mediante XOR.
  */
 object StringProtector {
-
-    //Clave determinística:
+    // Clave determinística:
     // - Funciona en todos los dispositivos
     // - No depende de valores runtime variables
     private fun deriveKey(seed: Int): Int {
@@ -23,7 +22,10 @@ object StringProtector {
      * @param seed La semilla para derivar la clave XOR.
      * @return La cadena de texto desencriptada.
      */
-    fun decrypt(data: String, seed: Int): String {
+    fun decrypt(
+        data: String,
+        seed: Int,
+    ): String {
         val key = deriveKey(seed)
 
         return data
@@ -34,4 +36,3 @@ object StringProtector {
             .joinToString("")
     }
 }
-

@@ -36,7 +36,7 @@ private object KeyConstants {
 data class TecladoKeyStyle(
     val itemColor: Color,
     val contentColor: Color,
-    val enableRepeat: Boolean = false
+    val enableRepeat: Boolean = false,
 )
 
 /**
@@ -47,24 +47,24 @@ data class TecladoKeyStyle(
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun TecladoKey(
+fun tecladoKey(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         onClick = onClick,
         modifier = modifier.height(KeyConstants.KEY_HEIGHT.dp),
         shape = RoundedCornerShape(KeyConstants.ROUNDED_CORNER.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        tonalElevation = 2.dp
+        tonalElevation = 2.dp,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = text,
                 fontSize = KeyConstants.FONT_SIZE_TEXT.sp,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -79,18 +79,19 @@ fun TecladoKey(
  * @param style Estilo y comportamiento de la tecla.
  */
 @Composable
-fun TecladoIconKey(
+fun tecladoIconKey(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    style: TecladoKeyStyle = TecladoKeyStyle(
-        itemColor = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-    )
+    style: TecladoKeyStyle =
+        TecladoKeyStyle(
+            itemColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
- 
+
     // Lógica de repetición cuando está presionado
     if (style.enableRepeat && isPressed) {
         LaunchedEffect(Unit) {
@@ -109,13 +110,13 @@ fun TecladoIconKey(
         interactionSource = interactionSource,
         shape = RoundedCornerShape(12.dp),
         color = style.itemColor,
-        tonalElevation = 2.dp
+        tonalElevation = 2.dp,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = style.contentColor
+                tint = style.contentColor,
             )
         }
     }

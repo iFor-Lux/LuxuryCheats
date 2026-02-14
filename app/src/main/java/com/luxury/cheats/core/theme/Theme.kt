@@ -14,21 +14,22 @@ import androidx.compose.runtime.Composable
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LuxuryCheatsTheme(
+fun luxuryCheatsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = ThemeManager.getColorScheme(
-        darkTheme = darkTheme,
-        useDynamicColor = dynamicColor
-    )
+    val colorScheme =
+        ThemeManager.getColorScheme(
+            darkTheme = darkTheme,
+            useDynamicColor = dynamicColor,
+        )
 
     MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = Typography,
         shapes = LuxuryShapes,
         motionScheme = MotionScheme.expressive(),
-        content = content
+        content = content,
     )
 }

@@ -16,202 +16,180 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.features.home.logic.HomeAction
-import com.luxury.cheats.features.home.logic.HomeViewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import com.luxury.cheats.features.download.logic.DownloadParams
-import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
-import com.luxury.cheats.features.widgets.InfoMessageDialog
-import com.luxury.cheats.features.home.ui.seguridad.HomeSeguridadSection
-import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
-import com.luxury.cheats.navigations.Update
 import com.kyant.backdrop.backdrops.layerBackdrop
-import androidx.compose.ui.tooling.preview.Preview
+import com.luxury.cheats.features.download.logic.DownloadParams
+import com.luxury.cheats.features.download.ui.downloadArchivoBottomSheet
+import com.luxury.cheats.features.home.logic.HomeAction
+import com.luxury.cheats.features.home.ui.seguridad.homeSeguridadSection
+import com.luxury.cheats.features.update.ui.updateAnuncioSection
+import com.luxury.cheats.features.widgets.infoMessageDialog
+import com.luxury.cheats.navigations.Update
+
+/**
+ * Pantalla principal de la aplicación Luxury Cheats.
+ * Orquestador principal que maneja el estado de la UI y las acciones del usuario.
+ *
+ * @param uiState Estado actual de la pantalla de inicio.
+ * @param onAction Callback para procesar acciones del usuario.
+ * @param navController Controlador de navegación.
+ * @param modifier Modificador de layout.
+ * @param backdrop Backdrop opcional para efectos visuales.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+fun homeScreen(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
-    HomeScreenContent(
+    homeScreenContent(
         uiState = uiState,
         onAction = onAction,
         navController = navController,
         modifier = modifier,
-        backdrop = backdrop
+        backdrop = backdrop,
     )
 }
 
+/**
+ * Contenedor de contenido para la pantalla principal.
+ * Separa la estructura visual de la lógica de navegación global.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreenContent(
+fun homeScreenContent(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
     val scrollState = rememberScrollState()
     val density = androidx.compose.ui.platform.LocalDensity.current
-
-
 
     androidx.compose.runtime.LaunchedEffect(uiState.isConsoleExpanded) {
         if (uiState.isConsoleExpanded && !scrollState.isScrollInProgress) {
             scrollState.animateScrollTo(
                 value = scrollState.value + with(density) { 235.dp.toPx().toInt() },
-                animationSpec = androidx.compose.animation.core.tween(durationMillis = 600)
+                animationSpec = androidx.compose.animation.core.tween(durationMillis = 600),
             )
         }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier),
         ) {
-            HomeSectionsList(uiState, scrollState, onAction)
+            homeSectionsList(uiState, scrollState, onAction)
         }
 
-        HomeOverlays(
+        homeOverlays(
             uiState = uiState,
             onAction = onAction,
             navController = navController,
-            backdrop = backdrop
+            backdrop = backdrop,
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeOverlays(
+private fun homeOverlays(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     navController: NavHostController,
-    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
-    com.luxury.cheats.core.ui.AppToast(
+    com.luxury.cheats.core.ui.appToast(
         notifications = uiState.notifications,
-        modifier = Modifier
-            .padding(top = 50.dp)
+        modifier =
+            Modifier
+                .padding(top = 50.dp),
     )
-
-
 
     uiState.appUpdate?.let { update ->
         androidx.compose.ui.window.Dialog(
-            onDismissRequest = { onAction(HomeAction.DismissUpdateAnuncio) }
+            onDismissRequest = { onAction(HomeAction.DismissUpdateAnuncio) },
         ) {
-            UpdateAnuncioSection(
+            updateAnuncioSection(
                 title = update.title,
                 description = update.description,
                 onUpdateClick = {
                     onAction(HomeAction.DismissUpdateAnuncio)
                     navController.navigate(Update)
-                }
+                },
             )
         }
     }
 
     uiState.currentInAppNotification?.let { notification ->
-        InfoMessageDialog(
+        infoMessageDialog(
             notification = notification,
-            onDismissRequest = { onAction(HomeAction.DismissInAppNotification) }
+            onDismissRequest = { onAction(HomeAction.DismissInAppNotification) },
         )
     }
 
     if (uiState.isDownloadArchivoVisible) {
-        DownloadArchivoBottomSheet(
-            params = DownloadParams(
-                cheatName = uiState.downloadingFileName,
-                preloadedWeight = uiState.downloadingFileWeight
-            ),
-            onDismissRequest = { onAction(HomeAction.DismissDownloadArchivo) }
+        downloadArchivoBottomSheet(
+            params =
+                DownloadParams(
+                    cheatName = uiState.downloadingFileName,
+                    preloadedWeight = uiState.downloadingFileWeight,
+                ),
+            onDismissRequest = { onAction(HomeAction.DismissDownloadArchivo) },
         )
     }
 }
 
 @Composable
-private fun HomeSectionsList(
+private fun homeSectionsList(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     scrollState: androidx.compose.foundation.ScrollState,
-    onAction: (HomeAction) -> Unit
+    onAction: (HomeAction) -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(scrollState),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        HomeImagenSection()
-        HomeSaludoSection(
+        homeImagenSection()
+        homeSaludoSection(
             userName = uiState.userName,
             greeting = uiState.greeting,
-            subtitle = uiState.greetingSubtitle
+            subtitle = uiState.greetingSubtitle,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        HomeSeguridadSection(
+        homeSeguridadSection(
             modifier = Modifier.size(200.dp),
             isActivated = uiState.isSeguridadUnlocked,
-            onClick = { onAction(HomeAction.ToggleSeguridad) }
+            onClick = { onAction(HomeAction.ToggleSeguridad) },
         )
 
         // Botones y secciones que aparecen al activar seguridad
         if (uiState.isSeguridadUnlocked) {
-            Spacer(modifier = Modifier.height(20.dp))
-            
-            // Botón Ver Estado
-            HomeEstadoSection(
-                onVerEstadoClick = { onAction(HomeAction.ToggleIdAndConsole) }
-            )
-            
-            // Secciones de ID y Consola (aparecen al hacer click en Ver Estado)
-            if (uiState.isIdAndConsoleVisible) {
-                Spacer(modifier = Modifier.height(20.dp))
-                
-                HomeIdSection(
-                    idValue = uiState.idValue,
-                    onIdValueChange = { onAction(HomeAction.OnIdValueChange(it)) },
-                    onSearchClick = { onAction(HomeAction.ExecuteSearch) },
-                    onSaveClick = { onAction(HomeAction.SaveId) }
-                )
-                
-                Spacer(modifier = Modifier.height(20.dp))
-                
-                HomeConsoleSection(
-                    consoleText = uiState.consoleOutput,
-                    isExpanded = uiState.isConsoleExpanded,
-                    onExpandClick = { onAction(HomeAction.ToggleConsoleExpansion) }
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(15.dp))
-            
-            // Botón Activar
-            HomeButtonActivarSection(
-                onActivarClick = { onAction(HomeAction.ToggleOpciones) }
-            )
+            homeUnlockedContent(uiState, onAction)
         }
 
         // Sección de Opciones (aparece al hacer click en Activar)
         if (uiState.isOpcionesVisible) {
             Spacer(modifier = Modifier.height(20.dp))
-            HomeOpcionesSection(
+            homeOpcionesSection(
                 uiState = uiState,
-                onAction = onAction
+                onAction = onAction,
             )
         }
 
@@ -219,18 +197,64 @@ private fun HomeSectionsList(
     }
 }
 
+@Composable
+private fun homeUnlockedContent(
+    uiState: com.luxury.cheats.features.home.logic.HomeState,
+    onAction: (HomeAction) -> Unit,
+) {
+    if (!uiState.isSeguridadUnlocked) return
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    // Botón Ver Estado
+    homeEstadoSection(
+        onVerEstadoClick = { onAction(HomeAction.ToggleIdAndConsole) },
+    )
+
+    // Secciones de ID y Consola (aparecen al hacer click en Ver Estado)
+    if (uiState.isIdAndConsoleVisible) {
+        Spacer(modifier = Modifier.height(20.dp))
+
+        homeIdSection(
+            idValue = uiState.idValue,
+            onIdValueChange = { onAction(HomeAction.OnIdValueChange(it)) },
+            onSearchClick = { onAction(HomeAction.ExecuteSearch) },
+            onSaveClick = { onAction(HomeAction.SaveId) },
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        homeConsoleSection(
+            consoleText = uiState.consoleOutput,
+            isExpanded = uiState.isConsoleExpanded,
+            onExpandClick = { onAction(HomeAction.ToggleConsoleExpansion) },
+        )
+    }
+
+    Spacer(modifier = Modifier.height(15.dp))
+
+    // Botón Activar
+    homeButtonActivarSection(
+        onActivarClick = { onAction(HomeAction.ToggleOpciones) },
+    )
+}
+
+/**
+ * Previsualización de la pantalla de inicio para el IDE.
+ */
 @Preview(showSystemUi = true)
 @Composable
-private fun HomeScreenPreview() {
+fun homeScreenPreview() {
     MaterialTheme {
-        HomeScreenContent(
-            uiState = com.luxury.cheats.features.home.logic.HomeState(
-                userName = "Lux User",
-                greeting = "Buenas Tardes",
-                greetingSubtitle = "Listo para ganar"
-            ),
+        homeScreenContent(
+            uiState =
+                com.luxury.cheats.features.home.logic.HomeState(
+                    userName = "Lux User",
+                    greeting = "Buenas Tardes",
+                    greetingSubtitle = "Listo para ganar",
+                ),
             onAction = {},
-            navController = androidx.navigation.compose.rememberNavController()
+            navController = androidx.navigation.compose.rememberNavController(),
         )
     }
 }

@@ -1,25 +1,23 @@
 package com.luxury.cheats.services.firebase
 
+import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import org.json.JSONObject
-
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import android.util.Log
 
 /**
  * Servicio de Autenticación - Versión simplificada usando SDK de Firebase.
  */
 class AuthService {
-
     private val db by lazy { FirebaseDatabase.getInstance().getReference("users") }
 
     /** Resultado de la operación de login. */
@@ -41,25 +39,36 @@ class AuthService {
      * @param p Contraseña.
      * @return [LoginResult] indicando el éxito o fallo de la operación.
      */
-    suspend fun loginWithFirebase(u: String, p: String): LoginResult = withContext(Dispatchers.IO) {
-        loginWithSdk(u, p)
-    }
+    suspend fun loginWithFirebase(
+        u: String,
+        p: String,
+    ): LoginResult =
+        withContext(Dispatchers.IO) {
+            loginWithSdk(u, p)
+        }
 
-    private suspend fun loginWithSdk(u: String, p: String): LoginResult {
+    private suspend fun loginWithSdk(
+        u: String,
+        p: String,
+    ): LoginResult {
         return try {
             val t0 = System.currentTimeMillis()
 
-            val snapshot = suspendCancellableCoroutine { cont ->
-                db.orderByChild("username").equalTo(u).limitToFirst(1)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            cont.resume(snapshot)
-                        }
-                        override fun onCancelled(error: DatabaseError) {
-                            cont.resumeWithException(error.toException())
-                        }
-                    })
-            }
+            val snapshot =
+                suspendCancellableCoroutine { cont ->
+                    db.orderByChild("username").equalTo(u).limitToFirst(1)
+                        .addListenerForSingleValueEvent(
+                            object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    cont.resume(snapshot)
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    cont.resumeWithException(error.toException())
+                                }
+                            },
+                        )
+                }
 
             val t1 = System.currentTimeMillis()
             Log.d("PERF", "Query = ${t1 - t0} ms")
@@ -79,21 +88,28 @@ class AuthService {
             LoginResult.Error("Error de base de datos: ${e.message}")
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             LoginResult.Error("Error: ${e.localizedMessage}")
         }
     }
 
-    private fun validateUserData(p: String, userData: JSONObject, userKey: String): LoginResult {
+    private fun validateUserData(
+        p: String,
+        userData: JSONObject,
+        userKey: String,
+    ): LoginResult {
         if (userData.optString("password") != p) return LoginResult.Error("Contraseña incorrecta")
 
         val manufacturer = android.os.Build.MANUFACTURER
         val model = android.os.Build.MODEL
-        val deviceName = if (model.startsWith(manufacturer, ignoreCase = true)) {
-            model.replaceFirstChar { it.uppercase() }
-        } else {
-            "${manufacturer.replaceFirstChar { it.uppercase() }} $model"
-        }
+        val deviceName =
+            if (model.startsWith(manufacturer, ignoreCase = true)) {
+                model.replaceFirstChar { it.uppercase() }
+            } else {
+                "${manufacturer.replaceFirstChar { it.uppercase() }} $model"
+            }
 
         val savedDevice = userData.optString("device")
         if (savedDevice.isNotEmpty() && savedDevice != deviceName) {
@@ -105,7 +121,8 @@ class AuthService {
             try {
                 val expDate = ZonedDateTime.parse(exp, DateTimeFormatter.ISO_ZONED_DATE_TIME)
                 if (ZonedDateTime.now().isAfter(expDate)) return LoginResult.Error("Membresía expirada")
-            } catch (ignored: Exception) {}
+            } catch (ignored: Exception) {
+            }
         }
 
         if (savedDevice.isEmpty()) {
@@ -118,15 +135,21 @@ class AuthService {
     /**
      * Método legacy con callback (usar fetchUserDataRest para mayor velocidad)
      */
-    fun getUserData(username: String, onComplete: (DataSnapshot) -> Unit) {
+    fun getUserData(
+        username: String,
+        onComplete: (DataSnapshot) -> Unit,
+    ) {
         db.orderByChild("username").equalTo(username).limitToFirst(1)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) onComplete(snapshot.children.first()) else onComplete(snapshot)
-                }
-                override fun onCancelled(error: DatabaseError) {
-                    Log.w("AuthService", "getUserData:onCancelled", error.toException())
-                }
-            })
+            .addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) onComplete(snapshot.children.first()) else onComplete(snapshot)
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.w("AuthService", "getUserData:onCancelled", error.toException())
+                    }
+                },
+            )
     }
 }

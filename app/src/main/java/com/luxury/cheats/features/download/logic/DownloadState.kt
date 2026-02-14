@@ -10,7 +10,7 @@ data class DownloadState(
     val downloadUrl: String = "",
     val progress: Float = 0f,
     val status: DownloadStatus = DownloadStatus.IDLE,
-    val error: String? = null
+    val error: String? = null,
 )
 
 /**
@@ -20,12 +20,16 @@ data class DownloadParams(
     val cheatName: String,
     val directUrl: String? = null,
     val directPath: String? = null,
-    val preloadedWeight: String = ""
+    val preloadedWeight: String = "",
 )
 
 /**
  * Representa los posibles estados de una descarga.
  */
 enum class DownloadStatus {
-    IDLE, FETCHING_INFO, DOWNLOADING, COMPLETED, ERROR
+    IDLE,
+    FETCHING_INFO,
+    DOWNLOADING,
+    COMPLETED,
+    ERROR,
 }

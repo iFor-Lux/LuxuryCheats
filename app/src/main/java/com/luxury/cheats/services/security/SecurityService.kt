@@ -1,7 +1,10 @@
 package com.luxury.cheats.services.security
 
-import android.app.*
-import android.content.Context
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -9,7 +12,12 @@ import androidx.core.app.NotificationCompat
 import com.luxury.cheats.MainActivity
 import com.luxury.cheats.services.shizuku.ShizukuFileUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 
 /**
@@ -17,83 +25,140 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class SecurityService : Service() {
-
     @Inject lateinit var securityRepository: SecurityRepository
+
     @Inject lateinit var shizukuFileUtil: ShizukuFileUtil
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val CHANNEL_ID = "security_channel"
-    private val NOTIF_ID = 1337
+    @Inject lateinit var shizukuService: com.luxury.cheats.services.shizuku.ShizukuService
 
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
+     * Constantes internas del servicio de seguridad.
+     */
+    companion object {
+        private const val CHANNEL_ID = "security_channel"
+        private const val NOTIFICATION_ID = 1337
+        private const val CLEANUP_TIMEOUT_MS = 5000L
+    }
+
+    @Suppress("TooGenericExceptionCaught")
     override fun onCreate() {
         super.onCreate()
         try {
             createNotificationChannel()
+        } catch (e: IllegalArgumentException) {
+            android.util.Log.e("SecurityService", "Invalid notification channel parameters", e)
         } catch (e: Exception) {
-            android.util.Log.e("SecurityService", "Error creating notification channel", e)
+            android.util.Log.e("SecurityService", "Unexpected error creating notification channel", e)
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    @Suppress("TooGenericExceptionCaught")
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         try {
             val notification = createNotification()
-            startForeground(NOTIF_ID, notification)
+            startForeground(NOTIFICATION_ID, notification)
+
+            // Verificación periódica opcional o log
+            android.util.Log.d("SecurityService", "Servicio de Seguridad Luxury iniciado y persistente.")
+        } catch (e: IllegalStateException) {
+            android.util.Log.e("SecurityService", "Service not allowed to start in foreground", e)
         } catch (e: Exception) {
-            android.util.Log.e("SecurityService", "Error starting foreground", e)
-            stopSelf()
+            android.util.Log.e("SecurityService", "Unexpected error starting foreground", e)
         }
         return START_STICKY
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override fun onTaskRemoved(rootIntent: Intent?) {
         // Este método se llama cuando el usuario cierra la app desde recientes
+        android.util.Log.d("SecurityService", "App cerrada por el usuario. Iniciando limpieza de emergencia...")
+
+        // Usamos runBlocking para forzar la ejecución antes de que el proceso muera por completo
         try {
             runBlocking {
-                cleanupFiles()
+                withTimeout(CLEANUP_TIMEOUT_MS) { // 5 segundos máximo para limpiar
+                    cleanupFiles()
+                }
             }
+        } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+            android.util.Log.e("SecurityService", "Cleanup timed out after ${CLEANUP_TIMEOUT_MS}ms")
         } catch (e: Exception) {
-            android.util.Log.e("SecurityService", "Error cleaning up files", e)
+            android.util.Log.e("SecurityService", "Unexpected error during emergency cleanup", e)
         }
-        stopSelf()
+
+        // No llamamos a stopSelf() inmediatamente para dar margen al sistema
+        // super.onTaskRemoved(rootIntent) se encarga de lo básico
         super.onTaskRemoved(rootIntent)
     }
 
     private suspend fun cleanupFiles() {
-        try {
-            if (::securityRepository.isInitialized && ::shizukuFileUtil.isInitialized) {
-                val files = securityRepository.getInstalledFiles()
-                files.forEach { path ->
-                    shizukuFileUtil.deleteFile(path)
-                }
-                securityRepository.clearRegistry()
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("SecurityService", "Error in cleanupFiles", e)
+        if (!::securityRepository.isInitialized || !::shizukuService.isInitialized) return
+
+        val files = securityRepository.getInstalledFiles()
+        if (files.isEmpty()) {
+            android.util.Log.d("SecurityService", "No hay archivos registrados para limpieza.")
+            return
         }
+
+        android.util.Log.d("SecurityService", "Eliminando ${files.size} archivos registrados...")
+
+        files.forEach { path ->
+            // Usamos executeCommand directamente para capturar el error detallado
+            val result = shizukuService.executeCommand("rm -f \"$path\"")
+            when (result) {
+                is com.luxury.cheats.services.shizuku.ShizukuService.StringResult.Success -> {
+                    android.util.Log.d("SecurityService", "Archivo eliminado exitosamente: $path")
+                }
+                is com.luxury.cheats.services.shizuku.ShizukuService.StringResult.Error -> {
+                    android.util.Log.e("SecurityService", "FALLO AL ELIMINAR $path. Razón: ${result.message}")
+                }
+            }
+        }
+
+        securityRepository.clearRegistry()
+        android.util.Log.d("SecurityService", "Registro de seguridad limpiado.")
     }
 
     private fun createNotification(): Notification {
-        val pendingIntent = Intent(this, MainActivity::class.java).let {
-            PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
-        }
+        val pendingIntent =
+            Intent(this, MainActivity::class.java).let {
+                PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
+            }
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("SEGURIDAD ACTIVADA")
-            .setContentText("Protección de archivos activa en segundo plano")
+            .setContentTitle("PROTECCIÓN LUXURY ACTIVA")
+            .setContentText("El sistema está monitoreando y protegiendo tus archivos.")
             .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(Notification.CATEGORY_SERVICE)
             .setContentIntent(pendingIntent)
+            .setStyle(
+                NotificationCompat.BigTextStyle().bigText(
+                    "La protección de administrador está activa. Si cierras la aplicación, " +
+                        "los archivos sensibles se eliminarán automáticamente para tu seguridad.",
+                ),
+            )
             .build()
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Seguridad Luxury",
-                NotificationManager.IMPORTANCE_LOW
-            )
+            val channel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "Canal de Seguridad Luxury",
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    description = "Mantiene la aplicación protegida en segundo plano"
+                    setShowBadge(false)
+                }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }

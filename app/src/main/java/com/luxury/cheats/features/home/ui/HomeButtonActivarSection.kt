@@ -23,29 +23,30 @@ import androidx.compose.ui.unit.sp
  * - Borde naranja (FFAE00)
  */
 @Composable
-fun HomeButtonActivarSection(
+fun homeButtonActivarSection(
     modifier: Modifier = Modifier,
-    onActivarClick: () -> Unit = {}
+    onActivarClick: () -> Unit = {},
 ) {
     Box(
-        modifier = modifier
-            .width(228.dp)
-            .height(58.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(25.dp))
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.tertiary,
-                shape = RoundedCornerShape(25.dp)
-            )
-            .clickable { onActivarClick() }
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .width(228.dp)
+                .height(58.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(25.dp))
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    shape = RoundedCornerShape(25.dp),
+                )
+                .clickable { onActivarClick() }
+                .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = "Activar",
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 32.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
     }
 }

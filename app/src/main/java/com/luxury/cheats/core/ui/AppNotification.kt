@@ -7,7 +7,7 @@ enum class NotificationType {
     ERROR,
     WARNING,
     INFO,
-    SUCCESS
+    SUCCESS,
 }
 
 /**
@@ -16,5 +16,5 @@ enum class NotificationType {
 data class AppNotification(
     val message: String,
     val type: NotificationType,
-    val id: Long = System.currentTimeMillis()
+    val id: Long = System.currentTimeMillis(),
 )

@@ -2,14 +2,14 @@ package com.luxury.cheats.core.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -48,11 +48,11 @@ import androidx.compose.ui.unit.sp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun WelcomeNavBarSection(
+fun welcomeNavBarSection(
     currentPage: String,
     onBack: () -> Unit,
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val containerColor = MaterialTheme.colorScheme.surfaceVariant
     val textColor = MaterialTheme.colorScheme.onSurface
@@ -66,89 +66,93 @@ fun WelcomeNavBarSection(
     // Spring animation for the "push" effect on the central text
     val springSpec = spring<Float>(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
     val textOffset by animateFloatAsState(
-        targetValue = when {
-            backPressed -> 20f   // Empuja a la derecha
-            nextPressed -> -20f  // Empuja a la izquierda
-            else -> 0f
-        },
+        targetValue =
+            when {
+                backPressed -> 20f // Empuja a la derecha
+                nextPressed -> -20f // Empuja a la izquierda
+                else -> 0f
+            },
         animationSpec = springSpec,
-        label = "TextPushOffset"
+        label = "TextPushOffset",
     )
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .height(70.dp)
-            .clip(RoundedCornerShape(42.dp))
-            .background(containerColor)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .height(70.dp)
+                .clip(RoundedCornerShape(42.dp))
+                .background(containerColor)
+                .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        WelcomeNavBarContent(
+        welcomeNavBarContent(
             currentPage = currentPage,
             theme = WelcomeNavBarTheme(textOffset, textColor),
             backAction = WelcomeButtonState(onBack, backInteractionSource),
-            nextAction = WelcomeButtonState(onNext, nextInteractionSource)
+            nextAction = WelcomeButtonState(onNext, nextInteractionSource),
         )
     }
 }
 
 @Composable
-private fun WelcomeNavBarContent(
+private fun welcomeNavBarContent(
     currentPage: String,
     theme: WelcomeNavBarTheme,
     backAction: WelcomeButtonState,
-    nextAction: WelcomeButtonState
+    nextAction: WelcomeButtonState,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        WelcomeNavBarButton(
+        welcomeNavBarButton(
             text = "Back",
             onClick = backAction.onClick,
             interactionSource = backAction.interactionSource,
-            style = WelcomeNavBarButtonStyle(
-                containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
-                borderColor = MaterialTheme.colorScheme.outline,
-                contentColor = theme.textColor
-            ),
-            modifier = Modifier.width(106.dp)
+            style =
+                WelcomeNavBarButtonStyle(
+                    containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
+                    borderColor = MaterialTheme.colorScheme.outline,
+                    contentColor = theme.textColor,
+                ),
+            modifier = Modifier.width(106.dp),
         )
 
-        WelcomePageTicker(currentPage, theme.textOffset, theme.textColor)
+        welcomePageTicker(currentPage, theme.textOffset, theme.textColor)
 
-        WelcomeNavBarButton(
+        welcomeNavBarButton(
             text = "Siguiente",
             onClick = nextAction.onClick,
             interactionSource = nextAction.interactionSource,
-            style = WelcomeNavBarButtonStyle(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                borderColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = theme.textColor
-            ),
-            modifier = Modifier.width(125.dp)
+            style =
+                WelcomeNavBarButtonStyle(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    borderColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = theme.textColor,
+                ),
+            modifier = Modifier.width(125.dp),
         )
     }
 }
 
 private data class WelcomeNavBarTheme(
     val textOffset: Float,
-    val textColor: androidx.compose.ui.graphics.Color
+    val textColor: androidx.compose.ui.graphics.Color,
 )
 
 private data class WelcomeButtonState(
     val onClick: () -> Unit,
-    val interactionSource: MutableInteractionSource
+    val interactionSource: MutableInteractionSource,
 )
 
 @Composable
-private fun WelcomePageTicker(
+private fun welcomePageTicker(
     currentPage: String,
     textOffset: Float,
-    textColor: androidx.compose.ui.graphics.Color
+    textColor: androidx.compose.ui.graphics.Color,
 ) {
     AnimatedContent(
         targetState = currentPage,
@@ -158,13 +162,13 @@ private fun WelcomePageTicker(
                 .togetherWith(slideOutVertically { height -> height } + fadeOut())
                 .using(SizeTransform(clip = false))
         },
-        label = "PageIndicatorAnimation"
+        label = "PageIndicatorAnimation",
     ) { targetPage ->
         Text(
             text = targetPage,
             color = textColor,
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
         )
     }
 }
@@ -173,12 +177,12 @@ private fun WelcomePageTicker(
  * Botón interno para la barra de navegación de bienvenida.
  */
 @Composable
-private fun WelcomeNavBarButton(
+private fun welcomeNavBarButton(
     text: String,
     onClick: () -> Unit,
     style: WelcomeNavBarButtonStyle,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -186,24 +190,26 @@ private fun WelcomeNavBarButton(
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-        label = "ButtonScale"
+        label = "ButtonScale",
     )
 
     Button(
         onClick = onClick,
         interactionSource = interactionSource,
-        modifier = modifier
-            .height(46.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .border(1.dp, style.borderColor, RoundedCornerShape(30.dp)),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = style.containerColor
-        ),
+        modifier =
+            modifier
+                .height(46.dp)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .border(1.dp, style.borderColor, RoundedCornerShape(30.dp)),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = style.containerColor,
+            ),
         contentPadding = PaddingValues(0.dp),
-        shape = RoundedCornerShape(30.dp)
+        shape = RoundedCornerShape(30.dp),
     ) {
         Text(text = text, color = style.contentColor, fontSize = 16.sp)
     }

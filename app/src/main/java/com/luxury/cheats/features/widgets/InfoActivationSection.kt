@@ -30,40 +30,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.core.theme.luxuryCheatsTheme
 
 /**
  * Bottom Sheet for activation instructions.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InfoActivationBottomSheet(
+fun infoActivationBottomSheet(
     onDismissRequest: () -> Unit,
     onContinueClick: () -> Unit,
-    sheetState: SheetState = rememberModalBottomSheetState()
+    sheetState: SheetState = rememberModalBottomSheetState(),
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = null
+        dragHandle = null,
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Elegant Handle
             Box(
-                modifier = Modifier
-                    .padding(vertical = 12.dp)
-                    .size(width = 30.dp, height = 4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                modifier =
+                    Modifier
+                        .padding(vertical = 12.dp)
+                        .size(width = 30.dp, height = 4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)),
             )
 
-            InfoActivationContent(
+            infoActivationContent(
                 onContinueClick = onContinueClick,
-                onCancelClick = onDismissRequest
+                onCancelClick = onDismissRequest,
             )
         }
     }
@@ -74,117 +75,125 @@ fun InfoActivationBottomSheet(
  * Fixed size card: 360x388
  */
 @Composable
-fun InfoActivationContent(
+fun infoActivationContent(
     onContinueClick: () -> Unit,
     onCancelClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = 32.dp),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp),
+        contentAlignment = Alignment.Center,
     ) {
         // Main Stacked Card 360x388
         Box(
-            modifier = Modifier
-                .size(width = 360.dp, height = 388.dp)
-                .clip(RoundedCornerShape(40.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(24.dp)
+            modifier =
+                Modifier
+                    .size(width = 360.dp, height = 388.dp)
+                    .clip(RoundedCornerShape(40.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .padding(24.dp),
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                InfoActivationHeader()
+                infoActivationHeader()
                 Spacer(modifier = Modifier.height(20.dp))
-                InfoActivationMedia()
+                infoActivationMedia()
                 Spacer(modifier = Modifier.height(20.dp))
-                InfoActivationBody()
+                infoActivationBody()
                 Spacer(modifier = Modifier.weight(1f))
-                InfoActivationActions(onCancelClick, onContinueClick)
+                infoActivationActions(onCancelClick, onContinueClick)
             }
         }
     }
 }
 
 @Composable
-private fun InfoActivationHeader() {
+private fun infoActivationHeader() {
     Text(
         text = "COMO ACTIVAR",
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface,
-        letterSpacing = 2.sp
+        letterSpacing = 2.sp,
     )
 }
 
 @Composable
-private fun InfoActivationMedia() {
+private fun infoActivationMedia() {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-            .clip(RoundedCornerShape(25.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .clip(RoundedCornerShape(25.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant),
     )
 }
 
 @Composable
-private fun InfoActivationBody() {
+private fun infoActivationBody() {
     Text(
-        text = "Para activar los beneficios, asegúrate de haber otorgado todos los " +
-            "permisos necesarios y pulsa el botón de inicio.",
+        text =
+            "Para activar los beneficios, asegúrate de haber otorgado todos los " +
+                "permisos necesarios y pulsa el botón de inicio.",
         fontSize = 14.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
         lineHeight = 20.sp,
-        modifier = Modifier.padding(horizontal = 8.dp)
+        modifier = Modifier.padding(horizontal = 8.dp),
     )
 }
 
 @Composable
-private fun InfoActivationActions(
+private fun infoActivationActions(
     onCancelClick: () -> Unit,
-    onContinueClick: () -> Unit
+    onContinueClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         OutlinedButton(
             onClick = onCancelClick,
-            modifier = Modifier
-                .weight(1f)
-                .height(50.dp),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .height(50.dp),
             shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
+            colors =
+                ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                ),
         ) {
             Text(
                 text = "CANCELAR",
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         }
 
         Button(
             onClick = onContinueClick,
-            modifier = Modifier
-                .weight(1f)
-                .height(50.dp),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .height(50.dp),
             shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
         ) {
             Text(
                 text = "CONTINUAR",
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
     }
@@ -195,12 +204,12 @@ private fun InfoActivationActions(
  */
 @Preview(showBackground = true)
 @Composable
-fun InfoActivationPreview() {
-    LuxuryCheatsTheme {
+fun infoActivationPreview() {
+    luxuryCheatsTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            InfoActivationContent(
+            infoActivationContent(
                 onContinueClick = {},
-                onCancelClick = {}
+                onCancelClick = {},
             )
         }
     }

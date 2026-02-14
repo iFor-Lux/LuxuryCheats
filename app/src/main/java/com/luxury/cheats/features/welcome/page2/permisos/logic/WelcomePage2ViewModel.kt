@@ -1,12 +1,6 @@
 package com.luxury.cheats.features.welcome.page2.permisos.logic
 
 import android.app.Application
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-
-import kotlinx.coroutines.flow.update
-
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
@@ -19,6 +13,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import com.luxury.cheats.core.activity.DeviceAdminRequestActivity
 import com.luxury.cheats.core.receiver.LuxuryDeviceAdminReceiver
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
@@ -28,7 +25,6 @@ import kotlinx.coroutines.flow.update
  * @param application Referencia a la aplicación para acceder a servicios del sistema.
  */
 class WelcomePage2ViewModel(application: Application) : AndroidViewModel(application) {
-
     private val _uiState = MutableStateFlow(WelcomePage2State())
     val uiState: StateFlow<WelcomePage2State> = _uiState.asStateFlow()
 
@@ -54,26 +50,24 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
             state.copy(
                 isStorageGranted = storageGranted,
                 isStorageDenied = !storageGranted && clickedActions.contains(WelcomePage2Action.StorageClicked),
-                
-                isNotificationsDenied = !notificationsGranted &&
-                    clickedActions.contains(WelcomePage2Action.NotificationsClicked),
-                
+                isNotificationsDenied =
+                    !notificationsGranted &&
+                        clickedActions.contains(WelcomePage2Action.NotificationsClicked),
                 isAdminGranted = adminGranted,
                 isAdminDenied = !adminGranted && clickedActions.contains(WelcomePage2Action.AdminClicked),
-                
                 isOverlayGranted = overlayGranted,
-                isOverlayDenied = !overlayGranted && clickedActions.contains(WelcomePage2Action.OverlayClicked)
+                isOverlayDenied = !overlayGranted && clickedActions.contains(WelcomePage2Action.OverlayClicked),
             )
         }
     }
-    
+
     private fun checkStoragePermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Environment.isExternalStorageManager()
         } else {
-            // Para versiones anteriores a Android 11, usamos el permiso estándar 
+            // Para versiones anteriores a Android 11, usamos el permiso estándar
             // que normalmente se concede al instalar o mediante solicitud simple.
-            true 
+            true
         }
     }
 
@@ -121,7 +115,10 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private fun launchIntent(context: Context, intent: Intent?) {
+    private fun launchIntent(
+        context: Context,
+        intent: Intent?,
+    ) {
         intent?.let {
             it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(it)

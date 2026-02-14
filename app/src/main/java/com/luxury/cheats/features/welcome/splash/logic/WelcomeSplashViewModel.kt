@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
  * - Separación de lógica de UI (cumple AGENTS.md)
  */
 class WelcomeSplashViewModel : ViewModel() {
-
     private val _state = MutableStateFlow(WelcomeSplashState())
     val state: StateFlow<WelcomeSplashState> = _state.asStateFlow()
 
@@ -41,19 +40,25 @@ class WelcomeSplashViewModel : ViewModel() {
     suspend fun startSplashSequence(
         isLogoReadyFlow: StateFlow<Boolean>,
         onLogoReady: () -> Unit,
-        onReadyToNavigate: () -> Unit
+        onReadyToNavigate: () -> Unit,
     ) {
         // 1. Esperar señal de WebView/Logo listo
         isLogoReadyFlow.first { it }
-        
+
         // 2. Notificar UI (animaciones de entrada, etc)
         onLogoReady()
-        
-        // 3. Delay de apreciación (1.5s)
-        kotlinx.coroutines.delay(1500L)
-        
+
+        // 3. Delay de apreciación
+        kotlinx.coroutines.delay(SPLASH_DISPLAY_DURATION)
+
         // 4. Navegar
         onReadyToNavigate()
     }
-}
 
+    /**
+     * Constantes de configuración para la pantalla de bienvenida.
+     */
+    companion object {
+        private const val SPLASH_DISPLAY_DURATION = 1500L
+    }
+}

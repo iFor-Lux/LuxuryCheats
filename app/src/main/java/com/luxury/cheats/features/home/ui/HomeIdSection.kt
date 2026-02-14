@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -31,75 +34,72 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-
 /**
  * Sección de ID
  * - Texto "ID" seguido por un input estético interactivo
  * - W: 341, H: 35 (Input), BG: 404040
  */
 @Composable
-fun HomeIdSection(
+fun homeIdSection(
     modifier: Modifier = Modifier,
     idValue: String = "",
     onIdValueChange: (String) -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onSaveClick: () -> Unit = {}
+    onSaveClick: () -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
 
     Column(
-        modifier = modifier.width(341.dp)
+        modifier = modifier.width(341.dp),
     ) {
         Text(
             text = "ID",
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp),
         )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            HomeIdInputField(
+            homeIdInputField(
                 idValue = idValue,
                 onIdValueChange = onIdValueChange,
                 onSearchClick = onSearchClick,
                 focusRequester = focusRequester,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            HomeIdSaveButton(
+            homeIdSaveButton(
                 onClick = {
                     onSaveClick()
                     onSearchClick()
-                }
+                },
             )
         }
     }
 }
 
 @Composable
-private fun HomeIdInputField(
+private fun homeIdInputField(
     idValue: String,
     onIdValueChange: (String) -> Unit,
     onSearchClick: () -> Unit,
     focusRequester: FocusRequester,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .height(35.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(10.dp))
-            .clickable { focusRequester.requestFocus() }
-            .padding(horizontal = 12.dp),
-        contentAlignment = Alignment.CenterStart
+        modifier =
+            modifier
+                .height(35.dp)
+                .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(10.dp))
+                .clickable { focusRequester.requestFocus() }
+                .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.CenterStart,
     ) {
         BasicTextField(
             modifier = Modifier.focusRequester(focusRequester),
@@ -109,10 +109,11 @@ private fun HomeIdInputField(
             },
             textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = androidx.compose.ui.text.input.ImeAction.Search
-            ),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Search,
+                ),
             keyboardActions = KeyboardActions(onSearch = { onSearchClick() }),
             singleLine = true,
             decorationBox = { innerTextField ->
@@ -120,31 +121,32 @@ private fun HomeIdInputField(
                     Text(
                         text = "Ingrese su ID",
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
                     )
                 }
                 innerTextField()
-            }
+            },
         )
     }
 }
 
 @Composable
-private fun HomeIdSaveButton(onClick: () -> Unit) {
+private fun homeIdSaveButton(onClick: () -> Unit) {
     Box(
-        modifier = Modifier
-            .width(50.dp)
-            .height(35.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .width(50.dp)
+                .height(35.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = Icons.Default.Check,
             contentDescription = "Guardar ID",
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
         )
     }
 }

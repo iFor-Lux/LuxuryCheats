@@ -10,10 +10,8 @@ data class WelcomePage1State(
      * Indica si la pantalla está cargando
      */
     val isLoading: Boolean = false,
-
     /**
      * Indica si hay un error
      */
-    val error: String? = null
+    val error: String? = null,
 )
-

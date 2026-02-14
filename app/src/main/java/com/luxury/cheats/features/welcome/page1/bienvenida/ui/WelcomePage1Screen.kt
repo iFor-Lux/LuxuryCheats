@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.core.ui.DotPatternBackground
-import com.luxury.cheats.core.ui.WelcomeEclipseSection
 import com.luxury.cheats.features.welcome.page1.bienvenida.logic.WelcomePage1ViewModel
 
 /**
@@ -28,48 +26,49 @@ import com.luxury.cheats.features.welcome.page1.bienvenida.logic.WelcomePage1Vie
  * - Usa el mismo WebView del logo (sin animación, más pequeño)
  */
 @Composable
-fun WelcomePage1Screen(
+fun welcomePage1Screen(
     modifier: Modifier = Modifier,
     viewModel: WelcomePage1ViewModel = viewModel(),
     onNavigateNext: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsState()
 
     Box(modifier = modifier.fillMaxSize()) {
-        WelcomePage1LanguageSection(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .zIndex(1f)
+        welcomePage1LanguageSection(
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .zIndex(1f),
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = 120.dp), // Espacio base para el contenido inferior
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 120.dp),
+            // Espacio base para el contenido inferior
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            WelcomePage1LogoSection()
+            welcomePage1LogoSection()
             // Empujamos el contenido hacia abajo con un peso flexible
             Spacer(modifier = Modifier.weight(1f))
 
-            WelcomePage1LuxuryText()
+            welcomePage1LuxuryText()
             Spacer(modifier = Modifier.height(24.dp))
-            WelcomePage1TextSection()
+            welcomePage1TextSection()
 
             Spacer(modifier = Modifier.height(35.dp))
-            WelcomePage1ButtonSection(
-                onNavigateNext = onNavigateNext
+            welcomePage1ButtonSection(
+                onNavigateNext = onNavigateNext,
             )
 
             Spacer(modifier = Modifier.height(44.dp))
-            WelcomePage1BadgesSection()
+            welcomePage1BadgesSection()
 
             // Padding extra al final para que no pegue con el borde en pantallas pequeñas
             Spacer(modifier = Modifier.height(40.dp))
         }
     }
-
-
 }

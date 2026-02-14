@@ -33,13 +33,12 @@ import kotlinx.coroutines.delay
  * ═══════════════════════════════════════════════════════════════
  */
 @Composable
-fun WelcomeLuxuryTextSection(
+fun welcomeLuxuryTextSection(
     modifier: Modifier = Modifier,
     text: String = "LUXURY",
     style: WelcomeTextStyle = WelcomeTextStyle(),
     animationDelay: Long = 1800,
 ) {
-
     // Estado para activar la animación
     // Esto se activa automáticamente después de un delay inicial
     var isLogoReady by remember { mutableStateOf(false) }
@@ -51,30 +50,34 @@ fun WelcomeLuxuryTextSection(
     }
 
     // Animación de entrada para el texto
-    val (luxuryAlpha, luxuryOffsetY) = WelcomeLogoAnimation.getLuxuryTextAnimation(
-        isLogoReady = isLogoReady,
-        animationDelay = 0, // Ya aplicamos el delay arriba
-        animationDuration = style.animationDuration,
-        initialOffsetY = style.initialOffsetY
-    )
+    val (luxuryAlpha, luxuryOffsetY) =
+        WelcomeLogoAnimation.getLuxuryTextAnimation(
+            isLogoReady = isLogoReady,
+            // Ya aplicamos el delay arriba
+            animationDelay = 0,
+            animationDuration = style.animationDuration,
+            initialOffsetY = style.initialOffsetY,
+        )
 
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.displayLarge.copy(
-                fontSize = style.fontSize.sp,
-                fontWeight = style.fontWeight,
-                letterSpacing = style.letterSpacing.sp
-            ),
+            style =
+                MaterialTheme.typography.displayLarge.copy(
+                    fontSize = style.fontSize.sp,
+                    fontWeight = style.fontWeight,
+                    letterSpacing = style.letterSpacing.sp,
+                ),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .offset(y = 220.dp * (style.verticalPosition - 0.5f)) // Ajusta posición vertical
-                .alpha(luxuryAlpha)
-                .offset(y = luxuryOffsetY.dp)
+            modifier =
+                Modifier
+                    .offset(y = 220.dp * (style.verticalPosition - 0.5f)) // Ajusta posición vertical
+                    .alpha(luxuryAlpha)
+                    .offset(y = luxuryOffsetY.dp),
         )
     }
 }
@@ -88,7 +91,5 @@ data class WelcomeTextStyle(
     val fontWeight: FontWeight = FontWeight.Bold,
     val initialOffsetY: Float = 30f,
     val verticalPosition: Float = 1.2f,
-    val animationDuration: Int = 600
+    val animationDuration: Int = 600,
 )
-
-

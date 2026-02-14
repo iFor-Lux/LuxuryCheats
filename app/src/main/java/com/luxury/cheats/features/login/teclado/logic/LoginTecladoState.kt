@@ -6,7 +6,7 @@ package com.luxury.cheats.features.login.teclado.logic
 enum class TecladoType {
     NONE,
     ALPHABETIC,
-    NUMERIC
+    NUMERIC,
 }
 
 /**
@@ -14,5 +14,5 @@ enum class TecladoType {
  */
 data class LoginTecladoState(
     val type: TecladoType = TecladoType.NONE,
-    val isVisible: Boolean = false
+    val isVisible: Boolean = false,
 )

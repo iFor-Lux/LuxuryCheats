@@ -4,42 +4,36 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.core.ui.DotPatternBackground
-import com.luxury.cheats.core.ui.WelcomeEclipseSection
 import com.luxury.cheats.features.welcome.splash.logic.WelcomeSplashViewModel
-import kotlinx.coroutines.delay
-
-private const val SPLASH_AUTO_NAV_DELAY = 1500L
 
 /**
  * Pantalla de bienvenida / Splash
  */
 @Composable
-fun WelcomeSplashScreen(
+fun welcomeSplashScreen(
     modifier: Modifier = Modifier,
     viewModel: WelcomeSplashViewModel = viewModel(),
     onNavigateToPage1: () -> Unit = {},
-    onLogoReady: () -> Unit = {}
+    onLogoReady: () -> Unit = {},
 ) {
     // Obtenemos el LogoViewModel para saber cuándo está listo el WebView
     val context = androidx.compose.ui.platform.LocalContext.current
-    val activity = context as? androidx.lifecycle.ViewModelStoreOwner 
-        ?: throw IllegalStateException("Context must be a ViewModelStoreOwner")
-    val logoViewModel: com.luxury.cheats.core.ui.LogoViewModel = androidx.hilt.navigation.compose.hiltViewModel(activity)
+    val activity =
+        context as? androidx.lifecycle.ViewModelStoreOwner
+            ?: error("Context must be a ViewModelStoreOwner")
+    val logoViewModel: com.luxury.cheats.core.ui.LogoViewModel =
+        androidx.hilt.navigation.compose.hiltViewModel(
+            activity,
+        )
 
     // Secuencia de inicio centralizada
     LaunchedEffect(Unit) {
         viewModel.startSplashSequence(
             isLogoReadyFlow = logoViewModel.isReadyFlow,
             onLogoReady = onLogoReady,
-            onReadyToNavigate = onNavigateToPage1
+            onReadyToNavigate = onNavigateToPage1,
         )
     }
 
@@ -47,14 +41,14 @@ fun WelcomeSplashScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         // 🎨 Sprays decorativos
-        WelcomeSpraysSection()
+        welcomeSpraysSection()
 
         // 🧩 Logo centrado
-        WelcomeLogoSection(
-            onReady = { /* No-op: Gestionado por LogoViewModel flow en startSplashSequence */ }
+        welcomeLogoSection(
+            onReady = { /* No-op: Gestionado por LogoViewModel flow en startSplashSequence */ },
         )
 
         // ✨ Texto "LUXURY" centrado
-        WelcomeLuxuryTextSection()
+        welcomeLuxuryTextSection()
     }
 }

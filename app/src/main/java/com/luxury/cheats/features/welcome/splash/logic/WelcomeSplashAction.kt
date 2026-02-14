@@ -12,4 +12,3 @@ sealed interface WelcomeSplashAction {
      */
     object NavigateToNext : WelcomeSplashAction
 }
-

@@ -13,13 +13,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,13 +45,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -67,12 +65,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.features.home.logic.HomeAction
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import com.luxury.cheats.features.home.logic.HomeAction
 
 private const val SECTION_WIDTH = 340
 private const val SECTION_HEIGHT = 450
@@ -100,7 +99,7 @@ data class CheatOption(
     val title: String,
     val description: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val initialValue: Boolean = false
+    val initialValue: Boolean = false,
 )
 
 /**
@@ -110,17 +109,18 @@ data class CheatOption(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeOpcionesSection(
+fun homeOpcionesSection(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    val options = listOf(
-        CheatOption("Aimbot", "Precisión letal a la cabeza", Icons.Default.GpsFixed),
-        CheatOption("Holograma", "Visualización de enemigos", Icons.Default.Visibility),
-        CheatOption("WallHack", "Ver a través de estructuras", Icons.Default.Layers),
-        CheatOption("AimFov", "Campo de visión mejorado", Icons.Default.CenterFocusStrong)
-    )
+    val options =
+        listOf(
+            CheatOption("Aimbot", "Precisión letal a la cabeza", Icons.Default.GpsFixed),
+            CheatOption("Holograma", "Visualización de enemigos", Icons.Default.Visibility),
+            CheatOption("WallHack", "Ver a través de estructuras", Icons.Default.Layers),
+            CheatOption("AimFov", "Campo de visión mejorado", Icons.Default.CenterFocusStrong),
+        )
 
     val carouselState = rememberCarouselState { options.size }
     val scope = rememberCoroutineScope()
@@ -131,21 +131,32 @@ fun HomeOpcionesSection(
     val screenCenterX = with(density) { (configuration.screenWidthDp.dp / 2).toPx() }
 
     Column(
-        modifier = modifier
-            .width(SECTION_WIDTH.dp)
-            .height(SECTION_HEIGHT.dp)
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(30.dp))
-            .padding(vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .width(SECTION_WIDTH.dp)
+                .height(SECTION_HEIGHT.dp)
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(30.dp))
+                .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        HomeOptionsCarousel(options, uiState.cheatOptions, carouselState, scope, screenCenterX, onAction)
+        homeOptionsCarousel(
+            options = options,
+            uiState = uiState,
+            config =
+                CarouselConfig(
+                    state = carouselState,
+                    scope = scope,
+                    screenCenterX = screenCenterX,
+                ),
+            onAction = onAction,
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-            WideOptionCard(
+            wideOptionCard(
                 title = "PANEL DE CONTROL",
-                description = "Ajustes avanzados y configuración"
+                description = "Ajustes avanzados y configuración",
             )
         }
     }
@@ -153,58 +164,66 @@ fun HomeOpcionesSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeOptionsCarousel(
+private fun homeOptionsCarousel(
     options: List<CheatOption>,
-    cheatOptions: Map<String, Boolean>,
-    carouselState: androidx.compose.material3.carousel.CarouselState,
-    scope: kotlinx.coroutines.CoroutineScope,
-    screenCenterX: Float,
-    onAction: (HomeAction) -> Unit
+    uiState: com.luxury.cheats.features.home.logic.HomeState,
+    config: CarouselConfig,
+    onAction: (HomeAction) -> Unit,
 ) {
     Text(
         text = "OPCIONES",
         color = MaterialTheme.colorScheme.primary,
         fontSize = 14.sp,
         fontWeight = FontWeight.ExtraBold,
-        modifier = Modifier.padding(bottom = 12.dp)
+        modifier = Modifier.padding(bottom = 12.dp),
     )
 
     HorizontalCenteredHeroCarousel(
-        state = carouselState,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(260.dp),
+        state = config.state,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(260.dp),
         contentPadding = PaddingValues(horizontal = 24.dp),
-        itemSpacing = 8.dp
+        itemSpacing = 8.dp,
     ) { index ->
         val option = options[index]
 
-        OptionCard(
+        optionCard(
             option = option,
-            checked = cheatOptions[option.title] ?: option.initialValue,
-            screenCenterX = screenCenterX,
+            checked = uiState.cheatOptions[option.title] ?: option.initialValue,
+            screenCenterX = config.screenCenterX,
             onAction = onAction,
-            modifier = Modifier
-                .fillMaxSize()
-                .maskClip(MaterialTheme.shapes.extraLarge)
-                .clickable {
-                    scope.launch { carouselState.animateScrollToItem(index) }
-                }
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .maskClip(MaterialTheme.shapes.extraLarge)
+                    .clickable {
+                        config.scope.launch { config.state.animateScrollToItem(index) }
+                    },
         )
     }
 }
+
+/** Clase de configuración para agrupar parámetros del carrusel. */
+@OptIn(ExperimentalMaterial3Api::class)
+private data class CarouselConfig(
+    val state: androidx.compose.material3.carousel.CarouselState,
+    val scope: kotlinx.coroutines.CoroutineScope,
+    val screenCenterX: Float,
+)
 
 /**
  * Tarjeta individual adaptada para el carrusel.
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun OptionCard(
+fun optionCard(
     option: CheatOption,
     checked: Boolean,
     screenCenterX: Float,
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     // State removed in favor of hoisting
     var itemCenterX by remember { mutableFloatStateOf(0f) }
@@ -218,47 +237,49 @@ fun OptionCard(
 
     val alpha by animateFloatAsState(
         targetValue = if (isCollapsed) OptionsConstants.ALPHA_COLLAPSED else 1f,
-        animationSpec = tween(
-            durationMillis = OptionsConstants.ANIM_DUR_COLLAPSED,
-            easing = FastOutSlowInEasing
-        ),
-        label = "alpha"
+        animationSpec =
+            tween(
+                durationMillis = OptionsConstants.ANIM_DUR_COLLAPSED,
+                easing = FastOutSlowInEasing,
+            ),
+        label = "alpha",
     )
 
     Box(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .onGloballyPositioned { coordinates ->
-                val position = coordinates.positionInRoot()
-                itemCenterX = position.x + coordinates.size.width / 2f
-            }
+        modifier =
+            modifier
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .onGloballyPositioned { coordinates ->
+                    val position = coordinates.positionInRoot()
+                    itemCenterX = position.x + coordinates.size.width / 2f
+                },
     ) {
-        TopographicBackground(
+        topographicBackground(
             modifier = Modifier.fillMaxSize(),
             lineColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-            lineCount = 7
+            lineCount = 7,
         )
 
-        OptionCardLayout(
+        optionCardLayout(
             isCollapsed = isCollapsed,
             option = option,
             checked = checked,
             alpha = alpha,
             onCheckedChange = { isChecked ->
                 onAction(HomeAction.ToggleCheat(option.title, isChecked))
-            }
+            },
         )
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun OptionCardLayout(
+private fun optionCardLayout(
     isCollapsed: Boolean,
     option: CheatOption,
     checked: Boolean,
     alpha: Float,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
         AnimatedContent(
@@ -269,16 +290,16 @@ private fun OptionCardLayout(
                 val scaleOut = scaleOut(targetScale = OptionsConstants.SCALE_TRANSITION)
                 fadeIn(fadeTween) + scaleIn togetherWith fadeOut(fadeTween) + scaleOut
             },
-            label = "layout_change"
+            label = "layout_change",
         ) { collapsed ->
             if (collapsed) {
-                OptionCardCollapsed(option.title, alpha)
+                optionCardCollapsed(option.title, alpha)
             } else {
-                OptionCardHero(
+                optionCardHero(
                     option = option,
                     checked = checked,
                     alpha = alpha,
-                    onCheckedChange = onCheckedChange
+                    onCheckedChange = onCheckedChange,
                 )
             }
         }
@@ -286,10 +307,13 @@ private fun OptionCardLayout(
 }
 
 @Composable
-private fun OptionCardCollapsed(title: String, alpha: Float) {
+private fun optionCardCollapsed(
+    title: String,
+    alpha: Float,
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = title.uppercase(),
@@ -297,70 +321,76 @@ private fun OptionCardCollapsed(title: String, alpha: Float) {
             fontSize = 18.sp,
             fontWeight = FontWeight.Black,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .rotate(OptionsConstants.ROTATION_VERTICAL)
-                .wrapContentSize(unbounded = true)
-                .graphicsLayer { this.alpha = alpha }
+            modifier =
+                Modifier
+                    .rotate(OptionsConstants.ROTATION_VERTICAL)
+                    .wrapContentSize(unbounded = true)
+                    .graphicsLayer { this.alpha = alpha },
         )
     }
 }
 
 @Composable
-private fun OptionCardHero(
+private fun optionCardHero(
     option: CheatOption,
     checked: Boolean,
     alpha: Float,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .graphicsLayer { this.alpha = alpha }
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .graphicsLayer { this.alpha = alpha },
     ) {
-        OptionCardHeader(option, checked, onCheckedChange)
+        optionCardHeader(option, checked, onCheckedChange)
         Spacer(modifier = Modifier.weight(1f))
-        OptionCardFooter(option.title, option.description)
+        optionCardFooter(option.title, option.description)
     }
 }
 
 @Composable
-private fun OptionCardHeader(
+private fun optionCardHeader(
     option: CheatOption,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = option.icon,
             contentDescription = option.title,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
         )
 
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-            )
+            colors =
+                SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                ),
         )
     }
 }
 
 @Composable
-private fun OptionCardFooter(title: String, description: String) {
+private fun optionCardFooter(
+    title: String,
+    description: String,
+) {
     Column {
         Text(
             text = title,
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 26.sp,
-            fontWeight = FontWeight.ExtraBold
+            fontWeight = FontWeight.ExtraBold,
         )
 
         Text(
@@ -368,7 +398,7 @@ private fun OptionCardFooter(title: String, description: String) {
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             fontSize = 12.sp,
             lineHeight = 16.sp,
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier.padding(top = 4.dp),
         )
     }
 }
@@ -380,26 +410,32 @@ private fun OptionCardFooter(title: String, description: String) {
  * @param description Descripción detallada de la opción.
  */
 @Composable
-fun WideOptionCard(title: String, description: String, modifier: Modifier = Modifier) {
+fun wideOptionCard(
+    title: String,
+    description: String,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(WIDE_CARD_HEIGHT.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(20.dp))
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(WIDE_CARD_HEIGHT.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(20.dp))
+                .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Default.Share,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
         }
 
@@ -410,12 +446,12 @@ fun WideOptionCard(title: String, description: String, modifier: Modifier = Modi
                 text = title,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             Text(
                 text = description,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                fontSize = 10.sp
+                fontSize = 10.sp,
             )
         }
     }
@@ -426,7 +462,7 @@ fun WideOptionCard(title: String, description: String, modifier: Modifier = Modi
  * Dibuja líneas onduladas que imitan un mapa de relieve.
  */
 @Composable
-fun TopographicBackground(
+fun topographicBackground(
     modifier: Modifier = Modifier,
     lineColor: Color = Color.White.copy(alpha = 0.15f),
     lineCount: Int = 9,
@@ -442,43 +478,46 @@ fun TopographicBackground(
                 repeat(lineCount) { index ->
                     val offset = index * spacingPx
 
-                    val path = Path().apply {
-                        moveTo(
-                            size.width * OptionsConstants.TOPOGRAPHIC_P1 + offset,
-                            OptionsConstants.TOPOGRAPHIC_OFF_MINUS
-                        )
+                    val path =
+                        Path().apply {
+                            moveTo(
+                                size.width * OptionsConstants.TOPOGRAPHIC_P1 + offset,
+                                OptionsConstants.TOPOGRAPHIC_OFF_MINUS,
+                            )
 
-                        cubicTo(
-                            size.width * 0f + offset,
-                            size.height * OptionsConstants.TOPOGRAPHIC_P1,
-                            size.width * 1f + offset,
-                            size.height * OptionsConstants.TOPOGRAPHIC_P2,
-                            size.width * OptionsConstants.TOPOGRAPHIC_P3 + offset,
-                            size.height * 1f
-                        )
-                    }
+                            cubicTo(
+                                size.width * 0f + offset,
+                                size.height * OptionsConstants.TOPOGRAPHIC_P1,
+                                size.width * 1f + offset,
+                                size.height * OptionsConstants.TOPOGRAPHIC_P2,
+                                size.width * OptionsConstants.TOPOGRAPHIC_P3 + offset,
+                                size.height * 1f,
+                            )
+                        }
 
                     drawPath(
                         path = path,
                         color = lineColor,
-                        style = Stroke(
-                            width = strokePx,
-                            cap = StrokeCap.Round,
-                            pathEffect = null
-                        )
+                        style =
+                            Stroke(
+                                width = strokePx,
+                                cap = StrokeCap.Round,
+                                pathEffect = null,
+                            ),
                     )
                 }
             }
         }
     }
 }
+
 /**
  * Vista previa de la sección de opciones del home.
  */
 @Preview(showBackground = true)
 @Composable
-fun HomeOpcionesSectionPreview() {
-    LuxuryCheatsTheme {
-        HomeOpcionesSection(uiState = com.luxury.cheats.features.home.logic.HomeState(), onAction = {})
+fun homeOpcionesSectionPreview() {
+    luxuryCheatsTheme {
+        homeOpcionesSection(uiState = com.luxury.cheats.features.home.logic.HomeState(), onAction = {})
     }
 }

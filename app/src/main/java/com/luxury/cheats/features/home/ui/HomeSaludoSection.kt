@@ -30,18 +30,18 @@ import androidx.compose.ui.unit.sp
 private object SaludoConstants {
     const val VALENTINE_MONTH = 2
     const val VALENTINE_DAY = 14
-    
+
     const val HALLOWEEN_MONTH = 10
     const val HALLOWEEN_START = 25
     const val HALLOWEEN_END = 31
-    
+
     const val XMAS_MONTH = 12
     const val XMAS_START = 20
     const val XMAS_END = 31
-    
+
     const val NEW_YEAR_MONTH = 1
     const val NEW_YEAR_DAY = 1
-    
+
     const val DAY_START_HOUR = 6
     const val DAY_END_HOUR = 18
 }
@@ -52,25 +52,26 @@ private object SaludoConstants {
  * - Estética premium con bordes sutiles y badge superior
  */
 @Composable
-fun HomeSaludoSection(
+fun homeSaludoSection(
     modifier: Modifier = Modifier,
     userName: String = "",
     greeting: String = "",
-    subtitle: String = ""
+    subtitle: String = "",
 ) {
     val icon = getGreetingIcon()
 
     Box(
-        modifier = modifier
-            .width(341.dp)
-            .height(125.dp)
+        modifier =
+            modifier
+                .width(341.dp)
+                .height(125.dp),
     ) {
-        HomeGreetingCard(
+        homeGreetingCard(
             userName = userName,
             greeting = greeting,
             subtitle = subtitle,
             icon = icon,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
@@ -82,54 +83,59 @@ private fun getGreetingIcon(): androidx.compose.ui.graphics.vector.ImageVector {
     val month = now.monthValue
     val day = now.dayOfMonth
 
-    val isValentine = month == SaludoConstants.VALENTINE_MONTH && 
+    val isValentine =
+        month == SaludoConstants.VALENTINE_MONTH &&
             day == SaludoConstants.VALENTINE_DAY
-            
-    val isHalloween = month == SaludoConstants.HALLOWEEN_MONTH && 
+
+    val isHalloween =
+        month == SaludoConstants.HALLOWEEN_MONTH &&
             day in SaludoConstants.HALLOWEEN_START..SaludoConstants.HALLOWEEN_END
-            
-    val isXmas = month == SaludoConstants.XMAS_MONTH && 
+
+    val isXmas =
+        month == SaludoConstants.XMAS_MONTH &&
             day in SaludoConstants.XMAS_START..SaludoConstants.XMAS_END
-            
-    val isNewYear = month == SaludoConstants.NEW_YEAR_MONTH && 
+
+    val isNewYear =
+        month == SaludoConstants.NEW_YEAR_MONTH &&
             day == SaludoConstants.NEW_YEAR_DAY
 
     return when {
         isValentine -> Icons.Default.Favorite
         isHalloween || isXmas || isNewYear -> Icons.Default.Celebration
-        currentHour in SaludoConstants.DAY_START_HOUR..SaludoConstants.DAY_END_HOUR -> 
+        currentHour in SaludoConstants.DAY_START_HOUR..SaludoConstants.DAY_END_HOUR ->
             Icons.Default.WbSunny
         else -> Icons.Default.NightsStay
     }
 }
 
 @Composable
-private fun HomeGreetingCard(
+private fun homeGreetingCard(
     userName: String,
     greeting: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(110.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(30.dp))
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(30.dp)
-            )
-            .padding(horizontal = 20.dp),
-        contentAlignment = Alignment.CenterStart
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(110.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(30.dp))
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(30.dp),
+                )
+                .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.CenterStart,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(55.dp)
+                modifier = Modifier.size(55.dp),
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -139,13 +145,13 @@ private fun HomeGreetingCard(
                     text = "$greeting @$userName",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = subtitle,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     fontSize = 10.sp,
-                    lineHeight = 12.sp
+                    lineHeight = 12.sp,
                 )
             }
         }

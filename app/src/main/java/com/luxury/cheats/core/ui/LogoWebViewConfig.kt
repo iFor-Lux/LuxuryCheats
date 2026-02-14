@@ -16,48 +16,47 @@ import android.webkit.WebViewClient
  * - Ubicado en core porque es compartido entre pantallas
  */
 object LogoWebViewConfig {
-    
     private const val TAG = "LogoWebView"
-    
+
     /**
      * Configura el WebView con todas las optimizaciones necesarias
      */
     fun configureWebView(
         webView: WebView,
-        onPageReady: (() -> Unit)? = null
+        onPageReady: (() -> Unit)? = null,
     ) {
         // Forzar hardware acceleration (crítico para WebGL)
         webView.setLayerType(WebView.LAYER_TYPE_HARDWARE, null)
-        
+
         // Configurar WebViewClient (sin interceptación)
         webView.webViewClient = createWebViewClient()
-        
+
         // Configurar WebChromeClient para logs y debugging
         webView.webChromeClient = createWebChromeClient()
-        
+
         // Agregar JavaScript Interface para comunicación JS -> Android
         webView.addJavascriptInterface(
             WebGLReadyInterface(onPageReady),
-            "AndroidInterface"
+            "AndroidInterface",
         )
-        
+
         // Aplicar configuración de settings optimizada
         configureSettings(webView.settings)
-        
+
         // Configurar propiedades visuales
         configureVisualProperties(webView)
-        
+
         // Cargar contenido
         webView.loadUrl("file:///android_asset/index.html")
     }
-    
+
     /**
      * JavaScript Interface para comunicación JS -> Android
      * Permite que JavaScript notifique cuando WebGL está listo
      */
     @SuppressLint("JavascriptInterface")
     private class WebGLReadyInterface(
-        private val onPageReady: (() -> Unit)?
+        private val onPageReady: (() -> Unit)?,
     ) {
         @JavascriptInterface
         @Suppress("unused")
@@ -67,36 +66,37 @@ object LogoWebViewConfig {
             onPageReady?.invoke()
         }
     }
-    
+
     private fun createWebViewClient(): WebViewClient {
         return object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
+            override fun onPageFinished(
+                view: WebView?,
+                url: String?,
+            ) {
                 super.onPageFinished(view, url)
                 Log.d(TAG, "Page finished: $url")
             }
         }
     }
-    
+
     private fun createWebChromeClient(): WebChromeClient {
         return object : WebChromeClient() {
-            override fun onConsoleMessage(
-                consoleMessage: android.webkit.ConsoleMessage?
-            ): Boolean {
+            override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
                 val message = consoleMessage?.message() ?: ""
                 val level = consoleMessage?.messageLevel()
                 when (level) {
-                    android.webkit.ConsoleMessage.MessageLevel.ERROR -> 
+                    android.webkit.ConsoleMessage.MessageLevel.ERROR ->
                         Log.e(TAG, "JS Error: $message")
-                    android.webkit.ConsoleMessage.MessageLevel.WARNING -> 
+                    android.webkit.ConsoleMessage.MessageLevel.WARNING ->
                         Log.w(TAG, "JS Warning: $message")
-                    else -> 
+                    else ->
                         Log.d(TAG, "JS Console: $message")
                 }
                 return true
             }
         }
     }
-    
+
     private fun configureSettings(settings: android.webkit.WebSettings) {
         // JavaScript y DOM (requerido para WebGL)
         // Solo cargamos assets locales (file:///android_asset/), mitigando riesgos XSS
@@ -105,7 +105,7 @@ object LogoWebViewConfig {
         settings.domStorageEnabled = true
         @Suppress("DEPRECATION")
         settings.databaseEnabled = true
-        
+
         // Acceso a archivos locales (para assets)
         settings.allowFileAccess = true
         settings.allowContentAccess = true
@@ -113,27 +113,26 @@ object LogoWebViewConfig {
         settings.allowFileAccessFromFileURLs = true
         @Suppress("DEPRECATION")
         settings.allowUniversalAccessFromFileURLs = true
-        
+
         // Configuración de Viewport para DP exactos
         settings.useWideViewPort = false
         settings.loadWithOverviewMode = false
-        
+
         // Optimizaciones de rendimiento
         settings.mediaPlaybackRequiresUserGesture = false
         settings.loadsImagesAutomatically = true
         settings.blockNetworkLoads = false
         settings.blockNetworkImage = false
-        
+
         // Deshabilitar zoom (no necesario para logo)
         settings.javaScriptCanOpenWindowsAutomatically = false
         settings.setSupportZoom(false)
         settings.builtInZoomControls = false
         settings.displayZoomControls = false
-        
+
         // Mixed content (para desarrollo)
         settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-        
-        
+
         // Cache optimizado para assets locales
         settings.cacheMode = android.webkit.WebSettings.LOAD_CACHE_ELSE_NETWORK
 
@@ -141,39 +140,39 @@ object LogoWebViewConfig {
         @Suppress("DEPRECATION")
         settings.setRenderPriority(android.webkit.WebSettings.RenderPriority.HIGH)
     }
-    
+
     @SuppressLint("ClickableViewAccessibility")
     private fun configureVisualProperties(webView: WebView) {
         // Fondo transparente
         webView.setBackgroundColor(0x00000000)
-        
+
         // Inicialmente invisible (se mostrará cuando esté listo)
         webView.alpha = 0f
         webView.visibility = android.view.View.VISIBLE
-        
+
         // No interceptar toques (solo visual)
         webView.isClickable = false
         webView.isFocusable = false
         webView.isFocusableInTouchMode = false
-        
+
         // Bloquear cualquier intento de interacción consumiendo los eventos
         // Accesibilidad: Llamamos a performClick para cumplir con los estándares
         webView.setOnTouchListener { view, event ->
             if (event.action == android.view.MotionEvent.ACTION_DOWN) {
                 view.performClick()
             }
-            true 
+            true
         }
-        
+
         // Deshabilitar barras de desplazamiento (horizontal y vertical)
         webView.isHorizontalScrollBarEnabled = false
         webView.isVerticalScrollBarEnabled = false
         webView.overScrollMode = android.view.View.OVER_SCROLL_NEVER
-        
+
         // Optimizaciones de rendimiento adicionales
         webView.setWillNotDraw(false) // Permitir que se dibuje
     }
-    
+
     /**
      * Muestra el WebView cuando está listo (para animación)
      */
@@ -181,4 +180,3 @@ object LogoWebViewConfig {
         webView.alpha = 1f
     }
 }
-

@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
  * - Separación de lógica de UI (cumple AGENTS.md)
  */
 class WelcomePage1ViewModel : ViewModel() {
-
     private val _state = MutableStateFlow(WelcomePage1State())
     val state: StateFlow<WelcomePage1State> = _state.asStateFlow()
 
@@ -52,4 +51,3 @@ class WelcomePage1ViewModel : ViewModel() {
         }
     }
 }
-

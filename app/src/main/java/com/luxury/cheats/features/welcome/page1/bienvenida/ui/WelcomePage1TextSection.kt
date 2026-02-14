@@ -23,14 +23,13 @@ private val SUBTITLE_HORIZONTAL_PADDING = 20.dp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun WelcomePage1TextSection(
-    modifier: Modifier = Modifier
-) {
+fun welcomePage1TextSection(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         @Suppress("MagicNumber")
         Text(
@@ -39,7 +38,7 @@ fun WelcomePage1TextSection(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.tertiary,
             textAlign = TextAlign.Center,
-            lineHeight = 48.sp
+            lineHeight = 48.sp,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -49,9 +48,7 @@ fun WelcomePage1TextSection(
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = SUBTITLE_HORIZONTAL_PADDING)
+            modifier = Modifier.padding(horizontal = SUBTITLE_HORIZONTAL_PADDING),
         )
     }
 }
-
-

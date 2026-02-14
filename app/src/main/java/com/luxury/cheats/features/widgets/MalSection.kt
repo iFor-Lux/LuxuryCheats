@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.core.theme.luxuryCheatsTheme
 
 private const val AURA_INNER_ALPHA = 0.25f
 private const val AURA_OUTER_ALPHA = 0.05f
@@ -57,26 +57,27 @@ private const val ERROR_RED_COLOR = 0xFFFF4D4D
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MalBottomSheet(
+fun malBottomSheet(
     onDismissRequest: () -> Unit,
     onViewProblemsClick: () -> Unit,
     onExitClick: () -> Unit,
-    sheetState: SheetState = rememberModalBottomSheetState()
+    sheetState: SheetState = rememberModalBottomSheetState(),
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        dragHandle = null, // Remove official interactive handle
+        dragHandle = null,
+        // Remove official interactive handle
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         tonalElevation = 8.dp,
-        scrimColor = Color.Black.copy(alpha = 0.6f)
+        scrimColor = Color.Black.copy(alpha = 0.6f),
     ) {
-        MalContent(
+        malContent(
             onViewProblemsClick = onViewProblemsClick,
             onExitClick = {
                 onExitClick()
                 onDismissRequest()
-            }
+            },
         )
     }
 }
@@ -88,73 +89,78 @@ fun MalBottomSheet(
  * @param modifier Modificador de layout.
  */
 @Composable
-fun MalContent(
+fun malContent(
     onViewProblemsClick: () -> Unit,
     onExitClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp)
-            .padding(bottom = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+                .padding(bottom = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Visual handle
         Box(
-            modifier = Modifier
-                .padding(top = 16.dp, bottom = 8.dp)
-                .size(width = 40.dp, height = 4.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+            modifier =
+                Modifier
+                    .padding(top = 16.dp, bottom = 8.dp)
+                    .size(width = 40.dp, height = 4.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)),
         )
 
-        ErrorAuraIcon()
+        errorAuraIcon()
         Spacer(modifier = Modifier.height(8.dp))
-        ErrorTextSection()
+        errorTextSection()
         Spacer(modifier = Modifier.height(32.dp))
-        ErrorActionButtons(onViewProblemsClick, onExitClick)
+        errorActionButtons(onViewProblemsClick, onExitClick)
     }
 }
 
 @Composable
-private fun ErrorAuraIcon() {
+private fun errorAuraIcon() {
     Box(
         modifier = Modifier.size(160.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color(ERROR_RED_COLOR).copy(alpha = AURA_INNER_ALPHA),
-                            Color(ERROR_RED_COLOR).copy(alpha = AURA_OUTER_ALPHA),
-                            Color.Transparent
-                        )
-                    )
-                )
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush =
+                            Brush.radialGradient(
+                                colors =
+                                    listOf(
+                                        Color(ERROR_RED_COLOR).copy(alpha = AURA_INNER_ALPHA),
+                                        Color(ERROR_RED_COLOR).copy(alpha = AURA_OUTER_ALPHA),
+                                        Color.Transparent,
+                                    ),
+                            ),
+                    ),
         )
 
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = null,
             modifier = Modifier.size(ICON_SIZE_LARGE.dp),
-            tint = Color(ERROR_RED_COLOR)
+            tint = Color(ERROR_RED_COLOR),
         )
     }
 }
 
 @Composable
-private fun ErrorTextSection() {
+private fun errorTextSection() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "INCORRECTO",
             fontSize = TITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.onSurface,
-            letterSpacing = (-0.5).sp
+            letterSpacing = (-0.5).sp,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -164,15 +170,15 @@ private fun ErrorTextSection() {
             fontSize = SUBTITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
     }
 }
 
 @Composable
-private fun ErrorActionButtons(
+private fun errorActionButtons(
     onViewProblemsClick: () -> Unit,
-    onExitClick: () -> Unit
+    onExitClick: () -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Button(
@@ -180,16 +186,17 @@ private fun ErrorActionButtons(
             modifier = Modifier.height(SMALL_BUTTON_HEIGHT.dp),
             shape = RoundedCornerShape(12.dp),
             contentPadding = PaddingValues(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            ),
-            elevation = null
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+            elevation = null,
         ) {
             Text(
                 text = "Ver problemas",
                 fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
             )
         }
 
@@ -197,19 +204,21 @@ private fun ErrorActionButtons(
 
         Button(
             onClick = onExitClick,
-            modifier = Modifier
-                .width(BUTTON_WIDTH.dp)
-                .height(BUTTON_HEIGHT.dp),
+            modifier =
+                Modifier
+                    .width(BUTTON_WIDTH.dp)
+                    .height(BUTTON_HEIGHT.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
         ) {
             Text(
                 text = "Salir",
                 fontSize = BUTTON_FONT_SIZE.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
             )
         }
     }
@@ -221,10 +230,10 @@ private fun ErrorActionButtons(
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun MalContentPreview() {
-    LuxuryCheatsTheme {
+fun malContentPreview() {
+    luxuryCheatsTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            MalContent(onViewProblemsClick = {}, onExitClick = {})
+            malContent(onViewProblemsClick = {}, onExitClick = {})
         }
     }
 }

@@ -26,40 +26,40 @@ import androidx.compose.ui.unit.sp
  * @param state Estado actual del perfil con los datos a mostrar.
  */
 @Composable
-fun PerfilDetallesSection(
+fun perfilDetallesSection(
     modifier: Modifier = Modifier,
-    state: com.luxury.cheats.features.perfil.logic.PerfilState = com.luxury.cheats.features.perfil.logic.PerfilState()
+    state: com.luxury.cheats.features.perfil.logic.PerfilState = com.luxury.cheats.features.perfil.logic.PerfilState(),
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
     ) {
         Text(
             text = "Detalles",
             color = MaterialTheme.colorScheme.primary,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
+            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp),
         )
 
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(30.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(vertical = 12.dp)
-
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(30.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .padding(vertical = 12.dp),
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                DetailItem(label = "FECHA DE CREACION", value = state.creationDate)
-                DetailItem(label = "HORA DE CREACION", value = state.creationHour)
-                DetailItem(label = "FECHA DE VENCIMIENTO", value = state.expiryDate)
-                DetailItem(label = "MODELO", value = state.model)
-                DetailItem(label = "RAM", value = state.ram)
-                DetailItem(label = "TARGET SDK", value = state.targetSdk)
-                DetailItem(label = "ARQUITECTURA", value = state.architecture, isLast = true)
+                detailItem(label = "FECHA DE CREACION", value = state.creationDate)
+                detailItem(label = "HORA DE CREACION", value = state.creationHour)
+                detailItem(label = "FECHA DE VENCIMIENTO", value = state.expiryDate)
+                detailItem(label = "MODELO", value = state.model)
+                detailItem(label = "RAM", value = state.ram)
+                detailItem(label = "TARGET SDK", value = state.targetSdk)
+                detailItem(label = "ARQUITECTURA", value = state.architecture, isLast = true)
             }
         }
     }
@@ -73,44 +73,45 @@ fun PerfilDetallesSection(
  * @param isLast Indica si es el último elemento para ocultar el divisor.
  */
 @Composable
-fun DetailItem(
+fun detailItem(
     label: String,
     value: String = "---",
-    isLast: Boolean = false
+    isLast: Boolean = false,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = label,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
             Text(
                 text = value,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
 
         if (!isLast) {
             HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
                 thickness = 0.8.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
             )
         }
     }
 }
-

@@ -6,10 +6,13 @@ package com.luxury.cheats.features.welcome.page2.permisos.logic
 sealed class WelcomePage2Action {
     /** Click en la sección de permiso de Almacenamiento. */
     data object StorageClicked : WelcomePage2Action()
+
     /** Click en la sección de permiso de Notificaciones. */
     data object NotificationsClicked : WelcomePage2Action()
+
     /** Click en la sección de permiso de Administrador de Dispositivo. */
     data object AdminClicked : WelcomePage2Action()
+
     /** Click en la sección de permiso de Superposición. */
     data object OverlayClicked : WelcomePage2Action()
 }

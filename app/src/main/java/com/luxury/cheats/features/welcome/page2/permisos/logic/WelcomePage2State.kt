@@ -16,13 +16,10 @@ package com.luxury.cheats.features.welcome.page2.permisos.logic
 data class WelcomePage2State(
     val isStorageGranted: Boolean = false,
     val isStorageDenied: Boolean = false,
-    
     val isNotificationsGranted: Boolean = false,
     val isNotificationsDenied: Boolean = false,
-    
     val isAdminGranted: Boolean = false,
     val isAdminDenied: Boolean = false,
-    
     val isOverlayGranted: Boolean = false,
-    val isOverlayDenied: Boolean = false
+    val isOverlayDenied: Boolean = false,
 )

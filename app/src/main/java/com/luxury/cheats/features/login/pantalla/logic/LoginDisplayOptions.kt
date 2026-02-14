@@ -9,5 +9,5 @@ package com.luxury.cheats.features.login.pantalla.logic
  */
 data class LoginDisplayOptions(
     val saveUser: Boolean,
-    val onSaveUserChange: (Boolean) -> Unit
+    val onSaveUserChange: (Boolean) -> Unit,
 )

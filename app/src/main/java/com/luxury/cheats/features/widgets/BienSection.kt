@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.core.theme.luxuryCheatsTheme
 
 private const val AURA_INNER_ALPHA = 0.45f
 private const val AURA_OUTER_ALPHA = 0.15f
@@ -55,10 +55,10 @@ private const val SUCCESS_GREEN_COLOR = 0xFF4CAF50
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BienBottomSheet(
+fun bienBottomSheet(
     onDismissRequest: () -> Unit,
     onContinueClick: () -> Unit,
-    sheetState: SheetState = rememberModalBottomSheetState()
+    sheetState: SheetState = rememberModalBottomSheetState(),
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -66,27 +66,30 @@ fun BienBottomSheet(
         dragHandle = {
             // Drag Handle: Purely visual (clearing semantics removes interaction hints and text labels)
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 8.dp)
-                    .clearAndSetSemantics { }, // Removes accessibility text and interaction feedback
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 8.dp)
+                        .clearAndSetSemantics { },
+                // Removes accessibility text and interaction feedback
+                contentAlignment = Alignment.Center,
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(width = 32.dp, height = 4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+                    modifier =
+                        Modifier
+                            .size(width = 32.dp, height = 4.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)),
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
-        BienContent(
+        bienContent(
             onContinueClick = {
                 onContinueClick()
                 onDismissRequest()
-            }
+            },
         )
     }
 }
@@ -97,62 +100,66 @@ fun BienBottomSheet(
  * @param modifier Modificador de layout.
  */
 @Composable
-fun BienContent(
+fun bienContent(
     onContinueClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-            .padding(bottom = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+                .padding(bottom = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        SuccessAuraIcon()
+        successAuraIcon()
         Spacer(modifier = Modifier.height(24.dp))
-        SuccessTextSection()
+        successTextSection()
         Spacer(modifier = Modifier.height(32.dp))
-        SuccessActionButton(onContinueClick)
+        successActionButton(onContinueClick)
     }
 }
 
 @Composable
-private fun SuccessAuraIcon() {
+private fun successAuraIcon() {
     Box(
         modifier = Modifier.size(200.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color(SUCCESS_GREEN_COLOR).copy(alpha = AURA_INNER_ALPHA),
-                            Color(SUCCESS_GREEN_COLOR).copy(alpha = AURA_OUTER_ALPHA),
-                            Color.Transparent
-                        )
-                    )
-                )
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush =
+                            Brush.radialGradient(
+                                colors =
+                                    listOf(
+                                        Color(SUCCESS_GREEN_COLOR).copy(alpha = AURA_INNER_ALPHA),
+                                        Color(SUCCESS_GREEN_COLOR).copy(alpha = AURA_OUTER_ALPHA),
+                                        Color.Transparent,
+                                    ),
+                            ),
+                    ),
         )
 
         Icon(
             imageVector = Icons.Default.Check,
             contentDescription = "Success",
             modifier = Modifier.size(ICON_SIZE_LARGE.dp),
-            tint = Color(SUCCESS_GREEN_COLOR)
+            tint = Color(SUCCESS_GREEN_COLOR),
         )
     }
 }
 
 @Composable
-private fun SuccessTextSection() {
+private fun successTextSection() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "Correcto",
             fontSize = TITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -161,28 +168,30 @@ private fun SuccessTextSection() {
             text = "Felicidades la instalacion fue todo un exito",
             fontSize = SUBTITLE_FONT_SIZE.sp,
             fontWeight = FontWeight.Normal,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
 
 @Composable
-private fun SuccessActionButton(onContinueClick: () -> Unit) {
+private fun successActionButton(onContinueClick: () -> Unit) {
     Button(
         onClick = onContinueClick,
-        modifier = Modifier
-            .width(BUTTON_WIDTH.dp)
-            .height(BUTTON_HEIGHT.dp),
+        modifier =
+            Modifier
+                .width(BUTTON_WIDTH.dp)
+                .height(BUTTON_HEIGHT.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
     ) {
         Text(
             text = "Continuar",
             fontSize = BUTTON_FONT_SIZE.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
     }
 }
@@ -193,10 +202,10 @@ private fun SuccessActionButton(onContinueClick: () -> Unit) {
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun BienContentPreview() {
-    LuxuryCheatsTheme {
+fun bienContentPreview() {
+    luxuryCheatsTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            BienContent(onContinueClick = {})
+            bienContent(onContinueClick = {})
         }
     }
 }

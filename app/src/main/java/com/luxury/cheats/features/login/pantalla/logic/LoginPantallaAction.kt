@@ -20,7 +20,7 @@ sealed class LoginPantallaAction {
 
     /** Acción cuando cambia el tipo de teclado visible. */
     data class OnTecladoTypeChange(
-        val type: com.luxury.cheats.features.login.teclado.logic.TecladoType
+        val type: com.luxury.cheats.features.login.teclado.logic.TecladoType,
     ) : LoginPantallaAction()
 
     /** Acción cuando se presiona una tecla del teclado personalizado. */

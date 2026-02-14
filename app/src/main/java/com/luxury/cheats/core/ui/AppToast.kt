@@ -44,7 +44,7 @@ private object ToastConstants {
     const val ALPHA_DEC = 0.1f
     const val Z_INDEX_BASE = 5
     const val MAX_WIDTH = 340
-    
+
     // Hex Colors
     const val RED_LIGHT = 0xFFFFEBEE
     const val YELLOW_LIGHT = 0xFFFFFDE7
@@ -61,7 +61,7 @@ private object ToastConstants {
 private data class ToastTheme(
     val containerColor: Color,
     val contentColor: Color,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
 )
 
 /**
@@ -70,122 +70,129 @@ private data class ToastTheme(
  * @param modifier Modificador para el contenedor de los toasts.
  */
 @Composable
-fun AppToast(
+fun appToast(
     notifications: List<AppNotification>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        contentAlignment = Alignment.TopCenter
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+        contentAlignment = Alignment.TopCenter,
     ) {
         val displayed = notifications.takeLast(ToastConstants.MAX_VISIBLE).reversed()
-        
+
         displayed.forEachIndexed { index, notification ->
             val isTop = index == 0
             val offsetInDp = (index * ToastConstants.OFFSET_STEP).dp
-            
+
             val scale by animateFloatAsState(
                 targetValue = if (isTop) 1f else 1f - index * ToastConstants.SCALE_DEC,
                 animationSpec = tween(ToastConstants.ANIM_DURATION),
-                label = "toast_scale"
+                label = "toast_scale",
             )
-            
+
             val alpha by animateFloatAsState(
                 targetValue = if (isTop) 1f else ToastConstants.ALPHA_BASE - index * ToastConstants.ALPHA_DEC,
                 animationSpec = tween(ToastConstants.ANIM_DURATION),
-                label = "toast_alpha"
+                label = "toast_alpha",
             )
 
-            ToastCard(
+            toastCard(
                 notification = notification,
                 isTop = isTop,
-                modifier = Modifier
-                    .offset(y = offsetInDp)
-                    .scale(scale)
-                    .alpha(alpha)
-                    .zIndex((ToastConstants.Z_INDEX_BASE - index).toFloat())
+                modifier =
+                    Modifier
+                        .offset(y = offsetInDp)
+                        .scale(scale)
+                        .alpha(alpha)
+                        .zIndex((ToastConstants.Z_INDEX_BASE - index).toFloat()),
             )
         }
     }
 }
 
 @Composable
-private fun ToastCard(
+private fun toastCard(
     notification: AppNotification,
     isTop: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val theme = getNotificationTheme(notification.type)
     val strokeColor = theme.contentColor.copy(alpha = ToastConstants.STROKE_ALPHA)
     val shape = RoundedCornerShape(32.dp)
 
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .widthIn(max = ToastConstants.MAX_WIDTH.dp)
-            .graphicsLayer {
-                this.shape = shape
-                this.clip = true
-            },
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .widthIn(max = ToastConstants.MAX_WIDTH.dp)
+                .graphicsLayer {
+                    this.shape = shape
+                    this.clip = true
+                },
         color = theme.containerColor,
         contentColor = theme.contentColor,
         shape = shape,
         border = BorderStroke(1.dp, strokeColor),
-        shadowElevation = 4.dp
+        shadowElevation = 4.dp,
     ) {
-        ToastCardContent(notification.message, theme.icon, isTop)
+        toastCardContent(notification.message, theme.icon, isTop)
     }
 }
 
 @Composable
 private fun getNotificationTheme(type: NotificationType): ToastTheme {
-    val containerColor = when (type) {
-        NotificationType.ERROR -> Color(ToastConstants.RED_LIGHT)
-        NotificationType.WARNING -> Color(ToastConstants.YELLOW_LIGHT)
-        NotificationType.INFO, NotificationType.SUCCESS -> Color(ToastConstants.GREEN_LIGHT)
-    }
-    
-    val contentColor = when (type) {
-        NotificationType.ERROR -> Color(ToastConstants.RED_DARK)
-        NotificationType.WARNING -> Color(ToastConstants.YELLOW_DARK)
-        NotificationType.INFO, NotificationType.SUCCESS -> Color(ToastConstants.GREEN_DARK)
-    }
+    val containerColor =
+        when (type) {
+            NotificationType.ERROR -> Color(ToastConstants.RED_LIGHT)
+            NotificationType.WARNING -> Color(ToastConstants.YELLOW_LIGHT)
+            NotificationType.INFO, NotificationType.SUCCESS -> Color(ToastConstants.GREEN_LIGHT)
+        }
 
-    val icon = when (type) {
-        NotificationType.ERROR -> Icons.Default.Warning
-        NotificationType.WARNING, NotificationType.INFO -> Icons.Default.Info
-        NotificationType.SUCCESS -> Icons.Default.CheckCircle
-    }
-    
+    val contentColor =
+        when (type) {
+            NotificationType.ERROR -> Color(ToastConstants.RED_DARK)
+            NotificationType.WARNING -> Color(ToastConstants.YELLOW_DARK)
+            NotificationType.INFO, NotificationType.SUCCESS -> Color(ToastConstants.GREEN_DARK)
+        }
+
+    val icon =
+        when (type) {
+            NotificationType.ERROR -> Icons.Default.Warning
+            NotificationType.WARNING, NotificationType.INFO -> Icons.Default.Info
+            NotificationType.SUCCESS -> Icons.Default.CheckCircle
+        }
+
     return ToastTheme(containerColor, contentColor, icon)
 }
 
 @Composable
-private fun ToastCardContent(
+private fun toastCardContent(
     message: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    isTop: Boolean
+    isTop: Boolean,
 ) {
     Row(
-        modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 14.dp)
-            .alpha(if (isTop) 1f else 0f),
+        modifier =
+            Modifier
+                .padding(horizontal = 24.dp, vertical = 14.dp)
+                .alpha(if (isTop) 1f else 0f),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

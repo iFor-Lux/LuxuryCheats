@@ -14,13 +14,13 @@ import androidx.compose.ui.unit.dp
  * - W: 412, H: 115
  */
 @Composable
-fun HomeImagenSection(
-    modifier: Modifier = Modifier
-) {
+fun homeImagenSection(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(115.dp)
-            .background(Color.Transparent) // Se asume que es para una imagen superior
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(115.dp)
+                // Se asume que es para una imagen superior
+                .background(Color.Transparent),
     )
 }

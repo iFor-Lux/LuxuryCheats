@@ -5,13 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.graphics.ColorUtils
 
 /**
  * Colores base de la aplicación - Luxury Theme
+ *
+ * Monocromo Premium
  */
-
-// Monocromo Premium
 val OnyxBlack = Color(0xFF080808)
 val DarkGray = Color(0xFF121212)
 val SurfaceGray = Color(0xFF1A1A1A)
@@ -26,6 +25,10 @@ val CleanWhite = Color(0xFFFFFFFF)
 val AccentSilver = Color(0xFFC0C0C0)
 val LuxuryOrange = Color(0xFFFFAE00)
 
+private const val HSV_COMPONENTS = 3
+private const val ALPHA_SHIFT = 24
+private const val COLOR_MASK = 0xFF
+
 /**
  * Armoniza un color con el color primario del esquema actual.
  * Utilizamos el espacio de color HSL (Hue, Saturation, Lightness) para adaptar el matiz
@@ -35,20 +38,24 @@ val LuxuryOrange = Color(0xFFFFAE00)
 fun Color.harmonizeWithPrimary(): Color {
     val primary = MaterialTheme.colorScheme.primary
     return remember(this, primary) {
-        val hsvOriginal = FloatArray(3)
-        val hsvPrimary = FloatArray(3)
+        val hsvOriginal = FloatArray(HSV_COMPONENTS)
+        val hsvPrimary = FloatArray(HSV_COMPONENTS)
 
         android.graphics.Color.colorToHSV(this.toArgb(), hsvOriginal)
         android.graphics.Color.colorToHSV(primary.toArgb(), hsvPrimary)
 
         // Adoptamos el matiz (Hue) del primario dinámico para armonizar
         // Pero preservamos la saturación y el valor (brillo) del color original
-        val harmonizedHsv = floatArrayOf(
-            hsvPrimary[0], // Matiz del sistema
-            hsvOriginal[1], // Saturación original
-            hsvOriginal[2]  // Brillo original
-        )
+        val harmonizedHsv =
+            floatArrayOf(
+                // Matiz del sistema
+                hsvPrimary[0],
+                // Saturación original
+                hsvOriginal[1],
+                // Brillo original
+                hsvOriginal[2],
+            )
 
-        Color(android.graphics.Color.HSVToColor(this.toArgb().shr(24) and 0xFF, harmonizedHsv))
+        Color(android.graphics.Color.HSVToColor(this.toArgb().shr(ALPHA_SHIFT) and COLOR_MASK, harmonizedHsv))
     }
 }

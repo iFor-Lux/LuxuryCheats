@@ -20,19 +20,17 @@ import androidx.compose.ui.unit.sp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun LoginPantallaTextSection(
-    modifier: Modifier = Modifier
-) {
+fun loginPantallaTextSection(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "LOGIN",
             fontSize = 36.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.tertiary,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
 
         Spacer(modifier = Modifier.height(8.dp))

@@ -28,36 +28,37 @@ import androidx.compose.ui.unit.sp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun LoginPantallaButtonSection(
+fun loginPantallaButtonSection(
     onLoginClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
     val radius by animateDpAsState(
         if (pressed) 16.dp else 30.dp,
-        label = "radius"
+        label = "radius",
     )
 
     Button(
         onClick = onLoginClick,
         interactionSource = interactionSource,
-        modifier = modifier
-            .width(240.dp)
-            .height(63.dp),
+        modifier =
+            modifier
+                .width(240.dp)
+                .height(63.dp),
         shape = RoundedCornerShape(radius),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        ),
-
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
     ) {
         Text(
             text = "Entrar",
             fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
     }
 }

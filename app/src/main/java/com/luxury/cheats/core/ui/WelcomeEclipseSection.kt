@@ -26,24 +26,26 @@ private const val STROKE_COLOR_LIGHT = 0x60911AA9 // Morado Luxury pero con tran
  * Sección de Eclipse decorativo
  */
 @Composable
-fun WelcomeEclipseSection(
-    modifier: Modifier = Modifier
-) {
+fun welcomeEclipseSection(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val isDark = isSystemInDarkTheme()
     val (fillColor, strokeColor) = getEclipseColors(isDark)
     val blurRadius = with(density) { 80.dp.toPx() }
 
     Canvas(
-        modifier = modifier.fillMaxSize().then(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Modifier.graphicsLayer {
-                    renderEffect = android.graphics.RenderEffect.createBlurEffect(
-                        blurRadius, blurRadius, android.graphics.Shader.TileMode.CLAMP
-                    ).asComposeRenderEffect()
-                }
-            } else Modifier
-        )
+        modifier =
+            modifier.fillMaxSize().then(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Modifier.graphicsLayer {
+                        renderEffect =
+                            android.graphics.RenderEffect.createBlurEffect(
+                                blurRadius, blurRadius, android.graphics.Shader.TileMode.CLAMP,
+                            ).asComposeRenderEffect()
+                    }
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         val widthPx = size.width
         val heightPx = size.height

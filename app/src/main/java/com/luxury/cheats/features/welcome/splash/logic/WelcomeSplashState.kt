@@ -10,6 +10,5 @@ data class WelcomeSplashState(
      * Indica si el splash está listo para navegar
      * (cuando todas las animaciones han terminado)
      */
-    val isReadyToNavigate: Boolean = false
+    val isReadyToNavigate: Boolean = false,
 )
-

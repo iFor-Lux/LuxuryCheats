@@ -32,52 +32,51 @@ private val COLOR_ANTIBAN = Color(0xFF1CFF4D)
 private val COLOR_ANDROID = Color(0xFFFF8E1C)
 private val COLOR_PRIVATE = Color(0xFFFF1CBB)
 
-
-
 /**
  * Sección de Badges para Page 1
  * - 5 insignias con colores específicos
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun WelcomePage1BadgesSection(
-    modifier: Modifier = Modifier
-) {
+fun welcomePage1BadgesSection(modifier: Modifier = Modifier) {
     FlowRow(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.Center,
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        maxItemsInEachRow = 3
+        maxItemsInEachRow = 3,
     ) {
-        BadgeItem(text = "5 años de experiencia", color = COLOR_EXPERIENCE, width = BADGE_WIDTH_EXPERIENCE)
-        BadgeItem(text = "100% Antiblacklist", color = COLOR_ANTIBLACKLIST, width = BADGE_WIDTH_ANTIBLACKLIST)
-        BadgeItem(text = "100% Antiban", color = COLOR_ANTIBAN, width = BADGE_WIDTH_ANTIBAN)
-        BadgeItem(text = "Android 9 -16", color = COLOR_ANDROID, width = BADGE_WIDTH_ANDROID)
-        BadgeItem(text = "Privado", color = COLOR_PRIVATE, width = BADGE_WIDTH_PRIVATE)
+        badgeItem(text = "5 años de experiencia", color = COLOR_EXPERIENCE, width = BADGE_WIDTH_EXPERIENCE)
+        badgeItem(text = "100% Antiblacklist", color = COLOR_ANTIBLACKLIST, width = BADGE_WIDTH_ANTIBLACKLIST)
+        badgeItem(text = "100% Antiban", color = COLOR_ANTIBAN, width = BADGE_WIDTH_ANTIBAN)
+        badgeItem(text = "Android 9 -16", color = COLOR_ANDROID, width = BADGE_WIDTH_ANDROID)
+        badgeItem(text = "Privado", color = COLOR_PRIVATE, width = BADGE_WIDTH_PRIVATE)
     }
 }
 
 @Composable
-private fun BadgeItem(
+private fun badgeItem(
     text: String,
     color: Color,
-    width: androidx.compose.ui.unit.Dp
+    width: androidx.compose.ui.unit.Dp,
 ) {
     Box(
-        modifier = Modifier
-            .padding(horizontal = 4.dp)
-            .width(width)
-            .height(22.dp)
-            .background(color, RoundedCornerShape(24.dp)),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .padding(horizontal = 4.dp)
+                .width(width)
+                .height(22.dp)
+                .background(color, RoundedCornerShape(24.dp)),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            fontSize = 11.sp, // Ajustado para que quepa bien en 22dp de altura
+            fontSize = 11.sp,
+            // Ajustado para que quepa bien en 22dp de altura
             fontWeight = FontWeight.SemiBold,
-            color = Color.Black
+            color = Color.Black,
         )
     }
 }

@@ -23,22 +23,21 @@ private val TEXT_GRAY_HEX = Color(0xFF777777)
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun LoginPantallaImagenSection(
-    modifier: Modifier = Modifier
-) {
+fun loginPantallaImagenSection(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
-            .width(412.dp)
-            .height(115.dp)
-            .background(BORDER_GRAY_HEX, RoundedCornerShape(8.dp)),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .width(412.dp)
+                .height(115.dp)
+                .background(BORDER_GRAY_HEX, RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center,
     ) {
         // Placeholder para la imagen
         Text(
             text = "Imagen pendiente",
             fontSize = 12.sp,
             fontWeight = FontWeight.Light,
-            color = TEXT_GRAY_HEX
+            color = TEXT_GRAY_HEX,
         )
     }
 }

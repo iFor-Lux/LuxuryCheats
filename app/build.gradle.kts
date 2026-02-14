@@ -121,7 +121,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation(libs.androidx.graphics.shapes)
     implementation(libs.kotlinx.serialization.json)
-    
+
     // Backdrop library (local module)
     implementation(project(":backdrop"))
 

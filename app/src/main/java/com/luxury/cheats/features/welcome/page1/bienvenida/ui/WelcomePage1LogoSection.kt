@@ -14,17 +14,13 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun WelcomePage1LogoSection(
-    modifier: Modifier = Modifier
-) {
+fun welcomePage1LogoSection(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.TopCenter
+        contentAlignment = Alignment.TopCenter,
     ) {
         // Reservar espacio para el logo (500dp base)
         // Solo necesitamos el tope para que otros elementos se posicionen debajo
         Box(modifier = Modifier.size(280.dp).offset(y = 30.dp))
     }
-
 }
-

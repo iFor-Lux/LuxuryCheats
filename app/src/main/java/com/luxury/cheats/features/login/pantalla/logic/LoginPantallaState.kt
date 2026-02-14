@@ -8,7 +8,7 @@ import com.luxury.cheats.features.login.teclado.logic.TecladoType
  */
 enum class LoginInteractionState {
     COMPACT,
-    EXPANDED
+    EXPANDED,
 }
 
 /**
@@ -18,7 +18,7 @@ enum class LoginNotificationType {
     INFO,
     ERROR,
     WARNING,
-    SUCCESS
+    SUCCESS,
 }
 
 /**
@@ -31,7 +31,7 @@ enum class LoginNotificationType {
 data class LoginNotification(
     val id: Long = System.currentTimeMillis(),
     val message: String,
-    val type: LoginNotificationType
+    val type: LoginNotificationType,
 )
 
 /**
@@ -47,5 +47,5 @@ data class LoginPantallaState(
     val tecladoType: TecladoType = TecladoType.NONE,
     val isUpperCase: Boolean = false,
     val isLoading: Boolean = false,
-    val isLoginSuccessful: Boolean = false
+    val isLoginSuccessful: Boolean = false,
 )
