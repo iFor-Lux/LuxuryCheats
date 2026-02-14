@@ -31,6 +31,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.luxury.cheats.features.home.logic.HomeViewModel
+import androidx.compose.runtime.collectAsState
 
 private const val TRANSITION_DURATION = 400
 
@@ -38,7 +41,7 @@ private const val TRANSITION_DURATION = 400
  * Grafo de navegación principal de la aplicación.
  * Organizado en grafos anidados para separar el flujo de autenticación del principal.
  */
-// ... imports removed ...
+
 
 @Composable
 fun AppNavHost(
@@ -166,12 +169,22 @@ private fun androidx.navigation.NavGraphBuilder.welcomeGraph(
     }
 }
 
+
+
 private fun androidx.navigation.NavGraphBuilder.mainGraph(
     navController: NavHostController,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
 ) {
     composable<Home> {
-        HomeScreen(navController = navController, backdrop = backdrop)
+        val viewModel: HomeViewModel = hiltViewModel()
+        val uiState by viewModel.uiState.collectAsState()
+        
+        HomeScreen(
+            uiState = uiState,
+            onAction = { viewModel.onAction(it) },
+            navController = navController, 
+            backdrop = backdrop
+        )
     }
 
     composable<Perfil> {

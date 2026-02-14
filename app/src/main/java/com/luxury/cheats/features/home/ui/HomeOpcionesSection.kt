@@ -145,8 +145,7 @@ fun HomeOpcionesSection(
         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
             WideOptionCard(
                 title = "PANEL DE CONTROL",
-                description = "Ajustes avanzados y configuración",
-                modifier = Modifier.clickable { onAction(HomeAction.ToggleControlPanel) }
+                description = "Ajustes avanzados y configuración"
             )
         }
     }

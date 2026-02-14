@@ -58,7 +58,7 @@ object HomeGreetingProvider {
      * Formatea los datos de un jugador en un string para la consola.
      */
     fun formatPlayerData(data: com.luxury.cheats.services.freefireapi.PlayerResponse): String {
-        val b = data.basicInfo ?: return "ERROR EN PROTOCOLO DE DATOS."
+        val b = data.basicInfo ?: return "ERROR EN PROTOCOLO DE DATOS: BASIC INFO NULL."
         val s = data.socialInfo
         val c = data.clanInfo
 
@@ -66,28 +66,33 @@ object HomeGreetingProvider {
         sb.append("🔥 SEGURIDAD LUXURY ACTIVADO 🔥\n")
         sb.append("---------------------------------\n")
         sb.append("👤 PERFIL\n")
-        sb.append("• UID      : ${b.accountId}\n")
-        sb.append("• NICKNAME : ${b.nickname}\n")
-        sb.append("• REGIÓN   : ${b.region}\n")
-        sb.append("• NIVEL    : ${b.level} (EXP: ${b.exp?.let { 
-            String.format(java.util.Locale.getDefault(), "%,d", it) 
-        }})\n")
+        sb.append("• UID      : ${b.accountId ?: "N/A"}\n")
+        sb.append("• NICKNAME : ${b.nickname ?: "N/A"}\n")
+        sb.append("• REGIÓN   : ${b.region ?: "N/A"}\n")
+        
+        val levelStr = b.level?.toString() ?: "N/A"
+        val expStr = try {
+            b.exp?.let { String.format(java.util.Locale.US, "%,d", it) } ?: "0"
+        } catch (e: Exception) {
+            b.exp?.toString() ?: "0"
+        }
+        sb.append("• NIVEL    : $levelStr (EXP: $expStr)\n")
         sb.append("• LIKES    : ${b.liked ?: 0}\n\n")
 
         sb.append("---------------------------------\n\n")
 
         sb.append("🏆 RANGO\n")
-        sb.append("• BR RANK  : ${b.rank} (${b.rankingPoints} pts)\n")
-        sb.append("• CS RANK  : ${b.csRank} (${b.csRankingPoints} pts)\n")
-        sb.append("• MAX RANK : BR: ${b.brMaxRank} | CS: ${b.csMaxRank}\n\n")
+        sb.append("• BR RANK  : ${b.rank ?: "N/A"} (${b.rankingPoints ?: 0} pts)\n")
+        sb.append("• CS RANK  : ${b.csRank ?: "N/A"} (${b.csRankingPoints ?: 0} pts)\n")
+        sb.append("• MAX RANK : BR: ${b.brMaxRank ?: "N/A"} | CS: ${b.csMaxRank ?: "N/A"}\n\n")
 
         sb.append("---------------------------------\n\n")
 
         if (c != null && c.clanName != null) {
             sb.append("🛡️ CLAN\n")
             sb.append("• NOMBRE   : ${c.clanName}\n")
-            sb.append("• NIVEL    : ${c.clanLevel}\n")
-            sb.append("• MIEMBROS : ${c.memberNum}/${c.capacity}\n\n")
+            sb.append("• NIVEL    : ${c.clanLevel ?: 0}\n")
+            sb.append("• MIEMBROS : ${c.memberNum ?: 0}/${c.capacity ?: 0}\n\n")
 
             sb.append("---------------------------------\n\n")
         }

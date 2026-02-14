@@ -37,7 +37,9 @@ class PlayerRepository @Inject constructor(
         val jobs = servers.map { server ->
             launch {
                 try {
-                    onConsoleLog("\nRASTREANDO REGIÓN: ${server.uppercase()}...")
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        onConsoleLog("\nRASTREANDO REGIÓN: ${server.uppercase()}...")
+                    }
                     val call = ffApiService.getPlayerInfo(server, uid)
                     val response = call.execute()
                     
@@ -47,13 +49,19 @@ class PlayerRepository @Inject constructor(
                     } else {
                          // Loguear si la respuesta no fue exitosa o body nulo para depuración
                          if (!response.isSuccessful) {
-                             onConsoleLog("\nFALLO REGIÓN ${server.uppercase()}: Code ${response.code()}")
+                             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                 onConsoleLog("\nFALLO REGIÓN ${server.uppercase()}: Code ${response.code()}")
+                             }
                          }
                     }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    // Ignorar cancelaciones silenciosamente
                 } catch (e: Exception) {
                     // Log completo del error para depuración
                     val errorMsg = e.message ?: e.toString()
-                    onConsoleLog("\nERROR EN REGIÓN ${server.uppercase()}: $errorMsg")
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        onConsoleLog("\nERROR EN REGIÓN ${server.uppercase()}: $errorMsg")
+                    }
                     e.printStackTrace() // Para logcat
                 }
             }
@@ -70,8 +78,9 @@ class PlayerRepository @Inject constructor(
         val finalResult = resultDeferred.await()
         
         // Cancelamos cualquier búsqueda que siga en curso para ahorrar recursos
-        coroutineContext[Job]?.cancelChildren()
+        jobs.forEach { it.cancel() }
         
         finalResult
     }
+
 }

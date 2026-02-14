@@ -8,9 +8,7 @@ sealed class HomeAction {
     object ToggleIdAndConsole : HomeAction()
     /** Acción para mostrar la sección de Opciones (Trampas). */
     object ToggleOpciones : HomeAction()
-    /** Acción para mostrar el panel de control flotante. */
-    object ToggleControlPanel : HomeAction()
-    object RequestFloatingPanel : HomeAction()
+
     /** Acción para cambiar el valor del ID. */
     data class OnIdValueChange(val value: String) : HomeAction()
     /** Acción para ejecutar la búsqueda del jugador. */

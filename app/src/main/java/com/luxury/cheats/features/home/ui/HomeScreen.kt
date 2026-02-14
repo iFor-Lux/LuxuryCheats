@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,84 +26,46 @@ import androidx.compose.runtime.getValue
 import com.luxury.cheats.features.download.logic.DownloadParams
 import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
 import com.luxury.cheats.features.widgets.InfoMessageDialog
+import com.luxury.cheats.features.home.ui.seguridad.HomeSeguridadSection
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.navigations.Update
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.kyant.backdrop.backdrops.layerBackdrop
-
-
-
-private object HomeUIConstants {
-    const val NOTIFICATION_DELAY = 3000L
-    const val TOAST_TOP_PADDING = 50
-}
-
-
-
-/**
- * Pantalla principal de la aplicación (Home).
- */
+import androidx.compose.ui.tooling.preview.Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    uiState: com.luxury.cheats.features.home.logic.HomeState,
+    onAction: (HomeAction) -> Unit,
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel(),
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
+) {
+    HomeScreenContent(
+        uiState = uiState,
+        onAction = onAction,
+        navController = navController,
+        modifier = modifier,
+        backdrop = backdrop
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    uiState: com.luxury.cheats.features.home.logic.HomeState,
+    onAction: (HomeAction) -> Unit,
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    // Factory removed in favor of Hilt
     val scrollState = rememberScrollState()
-    val uiState by viewModel.uiState.collectAsState()
     val density = androidx.compose.ui.platform.LocalDensity.current
 
-    androidx.compose.runtime.LaunchedEffect(uiState.isFloatingServiceRunning) {
-        if (uiState.isFloatingServiceRunning) {
-            if (!android.provider.Settings.canDrawOverlays(context)) {
-                val intent = android.content.Intent(
-                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    android.net.Uri.parse("package:${context.packageName}")
-                )
-                context.startActivity(intent)
-                // Reset state to false so user can try again after granting permission
-                viewModel.onAction(HomeAction.ToggleControlPanel)
-            } else {
-                val intent = android.content.Intent(context, com.luxury.cheats.features.home.floating.service.FloatingService::class.java)
-                context.startForegroundService(intent)
-            }
-        } else {
-            val intent = android.content.Intent(context, com.luxury.cheats.features.home.floating.service.FloatingService::class.java)
-            context.stopService(intent)
-        }
-    }
 
-    androidx.compose.runtime.LaunchedEffect(uiState.isSeguridadUnlocked) {
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            if (uiState.isSeguridadUnlocked) {
-                // 1. Iniciar Servicio de Seguridad (Persistencia + Notificación)
-                val serviceIntent = android.content.Intent(context, com.luxury.cheats.services.security.SecurityService::class.java)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    context.startForegroundService(serviceIntent)
-                } else {
-                    context.startService(serviceIntent)
-                }
-
-                // 2. Solicitar Administrador de Dispositivos (Solo si no es admin ya)
-                val dpm = context.getSystemService(android.content.Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
-                val adminComponent = android.content.ComponentName(context, com.luxury.cheats.core.receiver.LuxuryDeviceAdminReceiver::class.java)
-                if (!dpm.isAdminActive(adminComponent)) {
-                    com.luxury.cheats.core.activity.DeviceAdminRequestActivity.start(context)
-                }
-            } else {
-                // Detener servicio de seguridad
-                val serviceIntent = android.content.Intent(context, com.luxury.cheats.services.security.SecurityService::class.java)
-                context.stopService(serviceIntent)
-            }
-        }
-    }
 
     androidx.compose.runtime.LaunchedEffect(uiState.isConsoleExpanded) {
-        if (uiState.isConsoleExpanded) {
+        if (uiState.isConsoleExpanded && !scrollState.isScrollInProgress) {
             scrollState.animateScrollTo(
                 value = scrollState.value + with(density) { 235.dp.toPx().toInt() },
                 animationSpec = androidx.compose.animation.core.tween(durationMillis = 600)
@@ -111,19 +74,17 @@ fun HomeScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        // CAPA DE CAPTURA: Solo el contenido de fondo
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
         ) {
-            HomeSectionsList(uiState, scrollState, viewModel)
+            HomeSectionsList(uiState, scrollState, onAction)
         }
 
-        // CAPA DE OVERLAYS: Fuera de la captura para evitar SIGSEGV
         HomeOverlays(
             uiState = uiState,
-            onAction = { viewModel.onAction(it) },
+            onAction = onAction,
             navController = navController,
             backdrop = backdrop
         )
@@ -141,15 +102,10 @@ private fun HomeOverlays(
     com.luxury.cheats.core.ui.AppToast(
         notifications = uiState.notifications,
         modifier = Modifier
-            .padding(top = HomeUIConstants.TOAST_TOP_PADDING.dp)
+            .padding(top = 50.dp)
     )
 
-    uiState.notifications.forEach { notification ->
-        androidx.compose.runtime.LaunchedEffect(notification.id) {
-            kotlinx.coroutines.delay(HomeUIConstants.NOTIFICATION_DELAY)
-            onAction(HomeAction.RemoveNotification(notification.id))
-        }
-    }
+
 
     uiState.appUpdate?.let { update ->
         androidx.compose.ui.window.Dialog(
@@ -188,7 +144,7 @@ private fun HomeOverlays(
 private fun HomeSectionsList(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     scrollState: androidx.compose.foundation.ScrollState,
-    viewModel: HomeViewModel
+    onAction: (HomeAction) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -205,40 +161,76 @@ private fun HomeSectionsList(
             subtitle = uiState.greetingSubtitle
         )
 
+        Spacer(modifier = Modifier.height(10.dp))
+
         HomeSeguridadSection(
-            isUnlocked = uiState.isSeguridadUnlocked,
-            onClick = { viewModel.onAction(HomeAction.ToggleSeguridad) }
+            modifier = Modifier.size(200.dp),
+            isActivated = uiState.isSeguridadUnlocked,
+            onClick = { onAction(HomeAction.ToggleSeguridad) }
         )
 
+        // Botones y secciones que aparecen al activar seguridad
         if (uiState.isSeguridadUnlocked) {
-            HomeEstadoSection(onVerEstadoClick = { viewModel.onAction(HomeAction.ToggleIdAndConsole) })
-        }
-
-        if (uiState.isSeguridadUnlocked && uiState.isIdAndConsoleVisible) {
-            HomeIdSection(
-                idValue = uiState.idValue,
-                onIdValueChange = { viewModel.onAction(HomeAction.OnIdValueChange(it)) },
-                onSearchClick = { viewModel.onAction(HomeAction.ExecuteSearch) },
-                onSaveClick = { viewModel.onAction(HomeAction.SaveId) }
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Botón Ver Estado
+            HomeEstadoSection(
+                onVerEstadoClick = { onAction(HomeAction.ToggleIdAndConsole) }
             )
-            HomeConsoleSection(
-                consoleText = uiState.consoleOutput,
-                isExpanded = uiState.isConsoleExpanded,
-                onExpandClick = { viewModel.onAction(HomeAction.ToggleConsoleExpansion) }
+            
+            // Secciones de ID y Consola (aparecen al hacer click en Ver Estado)
+            if (uiState.isIdAndConsoleVisible) {
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                HomeIdSection(
+                    idValue = uiState.idValue,
+                    onIdValueChange = { onAction(HomeAction.OnIdValueChange(it)) },
+                    onSearchClick = { onAction(HomeAction.ExecuteSearch) },
+                    onSaveClick = { onAction(HomeAction.SaveId) }
+                )
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                HomeConsoleSection(
+                    consoleText = uiState.consoleOutput,
+                    isExpanded = uiState.isConsoleExpanded,
+                    onExpandClick = { onAction(HomeAction.ToggleConsoleExpansion) }
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(15.dp))
+            
+            // Botón Activar
+            HomeButtonActivarSection(
+                onActivarClick = { onAction(HomeAction.ToggleOpciones) }
             )
         }
 
-        if (uiState.isSeguridadUnlocked) {
-            HomeButtonActivarSection(onActivarClick = { viewModel.onAction(HomeAction.ToggleOpciones) })
-        }
-
-        if (uiState.isSeguridadUnlocked && uiState.isOpcionesVisible) {
+        // Sección de Opciones (aparece al hacer click en Activar)
+        if (uiState.isOpcionesVisible) {
+            Spacer(modifier = Modifier.height(20.dp))
             HomeOpcionesSection(
                 uiState = uiState,
-                onAction = { viewModel.onAction(it) }
+                onAction = onAction
             )
         }
 
         Spacer(modifier = Modifier.height(130.dp))
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun HomeScreenPreview() {
+    MaterialTheme {
+        HomeScreenContent(
+            uiState = com.luxury.cheats.features.home.logic.HomeState(
+                userName = "Lux User",
+                greeting = "Buenas Tardes",
+                greetingSubtitle = "Listo para ganar"
+            ),
+            onAction = {},
+            navController = androidx.navigation.compose.rememberNavController()
+        )
     }
 }

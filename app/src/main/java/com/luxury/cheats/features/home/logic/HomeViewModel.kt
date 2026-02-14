@@ -57,44 +57,58 @@ class HomeViewModel @Inject constructor(
     private fun initializeData() {
         updateGreeting()
         viewModelScope.launch {
-            // Check updates
-            try {
-                val update = updateService.getAppUpdate()
-                if (update.active) _uiState.update { it.copy(appUpdate = update) }
-            } catch (ignored: Exception) {}
+            // Check updates & Notifications (IO operations)
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val update = updateService.getAppUpdate()
+                    if (update.active) {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            _uiState.update { it.copy(appUpdate = update) }
+                        }
+                    }
+                } catch (ignored: Exception) {}
 
-            // Fetch In-App Notifications
-            try {
-                val all = notificationService.getActiveNotifications()
-                val seen = preferencesService.accessSeenNotifications()
-                val toShow = all.firstOrNull { it.frequency != "once" || !seen.contains(it.id) }
-                if (toShow != null) _uiState.update { it.copy(currentInAppNotification = toShow) }
-            } catch (ignored: Exception) {}
+                try {
+                    val all = notificationService.getActiveNotifications()
+                    val seen = preferencesService.accessSeenNotifications()
+                    val toShow = all.firstOrNull { it.frequency != "once" || !seen.contains(it.id) }
+                    if (toShow != null) {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            _uiState.update { it.copy(currentInAppNotification = toShow) }
+                        }
+                    }
+                } catch (ignored: Exception) {}
+            }
+        }
+    }
 
-            // Preload weights in parallel
-            val downloadService = com.luxury.cheats.features.download.service.DownloadService()
-            val cheatNames = listOf("Aimbot", "Holograma", "WallHack", "AimFov")
-            
-            val deferredWeights = cheatNames.map { name ->
-                async {
+    /**
+     * Carga los pesos de los archivos solo cuando sea necesario (on-demand).
+     */
+    fun loadFileWeights() {
+        if (_uiState.value.fileWeightsCache.isNotEmpty()) return
+        
+        viewModelScope.launch {
+            val weightsMap = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val downloadService = com.luxury.cheats.features.download.service.DownloadService()
+                val cheatNames = listOf("Aimbot", "Holograma", "WallHack", "AimFov")
+                val map = mutableMapOf<String, String>()
+                
+                for (name in cheatNames) {
                     try {
                         val info = downloadService.getDownloadInfo(name)
                         if (info.url.isNotEmpty()) {
-                            name to downloadService.getFileSize(info.url)
-                        } else null
-                    } catch (e: Exception) {
-                        null
-                    }
+                            map[name] = downloadService.getFileSize(info.url)
+                        }
+                    } catch (ignored: Exception) {}
                 }
+                map
             }
             
-            val weightsMap = deferredWeights.awaitAll()
-                .filterNotNull()
-                .toMap()
-                
             _uiState.update { it.copy(fileWeightsCache = weightsMap) }
         }
     }
+
 
     private fun updateGreeting() {
         val username = preferencesService.getCredentials()?.first ?: ""
@@ -113,7 +127,7 @@ class HomeViewModel @Inject constructor(
             HomeAction.ToggleSeguridad -> handleToggle("seguridad")
             HomeAction.ToggleIdAndConsole -> handleToggle("id_console")
             HomeAction.ToggleOpciones -> handleToggle("opciones")
-            HomeAction.ToggleControlPanel -> handleToggle("control_panel")
+
             HomeAction.ToggleConsoleExpansion -> handleToggle("console_expansion")
             is HomeAction.OnIdValueChange -> _uiState.update { 
                 it.copy(idValue = action.value, isSearchSuccessful = false) 
@@ -126,7 +140,7 @@ class HomeViewModel @Inject constructor(
             is HomeAction.ShowDownloadArchivo -> handleShowDownloadArchivo(action.cheatName)
             is HomeAction.ToggleCheat -> handleToggleCheat(action.cheatName, action.enable)
             HomeAction.DismissDownloadArchivo -> _uiState.update { it.copy(isDownloadArchivoVisible = false) }
-            HomeAction.RequestFloatingPanel -> handleToggle("control_panel")
+
         }
     }
 
@@ -140,49 +154,55 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun handleToggle(type: String) {
+        val currentState = _uiState.value
+        
+        when (type) {
+            "seguridad" -> {
+                // Solo activar si no está ya activado
+                if (!currentState.isSeguridadUnlocked) {
+                    addNotification("SEGURIDAD ACTIVADA", NotificationType.SUCCESS)
+                    sendPushNotification("SEGURIDAD ACTIVADA", "La protección de archivos está lista.")
+                }
+                // Si ya está activado, no hacer nada (one-way activation)
+            }
+            "id_console" -> {
+                if (!currentState.isSeguridadUnlocked) {
+                    addNotification("DEBE DESBLOQUEAR SEGURIDAD PRIMERO", NotificationType.WARNING)
+                    return
+                }
+            }
+            "opciones" -> {
+                if (!currentState.isIdAndConsoleVisible) {
+                    addNotification("DEBE ABRIR EL PANEL DE ID PRIMERO", NotificationType.WARNING)
+                    return
+                }
+            }
+
+        }
+
+        // Actualización de estado pura
+        updateStateForToggle(type)
+    }
+
+    private fun updateStateForToggle(type: String) {
         _uiState.update { state ->
             when (type) {
                 "seguridad" -> {
-                    val newUnlocked = !state.isSeguridadUnlocked
-                    if (newUnlocked) {
-                        addNotification("SEGURIDAD ACTIVADA", NotificationType.SUCCESS)
-                    } else {
-                        addNotification("SEGURIDAD DESACTIVADA", NotificationType.INFO)
-                    }
-
-                    state.copy(
-                        isSeguridadUnlocked = newUnlocked,
-                        isIdAndConsoleVisible = if (!newUnlocked) false else state.isIdAndConsoleVisible,
-                        isOpcionesVisible = if (!newUnlocked) false else state.isOpcionesVisible
-                    )
-                }
-                "id_console" -> {
+                    // One-way activation: solo se puede activar, nunca desactivar
                     if (!state.isSeguridadUnlocked) {
-                        addNotification("DEBE DESBLOQUEAR SEGURIDAD PRIMERO", NotificationType.WARNING)
+                        state.copy(isSeguridadUnlocked = true)
+                    } else {
+                        // Ya está activado, no hacer nada
                         state
-                    } else state.copy(isIdAndConsoleVisible = !state.isIdAndConsoleVisible)
+                    }
                 }
+                "id_console" -> state.copy(isIdAndConsoleVisible = !state.isIdAndConsoleVisible)
                 "opciones" -> {
-                    if (state.isIdAndConsoleVisible && state.isSearchSuccessful) {
-                        state.copy(isOpcionesVisible = !state.isOpcionesVisible)
-                    } else {
-                        val msg = if (!state.isIdAndConsoleVisible) "DEBE ABRIR EL PANEL DE ID PRIMERO" 
-                                 else "DEBE ENCONTRAR UN OBJETIVO ANTES DE ACTIVAR"
-                        addNotification(msg, NotificationType.WARNING)
-                        state
-                    }
+                    // Cargar pesos de archivos al activar opciones
+                    if (!state.isOpcionesVisible) loadFileWeights()
+                    state.copy(isOpcionesVisible = !state.isOpcionesVisible)
                 }
-                "control_panel" -> {
-                    if (state.isOpcionesVisible) {
-                        // El lanzamiento del servicio se manejará en la UI (HomeScreen)
-                        // vía una acción que la UI observe o simplemente permitiendo que el estado cambie
-                        // para que HomeScreen reaccione.
-                        state.copy(isFloatingServiceRunning = !state.isFloatingServiceRunning)
-                    } else {
-                        addNotification("DEBE ACTIVAR EL PANEL DE OPCIONES PRIMERO", NotificationType.WARNING)
-                        state
-                    }
-                }
+
                 "console_expansion" -> state.copy(isConsoleExpanded = !state.isConsoleExpanded)
                 else -> state
             }
@@ -220,50 +240,118 @@ class HomeViewModel @Inject constructor(
 
     private fun executePlayerLookup() {
         val uid = _uiState.value.idValue
-        if (uid.isEmpty()) return
+        if (uid.isEmpty() || _uiState.value.isLoadingPlayer) return
+        
         viewModelScope.launch {
-            _uiState.update { 
-                it.copy(
-                    isLoadingPlayer = true, 
-                    consoleOutput = "INICIANDO PROTOCOLO DE BÚSQUEDA...", 
-                    isSearchSuccessful = false
-                ) 
-            }
-            val foundData = playerRepository.searchAcrossRegions(uid) { msg ->
+            try {
+                // 1. UI Feedback inmediato
                 _uiState.update { 
-                    val newOutput = it.consoleOutput + msg
-                    it.copy(consoleOutput = newOutput).also {
-                        preferencesService.saveExtendedHomeState(newOutput, it.isSearchSuccessful)
-                    }
-                }
-            }
-            
-            _uiState.update { currentState ->
-                val (finalOutput, isSuccessful) = if (foundData != null) {
-                    HomeGreetingProvider.formatPlayerData(foundData) to true
-                } else {
-                    (currentState.consoleOutput + "\n\nPROTOCOLO FINALIZADO: SIN RESULTADOS.") to false
+                    it.copy(
+                        isLoadingPlayer = true, 
+                        consoleOutput = "INICIANDO PROTOCOLO DE BÚSQUEDA...", 
+                        isSearchSuccessful = false
+                    ) 
                 }
                 
-                val notification = if (isSuccessful) {
-                    AppNotification("OBJETIVO LOCALIZADO EXITOSAMENTE", NotificationType.SUCCESS)
+                // 2. Operación de búsqueda (corre en IO internamente en el repo)
+                val foundData = try {
+                    playerRepository.searchAcrossRegions(uid) { msg ->
+                        // Actualizar consola incrementalmente
+                        _uiState.update { currentState ->
+                            currentState.copy(consoleOutput = currentState.consoleOutput + msg)
+                        }
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+                
+                // 3. Publicación de resultados finales
+                val success = foundData != null
+                val finalOutput = if (success) {
+                    try {
+                        val formatted = HomeGreetingProvider.formatPlayerData(foundData!!)
+                        _uiState.value.consoleOutput + "\n\n" + formatted
+                    } catch (e: Exception) {
+                        _uiState.value.consoleOutput + "\n\n[ERROR FORMATEO]: ${e.message}"
+                    }
                 } else {
-                    AppNotification("SUJETO NO ENCONTRADO EN NINGUNA REGIÓN", NotificationType.ERROR)
+                    _uiState.value.consoleOutput + "\n\nPROTOCOLO FINALIZADO: SIN RESULTADOS."
                 }
 
-                currentState.copy(
-                    consoleOutput = finalOutput,
-                    isSearchSuccessful = isSuccessful,
-                    notifications = currentState.notifications + notification,
-                    isLoadingPlayer = false
-                ).also { 
-                    preferencesService.saveExtendedHomeState(it.consoleOutput, it.isSearchSuccessful)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        consoleOutput = finalOutput,
+                        isSearchSuccessful = success,
+                        isLoadingPlayer = false
+                    )
                 }
+
+                // Notificar al usuario
+                val notificationType = if (success) NotificationType.SUCCESS else NotificationType.ERROR
+                val message = if (success) "OBJETIVO LOCALIZADO EXITOSAMENTE" else "SUJETO NO ENCONTRADO"
+                addNotification(message, notificationType)
+
+                // 4. Guardado de estado en background para evitar ANRs
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    preferencesService.saveExtendedHomeState(finalOutput, success)
+                }
+
+            } catch (e: Exception) {
+                _uiState.update { it.copy(
+                    consoleOutput = it.consoleOutput + "\n\n[ERROR FATAL]: ${e.message}",
+                    isLoadingPlayer = false
+                )}
+                addNotification("FALLO EN EL PROTOCOLO", NotificationType.ERROR)
             }
         }
     }
 
+
+    /**
+     * Agrega una notificación y la elimina automáticamente después de 3 segundos.
+     * Manejo arquitectural correcto: la UI solo renderiza, el ViewModel maneja la lógica temporal.
+     */
     private fun addNotification(message: String, type: NotificationType) {
-        _uiState.update { it.copy(notifications = it.notifications + AppNotification(message = message, type = type)) }
+        val notification = AppNotification(message = message, type = type)
+        
+        _uiState.update { 
+            it.copy(notifications = it.notifications + notification) 
+        }
+        
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(3000)
+            _uiState.update { state ->
+                state.copy(
+                    notifications = state.notifications.filterNot { n -> 
+                        n.id == notification.id 
+                    }
+                )
+            }
+        }
+    }
+    /**
+     * Envía una notificación push real del sistema (Android Notification).
+     */
+    private fun sendPushNotification(title: String, message: String) {
+        val notificationManager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channelId = "security_push_channel"
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val channel = android.app.NotificationChannel(
+                channelId,
+                "Alertas de Seguridad",
+                android.app.NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val builder = androidx.core.app.NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
 }
