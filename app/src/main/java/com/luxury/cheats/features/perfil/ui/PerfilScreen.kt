@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import com.luxury.cheats.core.ui.SquarePatternBackground
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -78,6 +79,7 @@ fun perfilScreen(
                     if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier,
                 ),
         ) {
+            SquarePatternBackground()
             perfilContent(
                 uiState = uiState,
                 modifier = Modifier,
@@ -89,6 +91,7 @@ fun perfilScreen(
                     }
                 },
             )
+            com.luxury.cheats.core.ui.FadingEdges()
         }
     }
 }

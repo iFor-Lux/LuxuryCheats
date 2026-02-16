@@ -24,6 +24,15 @@ val fontFamily =
         Font(googleFont = fontName, fontProvider = provider),
     )
 
+/**
+ * Fuente Newsreader Italic cargada localmente (Bundled Font).
+ * Ideal para citas, énfasis premium o textos elegantes en la UI.
+ */
+val newsreaderItalicFamily =
+    FontFamily(
+        androidx.compose.ui.text.font.Font(resId = R.font.newsreader_italic, weight = FontWeight.Normal),
+    )
+
 // Set of Material typography styles
 val Typography =
     Typography(

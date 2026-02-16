@@ -8,7 +8,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import javax.inject.Inject
+
 
 /**
  * ViewModel para gestionar el ciclo de vida del WebView del Logo.
@@ -26,6 +29,14 @@ class LogoViewModel
 
         private val isReadyMutable = MutableStateFlow(false)
         val isReadyFlow: StateFlow<Boolean> = isReadyMutable.asStateFlow()
+
+        // [NEW] Control dinámico de offset para personalización por pantalla
+        private val _logoOffsetY = MutableStateFlow<Dp>(0.dp)
+        val logoOffsetY: StateFlow<Dp> = _logoOffsetY.asStateFlow()
+
+        fun setLogoOffsetY(offset: Dp) {
+            _logoOffsetY.value = offset
+        }
 
         /**
          * Obtiene el WebView existente o crea uno nuevo si es necesario.

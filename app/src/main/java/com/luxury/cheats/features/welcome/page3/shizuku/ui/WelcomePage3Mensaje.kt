@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.luxury.cheats.core.theme.newsreaderItalicFamily
 
 /**
  * Sección informativa que explica detalladamente la función de Shizuku.
@@ -51,20 +52,20 @@ fun welcomePage3Mensaje() {
                 text =
                     buildAnnotatedString {
                         append("Shizuku nos permite obtener acceso 100% a los archivos del juego - apartir de ")
-                        withStyle(style = SpanStyle(color = highlightColor)) {
+                        withStyle(style = SpanStyle(color = highlightColor, fontFamily = newsreaderItalicFamily, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)) {
                             append("Android 13")
                         }
                         append(", el sistema operativo de Android bloqueó y privatizo el acceso a carpetas como ")
-                        withStyle(style = SpanStyle(color = highlightColor)) {
-                            append("DATA & OBB")
+                        withStyle(style = SpanStyle(color = highlightColor, fontFamily = newsreaderItalicFamily, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)) {
+                            append("Data & Obb")
                         }
                         append(" con fines de privacidad. ")
-                        withStyle(style = SpanStyle(color = highlightColor)) {
-                            append("SHIZUKU")
+                        withStyle(style = SpanStyle(color = highlightColor, fontFamily = newsreaderItalicFamily, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)) {
+                            append("Shizuku")
                         }
                         append(" nos otorga permisos administrativos y acceso a esos documentos ")
                         append("para poder garantizar el uso correcto de la aplicación de ")
-                        withStyle(style = SpanStyle(color = highlightColor)) {
+                        withStyle(style = SpanStyle(color = highlightColor, fontFamily = newsreaderItalicFamily, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)) {
                             append("Luxury Cheat's")
                         }
                         append(".")

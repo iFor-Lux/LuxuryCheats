@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.luxury.cheats.core.theme.newsreaderItalicFamily
 
 /**
  * Sección de texto (título y descripción inicial) para la página de Shizuku.
@@ -44,8 +45,8 @@ fun welcomePage3TextSection() {
             text =
                 buildAnnotatedString {
                     append("Antes de utilizar la aplicación por favor asegurece de tener instalado y activado ")
-                    withStyle(style = SpanStyle(color = highlightColor, fontWeight = FontWeight.SemiBold)) {
-                        append("SHIZUKU")
+                    withStyle(style = SpanStyle(color = highlightColor, fontWeight = FontWeight.SemiBold, fontFamily = newsreaderItalicFamily, fontSize = 14.sp)) {
+                        append("Shizuku")
                     }
                     append(" en tu dispositivo.")
                 },

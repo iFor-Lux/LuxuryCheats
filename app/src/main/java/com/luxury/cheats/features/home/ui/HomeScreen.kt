@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.luxury.cheats.core.ui.SquarePatternBackground
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,7 +89,9 @@ fun homeScreenContent(
                     .fillMaxSize()
                     .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier),
         ) {
+            SquarePatternBackground()
             homeSectionsList(uiState, scrollState, onAction)
+            com.luxury.cheats.core.ui.FadingEdges()
         }
 
         homeOverlays(
@@ -159,7 +162,6 @@ private fun homeSectionsList(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp),

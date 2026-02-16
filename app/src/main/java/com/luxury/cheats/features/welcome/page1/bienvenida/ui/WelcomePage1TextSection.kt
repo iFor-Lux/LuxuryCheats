@@ -10,10 +10,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.luxury.cheats.core.theme.newsreaderItalicFamily
 
 private val SUBTITLE_HORIZONTAL_PADDING = 20.dp
 
@@ -28,17 +32,22 @@ fun welcomePage1TextSection(modifier: Modifier = Modifier) {
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         @Suppress("MagicNumber")
         Text(
-            text = "Bienvenido a\nLuxury.Reg !!!",
-            fontSize = 48.sp,
+            text = buildAnnotatedString {
+                append("Bienvenido a\n")
+                withStyle(style = SpanStyle(fontFamily = newsreaderItalicFamily, fontWeight = FontWeight.SemiBold)) {
+                    append("Luxury.Reg !!!")
+                }
+            },
+            fontSize = 44.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.tertiary,
             textAlign = TextAlign.Center,
-            lineHeight = 48.sp,
+            lineHeight = 44.sp,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

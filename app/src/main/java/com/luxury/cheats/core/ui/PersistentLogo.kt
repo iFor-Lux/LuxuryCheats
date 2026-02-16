@@ -52,6 +52,7 @@ fun persistentLogo(
     // [NEW] Recibimos el WebView explícitamente
     webView: android.webkit.WebView,
     modifier: Modifier = Modifier,
+    customLogoOffsetY: Dp = 0.dp,
 ) {
     val entranceScale = WelcomeLogoAnimation.getLogoScaleAnimation(isLogoReady)
     val isSplash = navDestination?.hasRoute<Splash>() == true || navDestination == null
@@ -85,7 +86,7 @@ fun persistentLogo(
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        val animatedOffsetY = calculateLogoOffset(navDestination, LOGO_BASE_SIZE_DP)
+        val animatedOffsetY = calculateLogoOffset(navDestination, LOGO_BASE_SIZE_DP, customLogoOffsetY)
 
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -105,6 +106,7 @@ fun persistentLogo(
 private fun calculateLogoOffset(
     navDestination: NavDestination?,
     logoBaseSize: Dp,
+    customLogoOffsetY: Dp,
 ): Dp {
     val windowInfo = LocalWindowInfo.current
     val density = LocalDensity.current
@@ -114,7 +116,8 @@ private fun calculateLogoOffset(
     val screenHeight = with(density) { containerSize.height.toDp() }
 
     val splashCenterOffset = (screenHeight - logoBaseSize) / 2
-    val page1Offset = PAGE1_OFFSET_Y
+    // Priorizamos el offset personalizado si existe, sino usamos el hardcodeado
+    val page1Offset = if (customLogoOffsetY != 0.dp) customLogoOffsetY else PAGE1_OFFSET_Y
     val page2Offset = PAGE2_OFFSET_Y
 
     val isSplash = navDestination?.hasRoute<Splash>() == true || navDestination == null

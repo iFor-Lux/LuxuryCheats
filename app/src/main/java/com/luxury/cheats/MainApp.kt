@@ -35,6 +35,7 @@ import com.luxury.cheats.navigations.appNavHost
 fun luxuryCheatsApp(viewModel: LogoViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val isLogoReady by viewModel.isReadyFlow.collectAsState()
+    val logoOffsetY by viewModel.logoOffsetY.collectAsState()
     val webView = viewModel.getOrCreateWebView()
     val backdrop = rememberLayerBackdrop()
 
@@ -66,6 +67,7 @@ fun luxuryCheatsApp(viewModel: LogoViewModel = hiltViewModel()) {
                 navBackStackEntry = navBackStackEntry,
                 isLogoReady = isLogoReady,
                 webView = webView,
+                customLogoOffsetY = logoOffsetY,
             )
         }
     }
@@ -127,13 +129,15 @@ private fun handleTabSelection(
 private fun logoPersistenceLayer(
     navBackStackEntry: NavBackStackEntry?,
     isLogoReady: Boolean,
-    webView: WebView?,
+    webView: android.webkit.WebView?,
+    customLogoOffsetY: androidx.compose.ui.unit.Dp,
 ) {
     webView?.let {
         persistentLogo(
             navDestination = navBackStackEntry?.destination,
             isLogoReady = isLogoReady,
             webView = it,
+            customLogoOffsetY = customLogoOffsetY,
         )
     }
 }

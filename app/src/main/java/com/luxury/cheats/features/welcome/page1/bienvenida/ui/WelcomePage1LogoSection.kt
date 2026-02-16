@@ -19,8 +19,8 @@ fun welcomePage1LogoSection(modifier: Modifier = Modifier) {
         modifier = modifier,
         contentAlignment = Alignment.TopCenter,
     ) {
-        // Reservar espacio para el logo (500dp base)
-        // Solo necesitamos el tope para que otros elementos se posicionen debajo
-        Box(modifier = Modifier.size(280.dp).offset(y = 30.dp))
+        // Reservar espacio para el logo
+        // Eliminamos el offset para que el posicionamiento sea controlado por el padre
+        Box(modifier = Modifier.size(280.dp))
     }
 }
