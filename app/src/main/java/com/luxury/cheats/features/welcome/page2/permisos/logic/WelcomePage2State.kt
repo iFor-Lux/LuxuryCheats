@@ -22,4 +22,8 @@ data class WelcomePage2State(
     val isAdminDenied: Boolean = false,
     val isOverlayGranted: Boolean = false,
     val isOverlayDenied: Boolean = false,
-)
+    val notifications: List<com.luxury.cheats.core.ui.AppNotification> = emptyList(),
+) {
+    val isAllPermissionsGranted: Boolean
+        get() = isStorageGranted && isNotificationsGranted && isAdminGranted && isOverlayGranted
+}

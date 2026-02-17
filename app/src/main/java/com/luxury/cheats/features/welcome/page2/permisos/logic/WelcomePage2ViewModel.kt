@@ -11,12 +11,16 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.luxury.cheats.core.ui.AppNotification
+import com.luxury.cheats.core.ui.NotificationType
 import com.luxury.cheats.core.activity.DeviceAdminRequestActivity
 import com.luxury.cheats.core.receiver.LuxuryDeviceAdminReceiver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel encargado de gestionar la lógica de permisos en la segunda página de bienvenida.
@@ -50,6 +54,7 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
             state.copy(
                 isStorageGranted = storageGranted,
                 isStorageDenied = !storageGranted && clickedActions.contains(WelcomePage2Action.StorageClicked),
+                isNotificationsGranted = notificationsGranted,
                 isNotificationsDenied =
                     !notificationsGranted &&
                         clickedActions.contains(WelcomePage2Action.NotificationsClicked),
@@ -112,6 +117,29 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
                 val intent = getNotificationsIntent(context)
                 launchIntent(context, intent)
             }
+            WelcomePage2Action.NextClicked -> {
+                addNotification("Activa los permisos para seguir", NotificationType.WARNING)
+            }
+            is WelcomePage2Action.RemoveNotification -> {
+                _uiState.update { state ->
+                    state.copy(notifications = state.notifications.filter { it.id != action.notificationId })
+                }
+            }
+        }
+    }
+
+    private fun addNotification(
+        message: String,
+        type: NotificationType,
+    ) {
+        val notification = AppNotification(message = message, type = type)
+        _uiState.update { it.copy(notifications = it.notifications + notification) }
+
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(3000L)
+            _uiState.update { state ->
+                state.copy(notifications = state.notifications.filter { it.id != notification.id })
+            }
         }
     }
 
@@ -128,6 +156,10 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
     private fun getOverlayIntent(context: Context): Intent {
         return Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
             data = Uri.parse("package:${context.packageName}")
+            // Probamos ambas variaciones: con prefijo y sin él, para mayor compatibilidad
+            putExtra(":settings:fragment_args_key", "package:${context.packageName}")
+            putExtra("highlight_id", "package:${context.packageName}") // Omitido en algunas capas
+            putExtra(":settings:show_fragment_args", true)
         }
     }
 
@@ -135,6 +167,8 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
                 data = Uri.parse("package:${context.packageName}")
+                putExtra(":settings:fragment_args_key", "package:${context.packageName}")
+                putExtra(":settings:show_fragment_args", true)
             }
         } else {
             Intent()
@@ -145,6 +179,9 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                // En notificaciones a veces solo se usa el package directamente
+                putExtra(":settings:fragment_args_key", context.packageName)
+                putExtra(":settings:show_fragment_args", true)
             }
         } else {
             Intent("android.settings.APP_NOTIFICATION_SETTINGS").apply {

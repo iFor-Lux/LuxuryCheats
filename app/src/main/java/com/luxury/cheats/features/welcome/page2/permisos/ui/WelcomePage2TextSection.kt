@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,9 +19,8 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun welcomePage2TextSection() {
-    val isDark = isSystemInDarkTheme()
-    val titleColor = if (isDark) Color.White else Color.Black
-    val descriptionColor = if (isDark) Color.White.copy(alpha = 0.7f) else Color.Black.copy(alpha = 0.6f)
+    val titleColor = MaterialTheme.colorScheme.onSurface
+    val descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Column(modifier = Modifier.width(260.dp)) {
         Text(

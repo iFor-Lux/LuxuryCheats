@@ -15,4 +15,10 @@ sealed class WelcomePage2Action {
 
     /** Click en la sección de permiso de Superposición. */
     data object OverlayClicked : WelcomePage2Action()
+
+    /** Click en el botón Siguiente cuando los permisos no están listos. */
+    data object NextClicked : WelcomePage2Action()
+
+    /** Elimina una notificación por su ID. */
+    data class RemoveNotification(val notificationId: Long) : WelcomePage2Action()
 }

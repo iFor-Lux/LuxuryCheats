@@ -53,6 +53,7 @@ fun welcomeNavBarSection(
     onBack: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
+    isNextEnabled: Boolean = true,
 ) {
     val containerColor = MaterialTheme.colorScheme.surfaceVariant
     val textColor = MaterialTheme.colorScheme.onSurface
@@ -91,7 +92,7 @@ fun welcomeNavBarSection(
             currentPage = currentPage,
             theme = WelcomeNavBarTheme(textOffset, textColor),
             backAction = WelcomeButtonState(onBack, backInteractionSource),
-            nextAction = WelcomeButtonState(onNext, nextInteractionSource),
+            nextAction = WelcomeButtonState(onNext, nextInteractionSource, isNextEnabled),
         )
     }
 }
@@ -127,6 +128,7 @@ private fun welcomeNavBarContent(
             text = "Siguiente",
             onClick = nextAction.onClick,
             interactionSource = nextAction.interactionSource,
+            enabled = nextAction.enabled,
             style =
                 WelcomeNavBarButtonStyle(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -146,6 +148,7 @@ private data class WelcomeNavBarTheme(
 private data class WelcomeButtonState(
     val onClick: () -> Unit,
     val interactionSource: MutableInteractionSource,
+    val enabled: Boolean = true,
 )
 
 @Composable
@@ -182,6 +185,7 @@ private fun welcomeNavBarButton(
     onClick: () -> Unit,
     style: WelcomeNavBarButtonStyle,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -196,6 +200,7 @@ private fun welcomeNavBarButton(
     Button(
         onClick = onClick,
         interactionSource = interactionSource,
+        enabled = enabled,
         modifier =
             modifier
                 .height(46.dp)
@@ -207,6 +212,8 @@ private fun welcomeNavBarButton(
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = style.containerColor,
+                disabledContainerColor = style.containerColor.copy(alpha = 0.5f),
+                disabledContentColor = style.contentColor.copy(alpha = 0.5f),
             ),
         contentPadding = PaddingValues(0.dp),
         shape = RoundedCornerShape(30.dp),

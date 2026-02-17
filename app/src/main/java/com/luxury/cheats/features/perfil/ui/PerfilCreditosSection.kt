@@ -29,8 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.luxuryCheatsTheme
 
-private val PINK_BANNER_HEX = Color(0xFFFFDBFE)
-private const val BANNER_ALPHA = 0.16f
 
 private object SkillsConstants {
     const val SKILLS_WEIGHT = 1.3f
@@ -80,7 +78,7 @@ private fun creditosCard() {
                 .width(333.dp)
                 .height(96.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(PINK_BANNER_HEX.copy(alpha = BANNER_ALPHA)),
+                .background(MaterialTheme.colorScheme.tertiaryContainer),
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
@@ -126,13 +124,13 @@ private fun creatorInfo(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
             text = "iFor1722",
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
         )
         Text(
             text = "Desarrollador principal y arquitecto del proyecto",
-            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
             fontSize = 9.sp,
             lineHeight = 12.sp,
         )
@@ -174,12 +172,12 @@ fun bulletText(text: String) {
                     .padding(top = 4.dp) // Alineado con la primera línea de texto
                     .size(4.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)),
+                    .background(MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.5f)),
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = text,
-            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
             fontSize = 9.sp,
             lineHeight = 11.sp,
         )

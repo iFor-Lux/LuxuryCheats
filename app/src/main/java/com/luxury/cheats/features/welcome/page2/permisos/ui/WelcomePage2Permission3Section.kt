@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -52,9 +53,9 @@ fun welcomePage2Permission3Section(
         }
     val iconTint =
         when {
-            isGranted -> MaterialTheme.colorScheme.primary
-            isDenied -> MaterialTheme.colorScheme.error
-            else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            isGranted -> MaterialTheme.colorScheme.onPrimaryContainer
+            isDenied -> MaterialTheme.colorScheme.onErrorContainer
+            else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
         }
     val titleColor = MaterialTheme.colorScheme.onSurface
     val descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -83,6 +84,7 @@ fun welcomePage2Permission3Section(
             permissionIcon(
                 iconBgColor = iconBgColor,
                 iconTint = iconTint,
+                isGranted = isGranted,
             )
             Spacer(modifier = Modifier.width(16.dp))
             permissionInfo(
@@ -97,6 +99,7 @@ fun welcomePage2Permission3Section(
 private fun permissionIcon(
     iconBgColor: Color,
     iconTint: Color,
+    isGranted: Boolean,
 ) {
     Box(
         modifier =
@@ -106,12 +109,21 @@ private fun permissionIcon(
                 .background(iconBgColor),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = Icons.Default.Layers,
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(20.dp),
-        )
+        if (isGranted) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(20.dp),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Layers,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(20.dp),
+            )
+        }
     }
 }
 

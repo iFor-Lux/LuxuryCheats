@@ -23,8 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.luxuryCheatsTheme
 
-private val BANNER_GREEN_HEX = Color(0xFFDBFFDD)
-private const val BANNER_ALPHA = 0.16f
 
 /**
  * Sección de comunidad de perfil
@@ -90,13 +88,13 @@ private fun comunidadBanner() {
                 .fillMaxWidth()
                 .height(86.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(BANNER_GREEN_HEX.copy(alpha = BANNER_ALPHA)),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "RECLAMAR DIAS GRATIS !!!",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.ExtraBold,
             )
@@ -104,7 +102,7 @@ private fun comunidadBanner() {
                 text =
                     "Contribuye para poder recibir dias gratis en la app\n" +
                         "y poder probar lo maximo que podemos ofrecer",
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
                 fontSize = 9.sp,
                 lineHeight = 11.sp,
                 textAlign = TextAlign.Center,

@@ -20,6 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.core.ui.welcomeNavBarSection
+import com.luxury.cheats.core.ui.appToast
 import com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2Action
 import com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2ViewModel
 
@@ -62,10 +63,22 @@ fun welcomePage2Screen(
             Spacer(modifier = Modifier.height(140.dp))
         }
 
+        appToast(
+            notifications = uiState.notifications,
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 24.dp),
+        )
+
         welcomeNavBarSection(
             currentPage = "2/4",
             onBack = onNavigateBack,
-            onNext = onNavigateNext,
+            onNext = {
+                if (uiState.isAllPermissionsGranted) {
+                    onNavigateNext()
+                } else {
+                    viewModel.handleAction(WelcomePage2Action.NextClicked)
+                }
+            },
+            isNextEnabled = true, // Siempre habilitado para poder mostrar el Toast al hacer click
             modifier =
                 Modifier
                     .align(Alignment.BottomCenter)
