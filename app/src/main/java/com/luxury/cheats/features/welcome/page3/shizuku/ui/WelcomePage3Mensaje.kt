@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,59 +50,61 @@ fun welcomePage3Mensaje() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text =
-                    buildAnnotatedString {
-                        append("Shizuku nos permite obtener acceso 100% a los archivos del juego - apartir de ")
-                        withStyle(
-                            style = SpanStyle(
-                                color = highlightColor,
-                                fontFamily = newsreaderItalicFamily,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) {
-                            append("Android 13")
-                        }
-                        append(", el sistema operativo de Android bloqueó y privatizo el acceso a carpetas como ")
-                        withStyle(
-                            style = SpanStyle(
-                                color = highlightColor,
-                                fontFamily = newsreaderItalicFamily,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) {
-                            append("Data & Obb")
-                        }
-                        append(" con fines de privacidad. ")
-                        withStyle(
-                            style = SpanStyle(
-                                color = highlightColor,
-                                fontFamily = newsreaderItalicFamily,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) {
-                            append("Shizuku")
-                        }
-                        append(" nos otorga permisos administrativos y acceso a esos documentos ")
-                        append("para poder garantizar el uso correcto de la aplicación de ")
-                        withStyle(
-                            style = SpanStyle(
-                                color = highlightColor,
-                                fontFamily = newsreaderItalicFamily,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) {
-                            append("Luxury Cheat's")
-                        }
-                        append(".")
-                    },
+                text = buildShizukuExplication(highlightColor),
                 fontSize = 8.sp,
                 color = textColor,
                 lineHeight = 10.sp,
             )
         }
     }
+}
+
+@Composable
+private fun buildShizukuExplication(highlightColor: Color) = buildAnnotatedString {
+    append("Shizuku nos permite obtener acceso 100% a los archivos del juego - apartir de ")
+    withStyle(
+        style = SpanStyle(
+            color = highlightColor,
+            fontFamily = newsreaderItalicFamily,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    ) {
+        append("Android 13")
+    }
+    append(", el sistema operativo de Android bloqueó y privatizo el acceso a carpetas como ")
+    withStyle(
+        style = SpanStyle(
+            color = highlightColor,
+            fontFamily = newsreaderItalicFamily,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    ) {
+        append("Data & Obb")
+    }
+    append(" con fines de privacidad. ")
+    withStyle(
+        style = SpanStyle(
+            color = highlightColor,
+            fontFamily = newsreaderItalicFamily,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    ) {
+        append("Shizuku")
+    }
+    append(" nos otorga permisos administrativos y acceso a esos documentos ")
+    append("para poder garantizar el uso correcto de la aplicación de ")
+    withStyle(
+        style = SpanStyle(
+            color = highlightColor,
+            fontFamily = newsreaderItalicFamily,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    ) {
+        append("Luxury Cheat's")
+    }
+    append(".")
 }

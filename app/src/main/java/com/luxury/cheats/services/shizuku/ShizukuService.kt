@@ -19,6 +19,7 @@ import javax.inject.Singleton
 class ShizukuService @Inject constructor() {
         private var isBinderReceived = false
 
+        /** Constantes de configuración para el servicio Shizuku y limpieza de archivos. */
         companion object {
             private const val THREAD_JOIN_TIMEOUT_MS = 5000L
         }

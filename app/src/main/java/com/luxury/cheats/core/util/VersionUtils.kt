@@ -17,26 +17,35 @@ object VersionUtils {
         val cleanLocal = local.trim().lowercase().removePrefix("v")
 
         android.util.Log.d("VersionUtils", "Comparing -> Remote: '$cleanRemote', Local: '$cleanLocal'")
+        
         if (cleanRemote.isEmpty() || cleanLocal.isEmpty()) return false
         if (cleanRemote == cleanLocal) return false
 
-        return try {
-            val remoteParts = cleanRemote.split(".").mapNotNull { it.toIntOrNull() }
-            val localParts = cleanLocal.split(".").mapNotNull { it.toIntOrNull() }
+        return calculateIsNewer(cleanRemote, cleanLocal)
+    }
 
+    private fun calculateIsNewer(remote: String, local: String): Boolean {
+        return try {
+            val remoteParts = remote.split(".").mapNotNull { it.toIntOrNull() }
+            val localParts = local.split(".").mapNotNull { it.toIntOrNull() }
             val maxLength = maxOf(remoteParts.size, localParts.size)
 
-            for (i in 0 until maxLength) {
+            var i = 0
+            var comparisonResult = 0
+            while (i < maxLength && comparisonResult == 0) {
                 val remoteVal = remoteParts.getOrElse(i) { 0 }
                 val localVal = localParts.getOrElse(i) { 0 }
-
-                if (remoteVal > localVal) return true
-                if (remoteVal < localVal) return false
+                
+                if (remoteVal > localVal) {
+                    comparisonResult = 1
+                } else if (remoteVal < localVal) {
+                    comparisonResult = -1
+                }
+                i++
             }
-            false
+            comparisonResult > 0
         } catch (ignored: Exception) {
-            // Fallback simple si el formato no es numérico
-            cleanRemote != cleanLocal
+            remote != local
         }
     }
 }

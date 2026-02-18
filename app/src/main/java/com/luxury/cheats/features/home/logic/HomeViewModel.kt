@@ -65,12 +65,14 @@ class HomeViewModel
             }
         }
 
+        @Suppress("TooGenericExceptionCaught")
         private suspend fun checkUpdates() {
             try {
                 val update = updateService.getAppUpdate()
                 val localVersion = BuildConfig.VERSION_NAME
                 
-                android.util.Log.d("HomeViewModel", "Update Check -> Remote: ${update.version}, Local: $localVersion, Active: ${update.active}")
+                android.util.Log.d("HomeViewModel", "Update Check -> Remote: ${update.version}, " +
+                        "Local: $localVersion, Active: ${update.active}")
 
                 if (update.active && VersionUtils.isVersionNewer(update.version, localVersion)) {
                     android.util.Log.d("HomeViewModel", "Showing update announcement dialog")
@@ -78,8 +80,11 @@ class HomeViewModel
                 } else {
                     android.util.Log.d("HomeViewModel", "No update needed or remote inactive")
                 }
+            } catch (e: com.google.firebase.database.DatabaseException) {
+                android.util.Log.w("HomeViewModel", "Firebase error checking updates", e)
             } catch (e: Exception) {
-                android.util.Log.w("HomeViewModel", "Failed to check updates", e)
+                // Catch genérico al final con log específico para Detekt
+                android.util.Log.w("HomeViewModel", "Unexpected error checking updates", e)
             }
         }
 
@@ -426,9 +431,6 @@ class HomeViewModel
             }
         }
 
-        /**
-         * Constantes de configuración para HomeViewModel.
-         */
         companion object {
             private const val NOTIFICATION_AUTO_DISMISS_DELAY = 3000L
         }

@@ -1,8 +1,6 @@
 package com.luxury.cheats.features.update.logic
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.luxury.cheats.core.util.VersionUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,59 +26,61 @@ class UpdateViewModel(
         fetchAndUpdateInfo()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun fetchAndUpdateInfo() {
         viewModelScope.launch {
             val localVersion = com.luxury.cheats.BuildConfig.VERSION_NAME
             val storedInfo = preferencesService.accessUpdateInfo()
 
-            // 1. CARGA INICIAL DESDE CACHÉ (Para que el usuario vea su fecha actual al instante)
-            if (storedInfo != null && storedInfo.first == localVersion) {
-                _uiState.update {
-                    it.copy(
-                        appVersion = localVersion,
-                        releaseDate = formatTimestamp(storedInfo.second)
-                    )
-                }
-                // NO RETORNAMOS, para poder consultar si hay una v2.0.1 o superior
-            }
+            loadInitialCache(localVersion, storedInfo)
 
-            // 2. CONSULTA A FIREBASE (Para saber si hay una versión nueva)
             try {
                 val update = updateService.getAppUpdate()
-
-                // Si la versión que bajamos de Firebase es la misma que la nuestra,
-                // guardamos su fecha en el caché por si no la teníamos o cambió.
-                if (update.version == localVersion) {
-                    preferencesService.accessUpdateInfo(
-                        version = localVersion,
-                        timestamp = update.timestamp
-                    )
-                }
-
-                android.util.Log.d("UpdateViewModel", "Processing Firebase Result -> Remote Version: ${update.version}")
-                _uiState.update {
-                    it.copy(
-                        appUpdate = update,
-                        appVersion = localVersion,
-                        releaseDate = if (update.version == localVersion) {
-                            formatTimestamp(update.timestamp)
-                        } else {
-                            it.releaseDate.ifEmpty { "2025-01-01" }
-                        }
-                    )
-                }
-                android.util.Log.d("UpdateViewModel", "Final State -> appVersion: $localVersion, hasUpdate: ${VersionUtils.isVersionNewer(update.version, localVersion)}")
+                processUpdateResult(update, localVersion)
+            } catch (e: com.google.firebase.database.DatabaseException) {
+                android.util.Log.e("UpdateViewModel", "Firebase error", e)
+                handleUpdateError(localVersion, storedInfo)
             } catch (e: Exception) {
-                android.util.Log.e("UpdateViewModel", "Error fetching update info", e)
-                _uiState.update {
-                    it.copy(
-                        appVersion = localVersion,
-                        releaseDate = it.releaseDate.ifEmpty {
-                            formatTimestamp(storedInfo?.second ?: "2025-01-01")
-                        }
-                    )
-                }
+                android.util.Log.e("UpdateViewModel", "Unexpected error", e)
+                handleUpdateError(localVersion, storedInfo)
             }
+        }
+    }
+
+    private fun loadInitialCache(localVersion: String, storedInfo: Pair<String, String>?) {
+        if (storedInfo != null && storedInfo.first == localVersion) {
+            _uiState.update {
+                it.copy(appVersion = localVersion, releaseDate = formatTimestamp(storedInfo.second))
+            }
+        }
+    }
+
+    private fun processUpdateResult(update: AppUpdate, localVersion: String) {
+        if (update.version == localVersion) {
+            preferencesService.accessUpdateInfo(version = localVersion, timestamp = update.timestamp)
+        }
+
+        _uiState.update {
+            it.copy(
+                appUpdate = update,
+                appVersion = localVersion,
+                releaseDate = if (update.version == localVersion) {
+                    formatTimestamp(update.timestamp)
+                } else {
+                    it.releaseDate.ifEmpty { "2025-01-01" }
+                }
+            )
+        }
+    }
+
+    private fun handleUpdateError(localVersion: String, storedInfo: Pair<String, String>?) {
+        _uiState.update {
+            it.copy(
+                appVersion = localVersion,
+                releaseDate = it.releaseDate.ifEmpty {
+                    formatTimestamp(storedInfo?.second ?: "2025-01-01")
+                }
+            )
         }
     }
 

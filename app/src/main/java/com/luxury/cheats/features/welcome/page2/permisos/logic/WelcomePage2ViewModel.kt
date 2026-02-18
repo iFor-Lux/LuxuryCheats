@@ -191,6 +191,7 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /** Constantes de configuración para los tiempos de espera del chequeo de permisos. */
     companion object {
         private const val NOTIFICATION_DISMISS_DELAY = 3000L
     }

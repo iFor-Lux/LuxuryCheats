@@ -20,6 +20,7 @@ class UpdateService
     constructor() {
         private val db = FirebaseDatabase.getInstance().getReference("app_update")
 
+        /** Configuración de caché para la información de actualización. */
         companion object {
             private var lastFetchedUpdate: AppUpdate? = null
             private var lastFetchTime: Long = 0
