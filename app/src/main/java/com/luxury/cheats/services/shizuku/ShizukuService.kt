@@ -136,26 +136,49 @@ class ShizukuService
                     val output = StringBuilder()
                     val error = StringBuilder()
 
-                    val reader = BufferedReader(InputStreamReader(process.inputStream))
-                    val errorReader = BufferedReader(InputStreamReader(process.errorStream))
-
-                    var line: String?
-                    while (reader.readLine().also { line = it } != null) {
-                        output.append(line).append("\n")
+                    // Leer streams en hilos separados para evitar deadlocks
+                    val outThread = Thread {
+                        try {
+                            val reader = BufferedReader(InputStreamReader(process.inputStream))
+                            var line: String?
+                            while (reader.readLine().also { line = it } != null) {
+                                output.append(line).append("\n")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("ShizukuService", "Error reading stdout", e)
+                        }
                     }
 
-                    while (errorReader.readLine().also { line = it } != null) {
-                        error.append(line).append("\n")
+                    val errThread = Thread {
+                        try {
+                            val errorReader = BufferedReader(InputStreamReader(process.errorStream))
+                            var line: String?
+                            while (errorReader.readLine().also { line = it } != null) {
+                                error.append(line).append("\n")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("ShizukuService", "Error reading stderr", e)
+                        }
                     }
 
-                    process.waitFor()
+                    outThread.start()
+                    errThread.start()
 
-                    if (process.exitValue() == 0) {
+                    // Esperar a que el proceso termine con un timeout razonable (por ejemplo, 2 minutos para instalaciones grandes)
+                    // Como Process.waitFor(long, TimeUnit) es API 26, usamos un bucle simple para compatibilidad si es necesario,
+                    // pero aquí confiaremos en waitFor() normal por ahora, asegurando que los hilos de lectura terminen.
+                    
+                    val exitCode = process.waitFor()
+                    outThread.join(5000) // Esperar un poco más a que los hilos terminen de leer
+                    errThread.join(5000)
+
+                    if (exitCode == 0) {
                         StringResult.Success(output.toString().trim())
                     } else {
-                        StringResult.Error(
-                            error.toString().trim().ifEmpty { "Unknown error (Exit code ${process.exitValue()})" },
-                        )
+                        val errorMsg = error.toString().trim().ifEmpty { 
+                            output.toString().trim().ifEmpty { "Unknown error (Exit code $exitCode)" }
+                        }
+                        StringResult.Error(errorMsg)
                     }
                 } catch (e: java.io.IOException) {
                     Log.e("ShizukuService", "IO error executing command: $command", e)

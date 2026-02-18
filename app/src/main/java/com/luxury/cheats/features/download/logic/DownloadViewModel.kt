@@ -160,9 +160,83 @@ class DownloadViewModel
             if (destPath.isNotEmpty()) {
                 _uiState.update { it.copy(fileWeight = "Solicitando Shizuku...", progress = 1f) }
                 prepareShizukuAndMove(cacheFile.absolutePath, destPath, fileName)
+            } else if (fileName.endsWith(".apk", ignoreCase = true) || cacheFile.name.endsWith(".apk", ignoreCase = true)) {
+                _uiState.update { it.copy(fileWeight = "Iniciando instalación...", progress = 1f) }
+                prepareShizukuAndInstall(cacheFile.absolutePath)
             } else {
                 _uiState.update {
                     it.copy(status = DownloadStatus.COMPLETED, fileWeight = "Guardado en: ${cacheFile.name}")
+                }
+            }
+        }
+
+        private fun prepareShizukuAndInstall(sourcePath: String) {
+            if (!shizukuService.isShizukuAvailable()) {
+                _uiState.update { it.copy(status = DownloadStatus.ERROR, fileWeight = "Shizuku no está activo") }
+                return
+            }
+
+            if (!shizukuService.hasPermission()) {
+                shizukuService.requestPermission { granted ->
+                    if (granted) {
+                        installApkWithShizuku(sourcePath)
+                    } else {
+                        _uiState.update {
+                            it.copy(status = DownloadStatus.ERROR, fileWeight = "Permiso Shizuku Requerido")
+                        }
+                    }
+                }
+            } else {
+                installApkWithShizuku(sourcePath)
+            }
+        }
+
+        private fun installApkWithShizuku(apkPath: String) {
+            viewModelScope.launch {
+                try {
+                    val tempApkPath = "/data/local/tmp/luxury_update.apk"
+                    android.util.Log.d("DownloadViewModel", "Copiando $apkPath a $tempApkPath")
+                    
+                    // 1. Copiar a un directorio donde el proceso 'pm' (shell) tiene acceso garantizado
+                    shizukuService.executeCommand("cp \"$apkPath\" \"$tempApkPath\"")
+                    shizukuService.executeCommand("chmod 644 \"$tempApkPath\"")
+
+                    // 2. Ejecutar instalación desde la ubicación temporal
+                    val installCommand = "pm install -r -d -g --user 0 \"$tempApkPath\""
+                    android.util.Log.d("DownloadViewModel", "Ejecutando instalación: $installCommand")
+                    
+                    val result = shizukuService.executeCommand(installCommand)
+                    
+                    // 3. Limpiar temporal inmediatamente
+                    shizukuService.executeCommand("rm \"$tempApkPath\"")
+
+                    when (result) {
+                        is ShizukuService.StringResult.Success -> {
+                            val output = result.output.lowercase()
+                            android.util.Log.d("DownloadViewModel", "Resultado instalación: ${result.output}")
+                            
+                            if (output.contains("success")) {
+                                _uiState.update {
+                                    it.copy(status = DownloadStatus.COMPLETED, fileWeight = "¡Instalado con éxito!")
+                                }
+                                java.io.File(apkPath).delete()
+                            } else {
+                                _uiState.update {
+                                    it.copy(status = DownloadStatus.ERROR, fileWeight = "Fallo: ${result.output}")
+                                }
+                            }
+                        }
+                        is ShizukuService.StringResult.Error -> {
+                            android.util.Log.e("DownloadViewModel", "Error Shizuku: ${result.message}")
+                            _uiState.update {
+                                it.copy(status = DownloadStatus.ERROR, fileWeight = "Error: ${result.message}")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("DownloadViewModel", "Excepción en installApk", e)
+                    val msg = "Error: ${e.message}"
+                    _uiState.update { it.copy(status = DownloadStatus.ERROR, fileWeight = msg) }
                 }
             }
         }
