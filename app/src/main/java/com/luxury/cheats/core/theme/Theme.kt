@@ -25,6 +25,16 @@ fun luxuryCheatsTheme(
             useDynamicColor = dynamicColor,
         )
 
+    val view = androidx.compose.ui.platform.LocalView.current
+    if (!view.isInEditMode) {
+        androidx.compose.runtime.SideEffect {
+            val window = (view.context as android.app.Activity).window
+            val windowInsetsController = androidx.core.view.WindowCompat.getInsetsController(window, view)
+            // Iconos oscuros en fondo claro, iconos blancos en fondo oscuro
+            windowInsetsController.isAppearanceLightStatusBars = !darkTheme
+        }
+    }
+
     MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = Typography,

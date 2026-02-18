@@ -21,12 +21,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun FadingEdges(
     modifier: Modifier = Modifier,
-    topHeight: Dp = 80.dp,
-    bottomHeight: Dp = 100.dp,
+    topHeight: Dp = 100.dp,
+    bottomHeight: Dp = 120.dp,
     color: Color = MaterialTheme.colorScheme.background,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        // Desvanecimiento Superior
+        // Desvanecimiento Superior (Más largo e intenso)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -34,12 +34,16 @@ fun FadingEdges(
                 .align(Alignment.TopCenter)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(color, Color.Transparent)
+                        colorStops = arrayOf(
+                            0.0f to color,
+                            0.4f to color.copy(alpha = 0.95f),
+                            1.0f to Color.Transparent
+                        )
                     )
                 )
         )
 
-        // Desvanecimiento Inferior
+        // Desvanecimiento Inferior (Más largo e intenso)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -47,7 +51,11 @@ fun FadingEdges(
                 .align(Alignment.BottomCenter)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, color)
+                        colorStops = arrayOf(
+                            0.0f to Color.Transparent,
+                            0.6f to color.copy(alpha = 0.95f),
+                            1.0f to color
+                        )
                     )
                 )
         )
