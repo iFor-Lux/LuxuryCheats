@@ -44,35 +44,15 @@ fun welcomePage2Permission1Section(
     isDenied: Boolean = false,
     onClick: () -> Unit = {},
 ) {
-    val containerColor = MaterialTheme.colorScheme.surfaceContainer
-    val iconBgColor =
-        when {
-            isGranted -> MaterialTheme.colorScheme.primaryContainer
-            isDenied -> MaterialTheme.colorScheme.errorContainer
-            else -> MaterialTheme.colorScheme.surfaceVariant
-        }
-    val iconTint =
-        when {
-            isGranted -> MaterialTheme.colorScheme.onPrimaryContainer
-            isDenied -> MaterialTheme.colorScheme.onErrorContainer
-            else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-        }
-    val titleColor = MaterialTheme.colorScheme.onSurface
-    val descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val borderColor =
-        when {
-            isGranted -> MaterialTheme.colorScheme.primary
-            isDenied -> MaterialTheme.colorScheme.error
-            else -> Color.Transparent
-        }
+    val theme = getSharedPermissionTheme(isGranted, isDenied)
 
     Box(
         modifier =
             Modifier
                 .width(260.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .background(containerColor)
-                .border(2.dp, borderColor, RoundedCornerShape(14.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .border(2.dp, theme.border, RoundedCornerShape(14.dp))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(),
@@ -82,14 +62,14 @@ fun welcomePage2Permission1Section(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             permissionIcon(
-                iconBgColor = iconBgColor,
-                iconTint = iconTint,
+                iconBgColor = theme.iconBg,
+                iconTint = theme.iconTint,
                 isGranted = isGranted,
             )
             Spacer(modifier = Modifier.width(16.dp))
             permissionInfo(
-                titleColor = titleColor,
-                descriptionColor = descriptionColor,
+                titleColor = MaterialTheme.colorScheme.onSurface,
+                descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

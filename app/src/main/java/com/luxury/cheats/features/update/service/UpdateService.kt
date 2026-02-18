@@ -20,12 +20,27 @@ class UpdateService
     constructor() {
         private val db = FirebaseDatabase.getInstance().getReference("app_update")
 
+        companion object {
+            private var lastFetchedUpdate: AppUpdate? = null
+            private var lastFetchTime: Long = 0
+            private const val CACHE_DURATION_MS = 30 * 1000L // 30 segundos para facilitar pruebas
+        }
+
         /**
          * Obtiene la información de actualización desde Firebase.
+         * Usa un caché de sesión para evitar consultas redundantes.
          * @return [AppUpdate] con los datos del servidor.
          */
         suspend fun getAppUpdate(): AppUpdate =
             withContext(Dispatchers.IO) {
+                // Si ya tenemos un dato reciente (menos de 5 min), lo devolvemos sin consultar Firebase
+                val now = System.currentTimeMillis()
+                lastFetchedUpdate?.let {
+                    if (now - lastFetchTime < CACHE_DURATION_MS) {
+                        return@withContext it
+                    }
+                }
+
                 suspendCancellableCoroutine { cont ->
                     db.addListenerForSingleValueEvent(
                         object : ValueEventListener {
@@ -35,14 +50,11 @@ class UpdateService
                                         AppUpdate(
                                             active = snapshot.child("active").getValue(Boolean::class.java) ?: false,
                                             title = snapshot.child("title").getValue(String::class.java) ?: "",
-                                            // Obtener description/descripcion por compatibilidad
                                             description =
                                                 snapshot.child("description").getValue(String::class.java)
                                                     ?: snapshot.child("descripcion").getValue(String::class.java)
                                                     ?: "",
                                             version = snapshot.child("version").getValue(String::class.java) ?: "",
-                                            // Intentamos obtener tanto 'downloadLink' como 'downloadlink'
-                                            // por compatibilidad con versiones anteriores del dashboard.
                                             downloadLink =
                                                 snapshot.child("downloadLink").getValue(String::class.java)
                                                     ?: snapshot.child("downloadlink").getValue(String::class.java)
@@ -53,6 +65,11 @@ class UpdateService
                                         android.util.Log.e("UpdateService", "Error parsing AppUpdate snapshot", e)
                                         AppUpdate()
                                     }
+                                
+                                // Actualizamos el caché de sesión
+                                lastFetchedUpdate = update
+                                lastFetchTime = System.currentTimeMillis()
+                                
                                 cont.resume(update)
                             }
 

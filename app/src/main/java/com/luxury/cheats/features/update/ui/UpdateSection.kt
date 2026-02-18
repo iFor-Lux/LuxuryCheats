@@ -46,6 +46,7 @@ import com.luxury.cheats.core.theme.luxuryCheatsTheme
 import com.luxury.cheats.features.download.ui.downloadArchivoBottomSheet
 import com.luxury.cheats.features.update.logic.UpdateAction
 import com.luxury.cheats.features.update.logic.UpdateViewModel
+import com.luxury.cheats.core.util.VersionUtils
 
 private const val DATE_LENGTH = 10
 
@@ -148,7 +149,7 @@ private fun downloadMainCard(
     val hasUpdate =
         uiState.appUpdate != null &&
             uiState.appUpdate.version.isNotEmpty() &&
-            uiState.appUpdate.version != uiState.appVersion
+            VersionUtils.isVersionNewer(uiState.appUpdate.version, uiState.appVersion)
 
     Box(
         modifier =
@@ -367,3 +368,4 @@ fun downloadUpdateScreenPreviewLight() {
         downloadUpdateScreen()
     }
 }
+

@@ -110,31 +110,33 @@ private fun welcomeNavBarContent(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         welcomeNavBarButton(
-            text = "Back",
-            onClick = backAction.onClick,
-            interactionSource = backAction.interactionSource,
-            style =
-                WelcomeNavBarButtonStyle(
+            params = WelcomeButtonParams(
+                text = "Back",
+                onClick = backAction.onClick,
+                interactionSource = backAction.interactionSource,
+                style = WelcomeNavBarButtonStyle(
                     containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
                     borderColor = MaterialTheme.colorScheme.outline,
                     contentColor = theme.textColor,
                 ),
+            ),
             modifier = Modifier.width(106.dp),
         )
 
         welcomePageTicker(currentPage, theme.textOffset, theme.textColor)
 
         welcomeNavBarButton(
-            text = "Siguiente",
-            onClick = nextAction.onClick,
-            interactionSource = nextAction.interactionSource,
-            enabled = nextAction.enabled,
-            style =
-                WelcomeNavBarButtonStyle(
+            params = WelcomeButtonParams(
+                text = "Siguiente",
+                onClick = nextAction.onClick,
+                interactionSource = nextAction.interactionSource,
+                enabled = nextAction.enabled,
+                style = WelcomeNavBarButtonStyle(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     borderColor = MaterialTheme.colorScheme.tertiary,
                     contentColor = theme.textColor,
                 ),
+            ),
             modifier = Modifier.width(125.dp),
         )
     }
@@ -149,6 +151,17 @@ private data class WelcomeButtonState(
     val onClick: () -> Unit,
     val interactionSource: MutableInteractionSource,
     val enabled: Boolean = true,
+)
+
+/**
+ * Parámetros para configurar el botón de la barra de navegación.
+ */
+private data class WelcomeButtonParams(
+    val text: String,
+    val onClick: () -> Unit,
+    val style: WelcomeNavBarButtonStyle,
+    val enabled: Boolean = true,
+    val interactionSource: MutableInteractionSource? = null,
 )
 
 @Composable
@@ -178,17 +191,17 @@ private fun welcomePageTicker(
 
 /**
  * Botón interno para la barra de navegación de bienvenida.
+ * @param params Parámetros de configuración del botón.
+ * @param modifier Modificador de Compose para el layout.
  */
 @Composable
 private fun welcomeNavBarButton(
-    text: String,
-    onClick: () -> Unit,
-    style: WelcomeNavBarButtonStyle,
+    params: WelcomeButtonParams,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
+    val interactionSource = params.interactionSource ?: remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+    val style = params.style
 
     // Resorte táctico (MD3 Expressive)
     val scale by animateFloatAsState(
@@ -198,9 +211,9 @@ private fun welcomeNavBarButton(
     )
 
     Button(
-        onClick = onClick,
+        onClick = params.onClick,
         interactionSource = interactionSource,
-        enabled = enabled,
+        enabled = params.enabled,
         modifier =
             modifier
                 .height(46.dp)
@@ -218,6 +231,6 @@ private fun welcomeNavBarButton(
         contentPadding = PaddingValues(0.dp),
         shape = RoundedCornerShape(30.dp),
     ) {
-        Text(text = text, color = style.contentColor, fontSize = 16.sp)
+        Text(text = params.text, color = style.contentColor, fontSize = 16.sp)
     }
 }

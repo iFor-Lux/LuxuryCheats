@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.luxury.cheats.core.util.VersionUtils
+import com.luxury.cheats.BuildConfig
 
 /**
  * ViewModel para la pantalla Home
@@ -66,10 +68,17 @@ class HomeViewModel
         private suspend fun checkUpdates() {
             try {
                 val update = updateService.getAppUpdate()
-                if (update.active) {
+                val localVersion = BuildConfig.VERSION_NAME
+                
+                android.util.Log.d("HomeViewModel", "Update Check -> Remote: ${update.version}, Local: $localVersion, Active: ${update.active}")
+
+                if (update.active && VersionUtils.isVersionNewer(update.version, localVersion)) {
+                    android.util.Log.d("HomeViewModel", "Showing update announcement dialog")
                     _uiState.update { it.copy(appUpdate = update) }
+                } else {
+                    android.util.Log.d("HomeViewModel", "No update needed or remote inactive")
                 }
-            } catch (e: java.io.IOException) {
+            } catch (e: Exception) {
                 android.util.Log.w("HomeViewModel", "Failed to check updates", e)
             }
         }
@@ -191,7 +200,10 @@ class HomeViewModel
                             return
                         }
                         if (currentState.idValue.isEmpty()) {
-                            addNotification("DEBE INGRESAR UN ID PRIMERO PARA ACTIVAR LAS OPCIONES", NotificationType.WARNING)
+                            addNotification(
+                                message = "DEBE INGRESAR UN ID PRIMERO PARA ACTIVAR LAS OPCIONES",
+                                type = NotificationType.WARNING
+                            )
                             return
                         }
                     }

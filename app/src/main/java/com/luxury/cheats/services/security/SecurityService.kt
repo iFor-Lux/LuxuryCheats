@@ -77,7 +77,10 @@ class SecurityService : Service() {
     @Suppress("TooGenericExceptionCaught")
     override fun onTaskRemoved(rootIntent: Intent?) {
         // Este método se llama cuando el usuario cierra la app desde recientes
-        android.util.Log.d("SecurityService", "App cerrada por el usuario. Corres grabe peligro, tu cuenta puede ser baneada")
+        android.util.Log.d(
+            "SecurityService",
+            "App cerrada por el usuario. Corres grave peligro, tu cuenta puede ser baneada"
+        )
 
         // Usamos runBlocking para forzar la ejecución antes de que el proceso muera por completo
         try {

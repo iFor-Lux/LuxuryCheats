@@ -136,7 +136,7 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
         _uiState.update { it.copy(notifications = it.notifications + notification) }
 
         viewModelScope.launch {
-            kotlinx.coroutines.delay(3000L)
+            kotlinx.coroutines.delay(NOTIFICATION_DISMISS_DELAY)
             _uiState.update { state ->
                 state.copy(notifications = state.notifications.filter { it.id != notification.id })
             }
@@ -189,5 +189,9 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
                 putExtra("app_uid", context.applicationInfo.uid)
             }
         }
+    }
+
+    companion object {
+        private const val NOTIFICATION_DISMISS_DELAY = 3000L
     }
 }

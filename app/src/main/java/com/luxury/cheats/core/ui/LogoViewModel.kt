@@ -34,6 +34,10 @@ class LogoViewModel
         private val _logoOffsetY = MutableStateFlow<Dp>(0.dp)
         val logoOffsetY: StateFlow<Dp> = _logoOffsetY.asStateFlow()
 
+        /**
+         * Actualiza el offset vertical del logo para posicionarlo dinámicamente.
+         * @param offset El valor de Dp para mover el logo verticalmente.
+         */
         fun setLogoOffsetY(offset: Dp) {
             _logoOffsetY.value = offset
         }

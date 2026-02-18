@@ -93,6 +93,7 @@ private fun getGridColor(
     }
 }
 
+/** Preview de la cuadrícula en tema oscuro. */
 @Preview(showBackground = true, backgroundColor = 0xFF080808)
 @Composable
 fun SquarePatternBackgroundDarkPreview() {
@@ -103,6 +104,7 @@ fun SquarePatternBackgroundDarkPreview() {
     }
 }
 
+/** Preview de la cuadrícula en tema claro. */
 @Preview(showBackground = true, backgroundColor = 0xFFF5F5F5)
 @Composable
 fun SquarePatternBackgroundLightPreview() {

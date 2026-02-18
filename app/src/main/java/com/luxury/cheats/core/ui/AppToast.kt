@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,9 +33,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,9 +49,18 @@ private object ToastConstants {
     const val Z_INDEX_BASE = 10f
     const val MAX_WIDTH = 300 // Más minimalista
 
-    val GLASS_ALPHA_LIGHT = 0.85f
-    val GLASS_ALPHA_DARK = 0.75f
-    val BORDER_ALPHA = 0.1f
+    const val GLASS_ALPHA_LIGHT = 0.85f
+    const val GLASS_ALPHA_DARK = 0.75f
+    const val BORDER_ALPHA = 0.1f
+    const val ENTRY_ANIM_START_OFFSET = 40f
+    const val WARNING_CONTAINER_LIGHT = 0xFFFFF4E5
+    const val WARNING_CONTAINER_DARK = 0xFF332B00
+    const val WARNING_CONTENT_LIGHT = 0xFF663C00
+    const val WARNING_CONTENT_DARK = 0xFFFFE082
+    const val SUCCESS_CONTAINER_LIGHT = 0xFFE8F5E9
+    const val SUCCESS_CONTAINER_DARK = 0xFF00390A
+    const val SUCCESS_CONTENT_LIGHT = 0xFF2E7D32
+    const val SUCCESS_CONTENT_DARK = 0xFFA5D6A7
 }
 
 private data class ToastTheme(
@@ -82,50 +88,68 @@ fun appToast(
         val displayed = notifications.takeLast(ToastConstants.MAX_VISIBLE).reversed()
 
         displayed.forEachIndexed { index, notification ->
-            val isTop = index == 0
-            
-            // M3 Expressive Spring
-            val springSpec = spring<Float>(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            )
-
-            val entryProgress by animateFloatAsState(
-                targetValue = 1f,
-                animationSpec = springSpec,
-                label = "entry_animation"
-            )
-
-            val scale by animateFloatAsState(
-                targetValue = (if (isTop) 1f else 1f - index * ToastConstants.SCALE_DEC) * entryProgress,
-                animationSpec = springSpec,
-                label = "toast_scale"
-            )
-
-            val alpha by animateFloatAsState(
-                targetValue = if (isTop) entryProgress else (ToastConstants.ALPHA_BASE - index * ToastConstants.ALPHA_DEC).coerceAtLeast(0f) * entryProgress,
-                animationSpec = springSpec,
-                label = "toast_alpha"
-            )
-
-            val yOffset by animateFloatAsState(
-                targetValue = (index * ToastConstants.OFFSET_STEP).toFloat() - (1f - entryProgress) * 40f,
-                animationSpec = springSpec,
-                label = "toast_offset"
-            )
-
-            toastCard(
+            toastItem(
+                index = index,
                 notification = notification,
-                isTop = isTop,
-                modifier =
-                    Modifier
-                        .offset(y = yOffset.dp)
-                        .scale(scale)
-                        .alpha(alpha)
-                        .zIndex(ToastConstants.Z_INDEX_BASE - index),
+                isTop = index == 0
             )
         }
     }
+}
+
+@Composable
+private fun toastItem(
+    index: Int,
+    notification: AppNotification,
+    isTop: Boolean,
+) {
+    // M3 Expressive Spring
+    val springSpec = spring<Float>(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+
+    val entryProgress by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = springSpec,
+        label = "entry_animation"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = (if (isTop) 1f else 1f - index * ToastConstants.SCALE_DEC) * entryProgress,
+        animationSpec = springSpec,
+        label = "toast_scale"
+    )
+
+    val alphaTarget = if (isTop) {
+        entryProgress
+    } else {
+        (ToastConstants.ALPHA_BASE - index * ToastConstants.ALPHA_DEC).coerceAtLeast(0f) * entryProgress
+    }
+
+    val alpha by animateFloatAsState(
+        targetValue = alphaTarget,
+        animationSpec = springSpec,
+        label = "toast_alpha"
+    )
+
+    val yOffset by animateFloatAsState(
+        targetValue = (index * ToastConstants.OFFSET_STEP).toFloat() -
+            (1f - entryProgress) * ToastConstants.ENTRY_ANIM_START_OFFSET,
+        animationSpec = springSpec,
+        label = "toast_offset"
+    )
+
+    toastCard(
+        notification = notification,
+        isTop = isTop,
+        modifier =
+            Modifier
+                .offset(y = yOffset.dp)
+                .scale(scale)
+                .alpha(alpha)
+                .zIndex(ToastConstants.Z_INDEX_BASE - index),
+    )
 }
 
 @Composable
@@ -175,13 +199,17 @@ private fun getNotificationTheme(type: NotificationType, isDark: Boolean): Toast
             icon = Icons.Default.Warning
         )
         NotificationType.WARNING -> ToastTheme(
-            containerColor = Color(0xFFFFF4E5).let { if (isDark) Color(0xFF332B00) else it },
-            contentColor = Color(0xFF663C00).let { if (isDark) Color(0xFFFFE082) else it },
+            containerColor = Color(ToastConstants.WARNING_CONTAINER_LIGHT)
+                .let { if (isDark) Color(ToastConstants.WARNING_CONTAINER_DARK) else it },
+            contentColor = Color(ToastConstants.WARNING_CONTENT_LIGHT)
+                .let { if (isDark) Color(ToastConstants.WARNING_CONTENT_DARK) else it },
             icon = Icons.Default.Info
         )
         NotificationType.SUCCESS -> ToastTheme(
-            containerColor = Color(0xFFE8F5E9).let { if (isDark) Color(0xFF00390A) else it },
-            contentColor = Color(0xFF2E7D32).let { if (isDark) Color(0xFFA5D6A7) else it },
+            containerColor = Color(ToastConstants.SUCCESS_CONTAINER_LIGHT)
+                .let { if (isDark) Color(ToastConstants.SUCCESS_CONTAINER_DARK) else it },
+            contentColor = Color(ToastConstants.SUCCESS_CONTENT_LIGHT)
+                .let { if (isDark) Color(ToastConstants.SUCCESS_CONTENT_DARK) else it },
             icon = Icons.Default.CheckCircle
         )
         NotificationType.INFO -> ToastTheme(
@@ -229,6 +257,7 @@ private fun toastCardContent(
     }
 }
 
+/** Preview de AppToast en tema claro. */
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Light Theme")
 @Composable
 fun AppToastLightPreview() {
@@ -239,6 +268,7 @@ fun AppToastLightPreview() {
     }
 }
 
+/** Preview de AppToast en tema oscuro. */
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Dark Theme")
 @Composable
 fun AppToastDarkPreview() {

@@ -15,6 +15,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
+ * Constantes internas para la configuración de FadingEdges.
+ */
+private object FadingConstants {
+    const val OPACITY_DENSE = 0.95f
+    const val FADE_STOP_TOP = 0.4f
+    const val FADE_STOP_BOTTOM = 0.6f
+}
+
+/**
  * Agrega gradientes de desvanecimiento en la parte superior e inferior de la pantalla.
  * Simula el efecto de "Fading Edges" de apps premium como ChatGPT o iOS.
  */
@@ -36,7 +45,7 @@ fun FadingEdges(
                     brush = Brush.verticalGradient(
                         colorStops = arrayOf(
                             0.0f to color,
-                            0.4f to color.copy(alpha = 0.95f),
+                            FadingConstants.FADE_STOP_TOP to color.copy(alpha = FadingConstants.OPACITY_DENSE),
                             1.0f to Color.Transparent
                         )
                     )
@@ -53,7 +62,7 @@ fun FadingEdges(
                     brush = Brush.verticalGradient(
                         colorStops = arrayOf(
                             0.0f to Color.Transparent,
-                            0.6f to color.copy(alpha = 0.95f),
+                            FadingConstants.FADE_STOP_BOTTOM to color.copy(alpha = FadingConstants.OPACITY_DENSE),
                             1.0f to color
                         )
                     )

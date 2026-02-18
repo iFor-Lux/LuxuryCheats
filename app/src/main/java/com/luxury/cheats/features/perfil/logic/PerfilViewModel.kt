@@ -59,7 +59,7 @@ class PerfilViewModel(
                     androidVersion = android.os.Build.VERSION.RELEASE,
                     targetSdk = android.os.Build.VERSION.SDK_INT.toString(),
                     architecture = (android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "").uppercase(),
-                    appVersion = getAppVersion(),
+                    appVersion = com.luxury.cheats.BuildConfig.VERSION_NAME,
                     ram = getRamInfo(),
                 )
             }
@@ -80,14 +80,6 @@ class PerfilViewModel(
         }
     }
 
-    private fun getAppVersion(): String {
-        return try {
-            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            pInfo.versionName ?: "1.0.0"
-        } catch (ignored: android.content.pm.PackageManager.NameNotFoundException) {
-            "1.0.0"
-        }
-    }
 
     private fun getRamInfo(): String {
         return try {

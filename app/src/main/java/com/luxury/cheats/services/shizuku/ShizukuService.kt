@@ -16,10 +16,12 @@ import javax.inject.Singleton
  */
 @Suppress("TooGenericExceptionCaught")
 @Singleton
-class ShizukuService
-    @Inject
-    constructor() {
+class ShizukuService @Inject constructor() {
         private var isBinderReceived = false
+
+        companion object {
+            private const val THREAD_JOIN_TIMEOUT_MS = 5000L
+        }
 
         init {
             try {
@@ -164,13 +166,15 @@ class ShizukuService
                     outThread.start()
                     errThread.start()
 
-                    // Esperar a que el proceso termine con un timeout razonable (por ejemplo, 2 minutos para instalaciones grandes)
-                    // Como Process.waitFor(long, TimeUnit) es API 26, usamos un bucle simple para compatibilidad si es necesario,
-                    // pero aquí confiaremos en waitFor() normal por ahora, asegurando que los hilos de lectura terminen.
+                    // Esperar a que el proceso termine con un timeout razonable
+                    // (por ejemplo, 2 minutos para instalaciones grandes)
+                    // Como Process.waitFor(long, TimeUnit) es API 26, usamos un bucle simple
+                    // para compatibilidad si es necesario, pero aquí confiaremos en
+                    // waitFor() normal por ahora, asegurando que los hilos de lectura terminen.
                     
                     val exitCode = process.waitFor()
-                    outThread.join(5000) // Esperar un poco más a que los hilos terminen de leer
-                    errThread.join(5000)
+                    outThread.join(THREAD_JOIN_TIMEOUT_MS) // Esperar un poco más a que los hilos terminen de leer
+                    errThread.join(THREAD_JOIN_TIMEOUT_MS)
 
                     if (exitCode == 0) {
                         StringResult.Success(output.toString().trim())

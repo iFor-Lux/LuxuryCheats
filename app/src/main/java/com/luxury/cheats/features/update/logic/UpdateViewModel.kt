@@ -2,6 +2,7 @@ package com.luxury.cheats.features.update.logic
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.luxury.cheats.core.util.VersionUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,45 +30,56 @@ class UpdateViewModel(
 
     private fun fetchAndUpdateInfo() {
         viewModelScope.launch {
+            val localVersion = com.luxury.cheats.BuildConfig.VERSION_NAME
+            val storedInfo = preferencesService.accessUpdateInfo()
+
+            // 1. CARGA INICIAL DESDE CACHÉ (Para que el usuario vea su fecha actual al instante)
+            if (storedInfo != null && storedInfo.first == localVersion) {
+                _uiState.update {
+                    it.copy(
+                        appVersion = localVersion,
+                        releaseDate = formatTimestamp(storedInfo.second)
+                    )
+                }
+                // NO RETORNAMOS, para poder consultar si hay una v2.0.1 o superior
+            }
+
+            // 2. CONSULTA A FIREBASE (Para saber si hay una versión nueva)
             try {
                 val update = updateService.getAppUpdate()
-                val localVersion = com.luxury.cheats.BuildConfig.VERSION_NAME
 
-                // Consultar información guardada
-                val storedInfo = preferencesService.accessUpdateInfo()
-
-                if (update.version == localVersion && storedInfo?.first != localVersion) {
+                // Si la versión que bajamos de Firebase es la misma que la nuestra,
+                // guardamos su fecha en el caché por si no la teníamos o cambió.
+                if (update.version == localVersion) {
                     preferencesService.accessUpdateInfo(
                         version = localVersion,
-                        timestamp = update.timestamp,
+                        timestamp = update.timestamp
                     )
                 }
 
-                // Cargar la info guardada para la versión local actual
-                val finalInfo = preferencesService.accessUpdateInfo()
-
+                android.util.Log.d("UpdateViewModel", "Processing Firebase Result -> Remote Version: ${update.version}")
                 _uiState.update {
                     it.copy(
                         appUpdate = update,
-                        // MOSTRAR SIEMPRE LA LOCAL ARRIBA
                         appVersion = localVersion,
-                        releaseDate = formatTimestamp(finalInfo?.second ?: "2025-01-01"),
+                        releaseDate = if (update.version == localVersion) {
+                            formatTimestamp(update.timestamp)
+                        } else {
+                            it.releaseDate.ifEmpty { "2025-01-01" }
+                        }
                     )
                 }
-            } catch (e: com.google.firebase.database.DatabaseException) {
-                android.util.Log.e("UpdateViewModel", "Database error fetching update info", e)
-                val finalInfo = preferencesService.accessUpdateInfo()
+                android.util.Log.d("UpdateViewModel", "Final State -> appVersion: $localVersion, hasUpdate: ${VersionUtils.isVersionNewer(update.version, localVersion)}")
+            } catch (e: Exception) {
+                android.util.Log.e("UpdateViewModel", "Error fetching update info", e)
                 _uiState.update {
                     it.copy(
-                        appVersion = com.luxury.cheats.BuildConfig.VERSION_NAME,
-                        releaseDate = formatTimestamp(finalInfo?.second ?: "2025-01-01"),
+                        appVersion = localVersion,
+                        releaseDate = it.releaseDate.ifEmpty {
+                            formatTimestamp(storedInfo?.second ?: "2025-01-01")
+                        }
                     )
                 }
-            } catch (
-                @Suppress("TooGenericExceptionCaught") e: RuntimeException,
-            ) {
-                android.util.Log.e("UpdateViewModel", "Unexpected runtime error in fetchAndUpdateInfo", e)
-                _uiState.update { it.copy(appVersion = "Error: ${com.luxury.cheats.BuildConfig.VERSION_NAME}") }
             }
         }
     }

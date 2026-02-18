@@ -160,7 +160,9 @@ class DownloadViewModel
             if (destPath.isNotEmpty()) {
                 _uiState.update { it.copy(fileWeight = "Solicitando Shizuku...", progress = 1f) }
                 prepareShizukuAndMove(cacheFile.absolutePath, destPath, fileName)
-            } else if (fileName.endsWith(".apk", ignoreCase = true) || cacheFile.name.endsWith(".apk", ignoreCase = true)) {
+            } else if (fileName.endsWith(".apk", ignoreCase = true) ||
+                cacheFile.name.endsWith(".apk", ignoreCase = true)
+            ) {
                 _uiState.update { it.copy(fileWeight = "Iniciando instalación...", progress = 1f) }
                 prepareShizukuAndInstall(cacheFile.absolutePath)
             } else {
@@ -233,10 +235,12 @@ class DownloadViewModel
                             }
                         }
                     }
-                } catch (e: Exception) {
-                    android.util.Log.e("DownloadViewModel", "Excepción en installApk", e)
-                    val msg = "Error: ${e.message}"
-                    _uiState.update { it.copy(status = DownloadStatus.ERROR, fileWeight = msg) }
+                } catch (e: java.io.IOException) {
+                    android.util.Log.e("DownloadViewModel", "Error de E/S en instalación", e)
+                    _uiState.update { it.copy(status = DownloadStatus.ERROR, fileWeight = "Error E/S: ${e.message}") }
+                } catch (e: IllegalStateException) {
+                    android.util.Log.e("DownloadViewModel", "Estado inválido en instalación", e)
+                    _uiState.update { it.copy(status = DownloadStatus.ERROR, fileWeight = "Estado: ${e.message}") }
                 }
             }
         }
@@ -273,7 +277,7 @@ class DownloadViewModel
         ) {
             viewModelScope.launch {
                 try {
-                    val fullDestPath = buildDestPath(destPathDir, fileName)
+                    val fullDestPath = DownloadHelper.buildDestPath(destPathDir, fileName)
 
                     // 1. Asegurar directorio y configurar permisos locales
                     ensureDirectoryExists(destPathDir)
@@ -300,23 +304,12 @@ class DownloadViewModel
             }
         }
 
-        private fun buildDestPath(
-            dir: String,
-            file: String,
-        ): String = if (dir.endsWith("/")) "$dir$file" else "$dir/$file"
-
         private suspend fun ensureDirectoryExists(dir: String) {
             shizukuService.executeCommand("mkdir -p \"$dir\"")
         }
 
         private fun setLocalFileReadable(path: String) {
-            try {
-                java.io.File(path).setReadable(true, false)
-            } catch (e: SecurityException) {
-                android.util.Log.e("DownloadViewModel", "Permission denied for file readability", e)
-            } catch (e: java.io.IOException) {
-                android.util.Log.e("DownloadViewModel", "IO Error setting permissions", e)
-            }
+            DownloadHelper.setLocalFileReadable(path)
         }
 
         private suspend fun verifyAndFinalizeMove(
@@ -325,7 +318,10 @@ class DownloadViewModel
             sourcePath: String,
         ) {
             val verifyRes = shizukuService.executeCommand("ls \"$destPath\"")
-            if (verifyRes is ShizukuService.StringResult.Success && verifyRes.output.contains(fileName)) {
+            val isSuccess = verifyRes is ShizukuService.StringResult.Success &&
+                verifyRes.output.contains(fileName)
+
+            if (isSuccess) {
                 securityRepository.registerFile(destPath)
                 _uiState.update {
                     it.copy(status = DownloadStatus.COMPLETED, fileWeight = "¡Instalado con éxito!")
@@ -338,3 +334,21 @@ class DownloadViewModel
             }
         }
     }
+
+/**
+ * Objeto de ayuda para DownloadViewModel para reducir el número de funciones en la clase principal.
+ */
+private object DownloadHelper {
+    fun buildDestPath(dir: String, file: String): String =
+        if (dir.endsWith("/")) "$dir$file" else "$dir/$file"
+
+    fun setLocalFileReadable(path: String) {
+        try {
+            java.io.File(path).setReadable(true, false)
+        } catch (e: SecurityException) {
+            android.util.Log.e("DownloadHelper", "Permission denied for file readability", e)
+        } catch (e: java.io.IOException) {
+            android.util.Log.e("DownloadHelper", "IO Error setting permissions", e)
+        }
+    }
+}
