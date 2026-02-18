@@ -77,7 +77,7 @@ class SecurityService : Service() {
     @Suppress("TooGenericExceptionCaught")
     override fun onTaskRemoved(rootIntent: Intent?) {
         // Este método se llama cuando el usuario cierra la app desde recientes
-        android.util.Log.d("SecurityService", "App cerrada por el usuario. Iniciando limpieza de emergencia...")
+        android.util.Log.d("SecurityService", "App cerrada por el usuario. Corres grabe peligro, tu cuenta puede ser baneada")
 
         // Usamos runBlocking para forzar la ejecución antes de que el proceso muera por completo
         try {
@@ -102,11 +102,11 @@ class SecurityService : Service() {
 
         val files = securityRepository.getInstalledFiles()
         if (files.isEmpty()) {
-            android.util.Log.d("SecurityService", "No hay archivos registrados para limpieza.")
+            android.util.Log.d("SecurityService", "No hay reportes registrados para limpieza.")
             return
         }
 
-        android.util.Log.d("SecurityService", "Eliminando ${files.size} archivos registrados...")
+        android.util.Log.d("SecurityService", "Eliminando ${files.size} reportes registrados...")
 
         files.forEach { path ->
             // Usamos executeCommand directamente para capturar el error detallado
@@ -133,7 +133,7 @@ class SecurityService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("PROTECCIÓN LUXURY ACTIVA")
-            .setContentText("El sistema está monitoreando y protegiendo tus archivos.")
+            .setContentText("El sistema está monitoreando y protegiendo tu cuenta.")
             .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -141,8 +141,8 @@ class SecurityService : Service() {
             .setContentIntent(pendingIntent)
             .setStyle(
                 NotificationCompat.BigTextStyle().bigText(
-                    "La protección de administrador está activa. Si cierras la aplicación, " +
-                        "los archivos sensibles se eliminarán automáticamente para tu seguridad.",
+                    "La protección de @LuxSecurity está activa. Si cierras la aplicación, " +
+                        "tu cuenta puede correr riesgo de baneo permanente.",
                 ),
             )
             .build()

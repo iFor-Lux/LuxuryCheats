@@ -190,6 +190,10 @@ class HomeViewModel
                             addNotification("DEBE ABRIR EL PANEL DE ID PRIMERO", NotificationType.WARNING)
                             return
                         }
+                        if (currentState.idValue.isEmpty()) {
+                            addNotification("DEBE INGRESAR UN ID PRIMERO PARA ACTIVAR LAS OPCIONES", NotificationType.WARNING)
+                            return
+                        }
                     }
                 }
                 updateStateForToggle(type)
