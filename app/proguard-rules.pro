@@ -1,7 +1,8 @@
 # Optimization
 -optimizationpasses 5
 -dontpreverify
--repackageclasses ''
+# Deshabilitamos repackageclasses ya que puede romper la reflexión de Retrofit/Gson
+# -repackageclasses ''
 -allowaccessmodification
 -optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
 
@@ -15,17 +16,24 @@
     public static int e(...);
 }
 
-# Retrofit / Gson
--keepattributes Signature
--keepattributes RuntimeVisibleAnnotations
--keepattributes RuntimeVisibleParameterAnnotations
+# Retrofit / OkHttp
+-keepattributes Signature, RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations, AnnotationDefault, EnclosingMethod, InnerClasses
+-keep class retrofit2.** { *; }
+-dontwarn retrofit2.**
+-keep class okhttp3.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
 
+# FreeFire API - Crucial para que funcione en Release
+-keep interface com.luxury.cheats.services.freefireapi.FreeFireApiService { *; }
+-keep class com.luxury.cheats.services.freefireapi.** { *; }
+-keepclassmembers class com.luxury.cheats.services.freefireapi.** { *; }
+
+# Gson
+-keep class com.google.gson.** { *; }
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
-
-# Retrofit service interface
--keep interface com.luxury.cheats.services.freefireapi.FreeFireApiService
 
 # Navigation Compose
 -keepnames class com.luxury.cheats.navigations.**
@@ -45,7 +53,6 @@
 -keepnames class javax.annotation.**
 
 # AndroidX Graphics Shapes (Material 3 Expressive)
-# Necesario para HomeCookieShape y HomeMorphingShape
 -keep class androidx.graphics.shapes.** { *; }
 -keepclassmembers class androidx.graphics.shapes.** { *; }
 -dontwarn androidx.graphics.shapes.**
