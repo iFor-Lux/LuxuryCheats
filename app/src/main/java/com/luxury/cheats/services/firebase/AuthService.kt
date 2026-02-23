@@ -9,6 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.coroutines.resume
@@ -52,48 +56,83 @@ class AuthService {
         p: String,
     ): LoginResult {
         return try {
-            val t0 = System.currentTimeMillis()
-
-            val snapshot =
-                suspendCancellableCoroutine { cont ->
-                    db.orderByChild("username").equalTo(u).limitToFirst(1)
-                        .addListenerForSingleValueEvent(
-                            object : ValueEventListener {
-                                override fun onDataChange(snapshot: DataSnapshot) {
-                                    cont.resume(snapshot)
-                                }
-
-                                override fun onCancelled(error: DatabaseError) {
-                                    cont.resumeWithException(error.toException())
-                                }
-                            },
-                        )
-                }
-
-            val t1 = System.currentTimeMillis()
-            Log.d("PERF", "Query = ${t1 - t0} ms")
-
-            if (!snapshot.exists()) return LoginResult.Error("Usuario no encontrado")
-
-            val user = snapshot.children.first()
-            val userKey = user.key ?: ""
-
-            val userData = JSONObject()
-            user.children.forEach { child ->
-                userData.put(child.key ?: "", child.value)
+            // 1. Verificar si hay conexión con el servidor
+            if (!isOnline()) {
+                return LoginResult.Error("Sin conexión a internet. El login requiere estar online.")
             }
 
-            validateUserData(p, userData, userKey)
-        } catch (e: com.google.firebase.database.DatabaseException) {
-            LoginResult.Error("Error de base de datos: ${e.message}")
-        } catch (e: kotlinx.coroutines.CancellationException) {
-            throw e
-        } catch (
-            @Suppress("TooGenericExceptionCaught") e: Exception,
-        ) {
+            val t0 = System.currentTimeMillis()
+
+            // 2. FORZAR consulta al servidor mediante REST (ignora la caché del SDK)
+            // Esto resuelve el problema de usuarios eliminados que aún se "ven" en la caché local
+            val userDataJson = fetchUserDataRest(u)
+
+            val t1 = System.currentTimeMillis()
+            Log.d("PERF", "Query REST = ${t1 - t0} ms")
+
+            if (userDataJson == null) {
+                return LoginResult.Error("Usuario no encontrado")
+            }
+
+            val userKey = userDataJson.optString("_key")
+            validateUserData(p, userDataJson, userKey)
+        } catch (e: Exception) {
             LoginResult.Error("Error: ${e.localizedMessage}")
         }
     }
+
+    /**
+     * Consulta directamente a la base de datos vía REST para saltar la persistencia local del SDK.
+     */
+    private suspend fun fetchUserDataRest(u: String): JSONObject? =
+        withContext(Dispatchers.IO) {
+            try {
+                // El nodo /users está indexado por "username", por lo que la consulta REST es eficiente
+                val baseUrl = "https://luxury-counter-default-rtdb.firebaseio.com/users.json"
+                val queryUrl = "$baseUrl?orderBy=\"username\"&equalTo=\"$u\"&limitToFirst=1"
+
+                val url = URL(queryUrl)
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "GET"
+                conn.connectTimeout = 8000
+                conn.readTimeout = 8000
+
+                if (conn.responseCode != HttpURLConnection.HTTP_OK) return@withContext null
+
+                val response =
+                    conn.inputStream.bufferedReader().use { it.readText() }
+                if (response == "null" || response == "{}" || response.isBlank()) return@withContext null
+
+                val json = JSONObject(response)
+                val keys = json.keys()
+                if (!keys.hasNext()) return@withContext null
+
+                val key = keys.next()
+                val userData = json.getJSONObject(key)
+                userData.put("_key", key) // Preservar la clave del usuario
+                userData
+            } catch (e: Exception) {
+                Log.e("AuthService", "REST Query Failed: ${e.message}")
+                null
+            }
+        }
+
+    private suspend fun isOnline(): Boolean =
+        suspendCancellableCoroutine { cont ->
+            FirebaseDatabase.getInstance().getReference(".info/connected")
+                .addListenerForSingleValueEvent(
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val connected = snapshot.getValue(Boolean::class.java) ?: false
+                            cont.resume(connected)
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            cont.resume(false)
+                        }
+                    },
+                )
+        }
 
     private fun validateUserData(
         p: String,
