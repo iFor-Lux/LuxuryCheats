@@ -28,9 +28,7 @@ import androidx.compose.material3.SplitButtonLayout
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -92,11 +90,13 @@ private data class LanguageState(
  * @param modifier Modificador de layout.
  */
 @Composable
-fun welcomePage1LanguageSection(modifier: Modifier = Modifier) {
-    var isExpanded by remember { mutableStateOf(false) }
-    val initialLanguage = stringResource(R.string.welcome_page1_language)
-    var selectedLanguage by remember { mutableStateOf(initialLanguage) }
-
+fun WelcomePage1LanguageSection(
+    isExpanded: Boolean,
+    selectedLanguage: String,
+    onExpandedChange: (Boolean) -> Unit,
+    onLanguageSelected: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors =
         LanguageButtonColors(
             container = MaterialTheme.colorScheme.surfaceContainer,
@@ -123,11 +123,11 @@ fun welcomePage1LanguageSection(modifier: Modifier = Modifier) {
         LanguageState(
             isExpanded = isExpanded,
             selectedLanguage = selectedLanguage,
-            onExpandedChange = { isExpanded = it },
-            onLanguageSelected = { selectedLanguage = it },
+            onExpandedChange = onExpandedChange,
+            onLanguageSelected = onLanguageSelected,
         )
 
-    languageHeaderLayout(
+    LanguageHeaderLayout(
         modifier = modifier,
         state = state,
         colors = colors,
@@ -137,7 +137,7 @@ fun welcomePage1LanguageSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun languageHeaderLayout(
+private fun LanguageHeaderLayout(
     modifier: Modifier,
     state: LanguageState,
     colors: LanguageButtonColors,
@@ -157,7 +157,7 @@ private fun languageHeaderLayout(
     ) {
         SplitButtonLayout(
             leadingButton = {
-                languageLeadingButton(
+                LanguageLeadingButton(
                     colors = colors,
                     selectedLanguage = state.selectedLanguage,
                     interaction = leadingInt,
@@ -165,7 +165,7 @@ private fun languageHeaderLayout(
                 )
             },
             trailingButton = {
-                languageTrailingButton(
+                LanguageTrailingButton(
                     isExpanded = state.isExpanded,
                     colors = colors,
                     interaction = trailingInt,
@@ -174,7 +174,7 @@ private fun languageHeaderLayout(
             },
         )
 
-        languageDropdownMenu(
+        LanguageDropdownMenu(
             isExpanded = state.isExpanded,
             contentColor = colors.content,
             onDismissRequest = { state.onExpandedChange(false) },
@@ -187,7 +187,7 @@ private fun languageHeaderLayout(
 }
 
 @Composable
-private fun languageLeadingButton(
+private fun LanguageLeadingButton(
     colors: LanguageButtonColors,
     selectedLanguage: String,
     interaction: LanguageButtonInteraction,
@@ -218,7 +218,7 @@ private fun languageLeadingButton(
         interactionSource = interaction.interactionSource,
         colors = buttonColors,
         content = {
-            languageLeadingContent(
+            LanguageLeadingContent(
                 selectedLanguage = selectedLanguage,
                 scale = scale,
                 isOtherPressed = interaction.isOtherPressed,
@@ -229,7 +229,7 @@ private fun languageLeadingButton(
 }
 
 @Composable
-private fun languageLeadingContent(
+private fun LanguageLeadingContent(
     selectedLanguage: String,
     scale: Float,
     isOtherPressed: Boolean,
@@ -271,7 +271,7 @@ private fun languageLeadingContent(
 }
 
 @Composable
-private fun languageTrailingButton(
+private fun LanguageTrailingButton(
     isExpanded: Boolean,
     colors: LanguageButtonColors,
     interaction: LanguageButtonInteraction,
@@ -330,7 +330,7 @@ private fun languageTrailingButton(
 }
 
 @Composable
-private fun languageDropdownMenu(
+private fun LanguageDropdownMenu(
     isExpanded: Boolean,
     contentColor: Color,
     onDismissRequest: () -> Unit,
@@ -353,7 +353,7 @@ private fun languageDropdownMenu(
             containerColor = Color.Transparent,
             shadowElevation = 0.dp,
         ) {
-            languageMenuColumn(
+            LanguageMenuColumn(
                 contentColor = contentColor,
                 onLanguageSelected = onLanguageSelected,
             )
@@ -362,7 +362,7 @@ private fun languageDropdownMenu(
 }
 
 @Composable
-private fun languageMenuColumn(
+private fun LanguageMenuColumn(
     contentColor: Color,
     onLanguageSelected: (String) -> Unit,
 ) {
@@ -373,18 +373,18 @@ private fun languageMenuColumn(
         val spanish = stringResource(R.string.welcome_page1_spanish)
         val english = stringResource(R.string.welcome_page1_english)
 
-        languageMenuItem(text = spanish, contentColor = contentColor) {
+        LanguageMenuItem(text = spanish, contentColor = contentColor) {
             onLanguageSelected(spanish)
         }
         Spacer(modifier = Modifier.size(LanguageConstants.MENU_SPACING))
-        languageMenuItem(text = english, contentColor = contentColor) {
+        LanguageMenuItem(text = english, contentColor = contentColor) {
             onLanguageSelected(english)
         }
     }
 }
 
 @Composable
-private fun languageMenuItem(
+private fun LanguageMenuItem(
     text: String,
     contentColor: Color,
     onClick: () -> Unit,

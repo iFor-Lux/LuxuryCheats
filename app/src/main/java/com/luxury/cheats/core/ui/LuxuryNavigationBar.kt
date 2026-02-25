@@ -41,7 +41,7 @@ import com.kyant.backdrop.effects.vibrancy
  * Dimensiones: 190dp x 99dp
  */
 @Composable
-fun luxuryNavigationBar(
+fun LuxuryNavigationBar(
     modifier: Modifier = Modifier,
     activeTab: String = "Inicio",
     backdrop: LayerBackdrop? = null,
@@ -53,13 +53,13 @@ fun luxuryNavigationBar(
         modifier = modifier.size(width = 190.dp, height = 99.dp),
         contentAlignment = Alignment.Center,
     ) {
-        luxuryNavBarBackground(backdrop, shape)
-        luxuryNavBarItems(activeTab, onTabSelected)
+        LuxuryNavBarBackground(backdrop, shape)
+        LuxuryNavBarItems(activeTab, onTabSelected)
     }
 }
 
 @Composable
-private fun luxuryNavBarBackground(
+private fun LuxuryNavBarBackground(
     backdrop: LayerBackdrop?,
     shape: RoundedCornerShape,
 ) {
@@ -87,7 +87,7 @@ private fun luxuryNavBarBackground(
 }
 
 @Composable
-private fun luxuryNavBarItems(
+private fun LuxuryNavBarItems(
     activeTab: String,
     onTabSelected: (String) -> Unit,
 ) {
@@ -108,7 +108,7 @@ private fun luxuryNavBarItems(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            navItem(
+            NavItem(
                 label = "Inicio",
                 icon = Icons.Default.Home,
                 isActive = activeTab == "Inicio",
@@ -116,7 +116,7 @@ private fun luxuryNavBarItems(
                 onSelect = { onTabSelected("Inicio") },
             )
 
-            navItem(
+            NavItem(
                 label = "Perfil",
                 icon = Icons.Default.Person,
                 isActive = activeTab == "Perfil",
@@ -128,7 +128,7 @@ private fun luxuryNavBarItems(
 }
 
 @Composable
-private fun navItem(
+private fun NavItem(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     isActive: Boolean,

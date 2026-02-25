@@ -12,7 +12,7 @@ import com.luxury.cheats.features.welcome.splash.logic.WelcomeSplashViewModel
  * Pantalla de bienvenida / Splash
  */
 @Composable
-fun welcomeSplashScreen(
+fun WelcomeSplashScreen(
     modifier: Modifier = Modifier,
     viewModel: WelcomeSplashViewModel = viewModel(),
     onNavigateToPage1: () -> Unit = {},
@@ -41,14 +41,14 @@ fun welcomeSplashScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         // 🎨 Sprays decorativos
-        welcomeSpraysSection()
+        WelcomeSpraysSection()
 
         // 🧩 Logo centrado
-        welcomeLogoSection(
+        WelcomeLogoSection(
             onReady = { /* No-op: Gestionado por LogoViewModel flow en startSplashSequence */ },
         )
 
         // ✨ Texto "LUXURY" centrado
-        welcomeLuxuryTextSection()
+        WelcomeLuxuryTextSection()
     }
 }

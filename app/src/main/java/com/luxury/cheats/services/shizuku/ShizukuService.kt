@@ -137,7 +137,7 @@ class ShizukuService
                 if (!hasPermission()) return@withContext StringResult.Error("No Shizuku permission")
 
                 try {
-                    val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+                    val process = Shizuku. newProcess(arrayOf("sh", "-c", command), null, null)
                     val output = StringBuilder()
                     val error = StringBuilder()
 

@@ -54,7 +54,7 @@ private object MorphingConstants {
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun homeSeguridadInnerMorphing(
+fun HomeSeguridadInnerMorphing(
     modifier: Modifier = Modifier,
     rotation: Float = 0f,
     onClick: () -> Unit = {},
@@ -100,7 +100,7 @@ fun homeSeguridadInnerMorphing(
             MorphingInnerShape(shapeCycleState.currentShape.polygon)
         }
 
-    morphingInnerBox(
+    MorphingInnerBox(
         modifier = modifier,
         rotation = rotation,
         state =
@@ -114,7 +114,7 @@ fun homeSeguridadInnerMorphing(
 }
 
 @Composable
-private fun morphingInnerBox(
+private fun MorphingInnerBox(
     modifier: Modifier,
     rotation: Float,
     state: MorphingState,

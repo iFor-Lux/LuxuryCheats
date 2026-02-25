@@ -55,7 +55,7 @@ import com.luxury.cheats.features.download.logic.DownloadViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun downloadArchivoBottomSheet(
+fun DownloadArchivoBottomSheet(
     params: DownloadParams,
     onDismissRequest: () -> Unit,
     viewModel: DownloadViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
@@ -84,16 +84,16 @@ fun downloadArchivoBottomSheet(
         containerColor = MaterialTheme.colorScheme.surface,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f),
         shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
-        dragHandle = { downloadSheetDragHandle(uiState.status) },
+        dragHandle = { DownloadSheetDragHandle(uiState.status) },
     ) {
-        downloadSheetContent(
+        DownloadSheetContent(
             uiState = uiState,
             onDismissRequest = onDismissRequest,
             onViewProblemsClick = { setShowDetail(true) },
         )
 
         if (showDetail) {
-            downloadErrorDialog(
+            DownloadErrorDialog(
                 errorDetail = uiState.fileWeight,
                 onDismiss = { setShowDetail(false) },
             )
@@ -102,7 +102,7 @@ fun downloadArchivoBottomSheet(
 }
 
 @Composable
-private fun downloadSheetDragHandle(status: DownloadStatus) {
+private fun DownloadSheetDragHandle(status: DownloadStatus) {
     if (status != DownloadStatus.COMPLETED && status != DownloadStatus.ERROR) {
         Box(
             modifier =
@@ -116,23 +116,23 @@ private fun downloadSheetDragHandle(status: DownloadStatus) {
 }
 
 @Composable
-private fun downloadSheetContent(
+private fun DownloadSheetContent(
     uiState: com.luxury.cheats.features.download.logic.DownloadState,
     onDismissRequest: () -> Unit,
     onViewProblemsClick: () -> Unit,
 ) {
     when (uiState.status) {
         DownloadStatus.COMPLETED -> {
-            com.luxury.cheats.features.widgets.bienContent(onContinueClick = onDismissRequest)
+            com.luxury.cheats.features.widgets.BienContent(onContinueClick = onDismissRequest)
         }
         DownloadStatus.ERROR -> {
-            com.luxury.cheats.features.widgets.malContent(
+            com.luxury.cheats.features.widgets.MalContent(
                 onViewProblemsClick = onViewProblemsClick,
                 onExitClick = onDismissRequest,
             )
         }
         else -> {
-            downloadArchivoContent(
+            DownloadArchivoContent(
                 fileName = uiState.fileName,
                 fileWeight = uiState.fileWeight,
                 progress = uiState.progress,
@@ -143,7 +143,7 @@ private fun downloadSheetContent(
 }
 
 @Composable
-private fun downloadErrorDialog(
+private fun DownloadErrorDialog(
     errorDetail: String,
     onDismiss: () -> Unit,
 ) {
@@ -168,7 +168,7 @@ private fun downloadErrorDialog(
  * @param modifier Modificador de layout.
  */
 @Composable
-fun downloadArchivoContent(
+fun DownloadArchivoContent(
     fileName: String,
     fileWeight: String,
     progress: Float,
@@ -185,7 +185,7 @@ fun downloadArchivoContent(
         // Espacio garantizado entre el tirador y el box para máxima separación (Premium spacing)
         Spacer(modifier = Modifier.height(15.dp))
 
-        premiumDownloadBox(
+        PremiumDownloadBox(
             fileName = fileName,
             fileWeight = fileWeight,
             progress = progress,
@@ -195,7 +195,7 @@ fun downloadArchivoContent(
 }
 
 @Composable
-private fun premiumDownloadBox(
+private fun PremiumDownloadBox(
     fileName: String,
     fileWeight: String,
     progress: Float,
@@ -221,14 +221,14 @@ private fun premiumDownloadBox(
         ) {
             val statusText = if (status == DownloadStatus.COMPLETED) "Listo" else "Descargando"
 
-            fileInfoRow(fileName = fileName, fileWeight = fileWeight)
-            downloadProgressBox(progress = progress, statusText = statusText)
+            FileInfoRow(fileName = fileName, fileWeight = fileWeight)
+            DownloadProgressBox(progress = progress, statusText = statusText)
         }
     }
 }
 
 @Composable
-private fun fileInfoRow(
+private fun FileInfoRow(
     fileName: String,
     fileWeight: String,
 ) {
@@ -267,7 +267,7 @@ private fun fileInfoRow(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun downloadProgressBox(
+private fun DownloadProgressBox(
     progress: Float,
     statusText: String,
 ) {
@@ -292,7 +292,7 @@ private fun downloadProgressBox(
             verticalArrangement = Arrangement.Center,
         ) {
             // Mostramos el porcentaje real sin animación para precisión de texto
-            downloadProgressHeader(
+            DownloadProgressHeader(
                 progress = progress,
                 statusText = statusText,
             )
@@ -313,7 +313,7 @@ private fun downloadProgressBox(
 }
 
 @Composable
-private fun downloadProgressHeader(
+private fun DownloadProgressHeader(
     progress: Float,
     statusText: String,
 ) {

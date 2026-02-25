@@ -27,6 +27,15 @@ class WelcomePage1ViewModel : ViewModel() {
             is WelcomePage1Action.BackClicked -> {
                 handleBack()
             }
+            is WelcomePage1Action.ToggleLanguageMenu -> {
+                _state.value = _state.value.copy(isLanguageExpanded = action.expanded)
+            }
+            is WelcomePage1Action.SelectLanguage -> {
+                _state.value = _state.value.copy(
+                    selectedLanguage = action.language,
+                    isLanguageExpanded = false
+                )
+            }
         }
     }
 

@@ -20,7 +20,7 @@ import com.luxury.cheats.core.theme.newsreaderItalicFamily
  * Sección de texto (título y descripción inicial) para la página de Shizuku.
  */
 @Composable
-fun welcomePage3TextSection() {
+fun WelcomePage3TextSection() {
     val titleColor = MaterialTheme.colorScheme.onSurface
     val highlightColor = MaterialTheme.colorScheme.tertiary
     val descriptionColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)

@@ -57,7 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.login.pantalla.logic.LoginCredentials
 import com.luxury.cheats.features.login.pantalla.logic.LoginDisplayOptions
 import com.luxury.cheats.features.login.pantalla.logic.LoginInteractionState
@@ -84,7 +84,7 @@ data class LoginDisplayState(
  * Sección que contiene los campos de usuario, contraseña y la opción de guardar sesión.
  */
 @Composable
-fun loginPantallaUserPasswordSection(
+fun LoginPantallaUserPasswordSection(
     credentials: LoginCredentials,
     options: LoginDisplayOptions,
     displayState: LoginDisplayState,
@@ -103,7 +103,7 @@ fun loginPantallaUserPasswordSection(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CompositionLocalProvider(LocalTextInputService provides createDummyTextInputService()) {
-            loginInputFields(credentials, isExpanded, actions)
+            LoginInputFields(credentials, isExpanded, actions)
         }
 
         Column(
@@ -111,24 +111,24 @@ fun loginPantallaUserPasswordSection(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(12.dp))
-            loginRememberMeRow(
+            LoginRememberMeRow(
                 saveUser = options.saveUser,
                 onSaveUserChange = { if (!isExpanded) options.onSaveUserChange(it) },
                 interactionSource = remember { MutableInteractionSource() },
             )
             Spacer(modifier = Modifier.height(12.dp))
-            loginDebugBox(credentials.debugMessage)
+            LoginDebugBox(credentials.debugMessage)
         }
     }
 }
 
 @Composable
-private fun loginInputFields(
+private fun LoginInputFields(
     credentials: LoginCredentials,
     isExpanded: Boolean,
     actions: LoginFieldActions,
 ) {
-    loginUserField(
+    LoginUserField(
         value = credentials.username,
         onValueChange = credentials.onUsernameChange,
         onFocusChanged = {
@@ -147,7 +147,7 @@ private fun loginInputFields(
 
     Spacer(modifier = Modifier.height(fieldSpacerHeight))
 
-    loginPasswordField(
+    LoginPasswordField(
         value = credentials.password,
         onValueChange = credentials.onPasswordChange,
         onFocusChanged = {
@@ -197,7 +197,7 @@ private fun createDummyTextInputService(): TextInputService {
 }
 
 @Composable
-private fun loginUserField(
+private fun LoginUserField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit,
@@ -249,7 +249,7 @@ private fun loginUserField(
 }
 
 @Composable
-private fun passwordFieldLabel() {
+private fun PasswordFieldLabel() {
     Box(modifier = Modifier.width(210.dp)) {
         Text(
             text = "Contraseña",
@@ -261,7 +261,7 @@ private fun passwordFieldLabel() {
 }
 
 @Composable
-private fun loginPasswordField(
+private fun LoginPasswordField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit,
@@ -270,7 +270,7 @@ private fun loginPasswordField(
     val focusRequester = remember { FocusRequester() }
     var passwordVisible by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
-        passwordFieldLabel()
+        PasswordFieldLabel()
         Spacer(modifier = Modifier.height(2.dp))
         Box(
             modifier =
@@ -300,7 +300,7 @@ private fun loginPasswordField(
                         PasswordVisualTransformation()
                     },
                 decorationBox = { innerTextField ->
-                    passwordTextFieldDecoration(
+                    PasswordTextFieldDecoration(
                         innerTextField = innerTextField,
                         passwordVisible = passwordVisible,
                         onPasswordVisibleChange = { passwordVisible = it },
@@ -312,7 +312,7 @@ private fun loginPasswordField(
 }
 
 @Composable
-private fun passwordTextFieldDecoration(
+private fun PasswordTextFieldDecoration(
     innerTextField: @Composable () -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibleChange: (Boolean) -> Unit,
@@ -348,7 +348,7 @@ private fun passwordTextFieldDecoration(
 }
 
 @Composable
-private fun loginRememberMeRow(
+private fun LoginRememberMeRow(
     saveUser: Boolean,
     onSaveUserChange: (Boolean) -> Unit,
     interactionSource: MutableInteractionSource,
@@ -397,7 +397,7 @@ private fun loginRememberMeRow(
 }
 
 @Composable
-private fun loginDebugBox(debugMessage: String) {
+private fun LoginDebugBox(debugMessage: String) {
     Box(
         modifier =
             Modifier
@@ -424,10 +424,10 @@ private fun loginDebugBox(debugMessage: String) {
 /** Vista previa de la sección de usuario y contraseña en modo claro. */
 @Preview(name = "User Password Light")
 @Composable
-fun loginPantallaUserPasswordSectionPreviewLight() {
-    luxuryCheatsTheme(darkTheme = false) {
+fun LoginPantallaUserPasswordSectionPreviewLight() {
+    LuxuryCheatsTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            loginPantallaUserPasswordSection(
+            LoginPantallaUserPasswordSection(
                 credentials =
                     LoginCredentials(
                         username = TextFieldValue("UserDemo"),
@@ -455,10 +455,10 @@ fun loginPantallaUserPasswordSectionPreviewLight() {
 /** Vista previa de la sección de usuario y contraseña en modo oscuro. */
 @Preview(name = "User Password Dark")
 @Composable
-fun loginPantallaUserPasswordSectionPreviewDark() {
-    luxuryCheatsTheme(darkTheme = true) {
+fun LoginPantallaUserPasswordSectionPreviewDark() {
+    LuxuryCheatsTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            loginPantallaUserPasswordSection(
+            LoginPantallaUserPasswordSection(
                 credentials =
                     LoginCredentials(
                         username = TextFieldValue("UserDemo"),

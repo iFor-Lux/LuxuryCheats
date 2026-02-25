@@ -15,4 +15,14 @@ sealed interface WelcomePage1Action {
      * Acción cuando el usuario presiona el botón de atrás
      */
     object BackClicked : WelcomePage1Action
+
+    /**
+     * Acción para expandir/colapsar el menú de idiomas
+     */
+    data class ToggleLanguageMenu(val expanded: Boolean) : WelcomePage1Action
+
+    /**
+     * Acción para seleccionar un idioma
+     */
+    data class SelectLanguage(val language: String) : WelcomePage1Action
 }

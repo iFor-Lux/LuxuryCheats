@@ -10,7 +10,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 // Constantes para Detekt y legibilidad
 private const val GRID_COLOR_ALPHA_DARK = 0.40f
@@ -97,7 +97,7 @@ private fun getGridColor(
 @Preview(showBackground = true, backgroundColor = 0xFF080808)
 @Composable
 fun SquarePatternBackgroundDarkPreview() {
-    luxuryCheatsTheme(darkTheme = true) {
+    LuxuryCheatsTheme(darkTheme = true) {
         Box(modifier = Modifier.fillMaxSize()) {
             SquarePatternBackground()
         }
@@ -108,7 +108,7 @@ fun SquarePatternBackgroundDarkPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF5F5F5)
 @Composable
 fun SquarePatternBackgroundLightPreview() {
-    luxuryCheatsTheme(darkTheme = false) {
+    LuxuryCheatsTheme(darkTheme = false) {
         Box(modifier = Modifier.fillMaxSize()) {
             SquarePatternBackground()
         }

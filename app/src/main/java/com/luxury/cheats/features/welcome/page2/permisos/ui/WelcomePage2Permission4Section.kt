@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.sp
  * @param onClick Callback para disparar la solicitud del permiso.
  */
 @Composable
-fun welcomePage2Permission4Section(
+fun WelcomePage2Permission4Section(
     isGranted: Boolean = false,
     isDenied: Boolean = false,
     onClick: () -> Unit = {},
@@ -61,13 +61,13 @@ fun welcomePage2Permission4Section(
                 .padding(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            permissionIcon(
+            PermissionIcon(
                 iconBgColor = theme.iconBg,
                 iconTint = theme.iconTint,
                 isGranted = isGranted,
             )
             Spacer(modifier = Modifier.width(16.dp))
-            permissionInfo(
+            PermissionInfo(
                 titleColor = MaterialTheme.colorScheme.onSurface,
                 descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -76,7 +76,7 @@ fun welcomePage2Permission4Section(
 }
 
 @Composable
-private fun permissionIcon(
+private fun PermissionIcon(
     iconBgColor: Color,
     iconTint: Color,
     isGranted: Boolean,
@@ -108,7 +108,7 @@ private fun permissionIcon(
 }
 
 @Composable
-private fun permissionInfo(
+private fun PermissionInfo(
     titleColor: Color,
     descriptionColor: Color,
 ) {

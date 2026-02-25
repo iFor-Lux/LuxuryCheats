@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.luxury.cheats.core.ui.AppNotification
 import com.luxury.cheats.core.ui.NotificationType
-import com.luxury.cheats.core.ui.appToast
+import com.luxury.cheats.core.ui.AppToast
 import com.luxury.cheats.features.login.pantalla.logic.LoginNotification
 import com.luxury.cheats.features.login.pantalla.logic.LoginNotificationType
 
@@ -13,7 +13,7 @@ import com.luxury.cheats.features.login.pantalla.logic.LoginNotificationType
  * Ahora usa el componente genérico AppToast de core
  */
 @Composable
-fun loginPantallaMessageSection(
+fun LoginPantallaMessageSection(
     notifications: List<LoginNotification>,
     modifier: Modifier = Modifier,
 ) {
@@ -33,7 +33,7 @@ fun loginPantallaMessageSection(
             )
         }
 
-    appToast(
+    AppToast(
         notifications = appNotifications,
         modifier = modifier,
     )

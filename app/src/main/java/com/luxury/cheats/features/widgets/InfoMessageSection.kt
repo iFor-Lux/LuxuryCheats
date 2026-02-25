@@ -42,7 +42,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.home.logic.InAppNotification
 
 private const val SDK_INT_P = 28
@@ -51,12 +51,12 @@ private const val SDK_INT_P = 28
  * Dialog wrapper for the InfoMessageContent for testing and easy usage.
  */
 @Composable
-fun infoMessageDialog(
+fun InfoMessageDialog(
     notification: InAppNotification,
     onDismissRequest: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        infoMessageSection(
+        InfoMessageSection(
             notification = notification,
             onDismiss = onDismissRequest,
         )
@@ -68,7 +68,7 @@ fun infoMessageDialog(
  * Designed as a Box of 350x472 (outer) and 350x439 (body).
  */
 @Composable
-fun infoMessageSection(
+fun InfoMessageSection(
     notification: InAppNotification,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -87,13 +87,13 @@ fun infoMessageSection(
                 ),
         contentAlignment = Alignment.TopCenter,
     ) {
-        infoMessageDecorativeHeader()
-        infoMessageMainBody(notification, onDismiss)
+        InfoMessageDecorativeHeader()
+        InfoMessageMainBody(notification, onDismiss)
     }
 }
 
 @Composable
-private fun infoMessageDecorativeHeader() {
+private fun InfoMessageDecorativeHeader() {
     Row(
         modifier =
             Modifier
@@ -120,7 +120,7 @@ private fun infoMessageDecorativeHeader() {
 }
 
 @Composable
-private fun infoMessageMainBody(
+private fun InfoMessageMainBody(
     notification: InAppNotification,
     onDismiss: () -> Unit,
 ) {
@@ -142,17 +142,17 @@ private fun infoMessageMainBody(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            infoMessageTitleArea(notification)
+            InfoMessageTitleArea(notification)
             Spacer(modifier = Modifier.height(20.dp))
-            infoMessageContentBox(notification)
+            InfoMessageContentBox(notification)
             Spacer(modifier = Modifier.weight(1f))
-            infoMessageDismissButton(onDismiss)
+            InfoMessageDismissButton(onDismiss)
         }
     }
 }
 
 @Composable
-private fun infoMessageTitleArea(notification: InAppNotification) {
+private fun InfoMessageTitleArea(notification: InAppNotification) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -200,7 +200,7 @@ private fun infoMessageTitleArea(notification: InAppNotification) {
 }
 
 @Composable
-private fun infoMessageContentBox(notification: InAppNotification) {
+private fun InfoMessageContentBox(notification: InAppNotification) {
     Box(
         modifier =
             Modifier
@@ -241,14 +241,14 @@ private fun infoMessageContentBox(notification: InAppNotification) {
             }
 
             if (notification.image.isNotEmpty()) {
-                infoMessageImage(notification.image)
+                InfoMessageImage(notification.image)
             }
         }
     }
 }
 
 @Composable
-private fun infoMessageImage(imageUrl: String) {
+private fun InfoMessageImage(imageUrl: String) {
     val context = LocalContext.current
     val imageLoader =
         ImageLoader.Builder(context)
@@ -278,7 +278,7 @@ private fun infoMessageImage(imageUrl: String) {
 }
 
 @Composable
-private fun infoMessageDismissButton(onDismiss: () -> Unit) {
+private fun InfoMessageDismissButton(onDismiss: () -> Unit) {
     Box(
         modifier =
             Modifier
@@ -315,8 +315,8 @@ private fun infoMessageDismissButton(onDismiss: () -> Unit) {
  */
 @Preview(showBackground = true)
 @Composable
-fun infoMessageSectionPreview() {
-    luxuryCheatsTheme {
+fun InfoMessageSectionPreview() {
+    LuxuryCheatsTheme {
         Box(
             modifier =
                 Modifier
@@ -324,7 +324,7 @@ fun infoMessageSectionPreview() {
                     .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center,
         ) {
-            infoMessageSection(
+            InfoMessageSection(
                 notification =
                     InAppNotification(
                         title = "※ CONTRIBUCION ※",

@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.sp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun welcomeNavBarSection(
+fun WelcomeNavBarSection(
     currentPage: String,
     onBack: () -> Unit,
     onNext: () -> Unit,
@@ -88,7 +88,7 @@ fun welcomeNavBarSection(
                 .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        welcomeNavBarContent(
+        WelcomeNavBarContent(
             currentPage = currentPage,
             theme = WelcomeNavBarTheme(textOffset, textColor),
             backAction = WelcomeButtonState(onBack, backInteractionSource),
@@ -98,7 +98,7 @@ fun welcomeNavBarSection(
 }
 
 @Composable
-private fun welcomeNavBarContent(
+private fun WelcomeNavBarContent(
     currentPage: String,
     theme: WelcomeNavBarTheme,
     backAction: WelcomeButtonState,
@@ -109,7 +109,7 @@ private fun welcomeNavBarContent(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        welcomeNavBarButton(
+        WelcomeNavBarButton(
             params = WelcomeButtonParams(
                 text = "Back",
                 onClick = backAction.onClick,
@@ -123,9 +123,9 @@ private fun welcomeNavBarContent(
             modifier = Modifier.width(106.dp),
         )
 
-        welcomePageTicker(currentPage, theme.textOffset, theme.textColor)
+        WelcomePageTicker(currentPage, theme.textOffset, theme.textColor)
 
-        welcomeNavBarButton(
+        WelcomeNavBarButton(
             params = WelcomeButtonParams(
                 text = "Siguiente",
                 onClick = nextAction.onClick,
@@ -165,7 +165,7 @@ private data class WelcomeButtonParams(
 )
 
 @Composable
-private fun welcomePageTicker(
+private fun WelcomePageTicker(
     currentPage: String,
     textOffset: Float,
     textColor: androidx.compose.ui.graphics.Color,
@@ -195,7 +195,7 @@ private fun welcomePageTicker(
  * @param modifier Modificador de Compose para el layout.
  */
 @Composable
-private fun welcomeNavBarButton(
+private fun WelcomeNavBarButton(
     params: WelcomeButtonParams,
     modifier: Modifier = Modifier,
 ) {

@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 private const val AURA_INNER_ALPHA = 0.25f
 private const val AURA_OUTER_ALPHA = 0.05f
@@ -57,7 +57,7 @@ private const val ERROR_RED_COLOR = 0xFFFF4D4D
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun malBottomSheet(
+fun MalBottomSheet(
     onDismissRequest: () -> Unit,
     onViewProblemsClick: () -> Unit,
     onExitClick: () -> Unit,
@@ -72,7 +72,7 @@ fun malBottomSheet(
         tonalElevation = 8.dp,
         scrimColor = Color.Black.copy(alpha = 0.6f),
     ) {
-        malContent(
+        MalContent(
             onViewProblemsClick = onViewProblemsClick,
             onExitClick = {
                 onExitClick()
@@ -89,7 +89,7 @@ fun malBottomSheet(
  * @param modifier Modificador de layout.
  */
 @Composable
-fun malContent(
+fun MalContent(
     onViewProblemsClick: () -> Unit,
     onExitClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -112,16 +112,16 @@ fun malContent(
                     .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)),
         )
 
-        errorAuraIcon()
+        ErrorAuraIcon()
         Spacer(modifier = Modifier.height(8.dp))
-        errorTextSection()
+        ErrorTextSection()
         Spacer(modifier = Modifier.height(32.dp))
-        errorActionButtons(onViewProblemsClick, onExitClick)
+        ErrorActionButtons(onViewProblemsClick, onExitClick)
     }
 }
 
 @Composable
-private fun errorAuraIcon() {
+private fun ErrorAuraIcon() {
     Box(
         modifier = Modifier.size(160.dp),
         contentAlignment = Alignment.Center,
@@ -153,7 +153,7 @@ private fun errorAuraIcon() {
 }
 
 @Composable
-private fun errorTextSection() {
+private fun ErrorTextSection() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "INCORRECTO",
@@ -176,7 +176,7 @@ private fun errorTextSection() {
 }
 
 @Composable
-private fun errorActionButtons(
+private fun ErrorActionButtons(
     onViewProblemsClick: () -> Unit,
     onExitClick: () -> Unit,
 ) {
@@ -230,10 +230,10 @@ private fun errorActionButtons(
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun malContentPreview() {
-    luxuryCheatsTheme {
+fun MalContentPreview() {
+    LuxuryCheatsTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            malContent(onViewProblemsClick = {}, onExitClick = {})
+            MalContent(onViewProblemsClick = {}, onExitClick = {})
         }
     }
 }

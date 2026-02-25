@@ -33,7 +33,7 @@ import kotlinx.coroutines.delay
  * ═══════════════════════════════════════════════════════════════
  */
 @Composable
-fun welcomeLuxuryTextSection(
+fun WelcomeLuxuryTextSection(
     modifier: Modifier = Modifier,
     text: String = "LUXURY",
     style: WelcomeTextStyle = WelcomeTextStyle(),

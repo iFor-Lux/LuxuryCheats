@@ -52,13 +52,13 @@ private object SaludoConstants {
  * - Estética premium con bordes sutiles y badge superior
  */
 @Composable
-fun homeSaludoSection(
+fun HomeSaludoSection(
     modifier: Modifier = Modifier,
     userName: String = "",
     greeting: String = "",
     subtitle: String = "",
 ) {
-    val icon = getGreetingIcon()
+    val icon = GetGreetingIcon()
 
     Box(
         modifier =
@@ -66,7 +66,7 @@ fun homeSaludoSection(
                 .width(341.dp)
                 .height(125.dp),
     ) {
-        homeGreetingCard(
+        HomeGreetingCard(
             userName = userName,
             greeting = greeting,
             subtitle = subtitle,
@@ -77,7 +77,7 @@ fun homeSaludoSection(
 }
 
 @Composable
-private fun getGreetingIcon(): androidx.compose.ui.graphics.vector.ImageVector {
+private fun GetGreetingIcon(): androidx.compose.ui.graphics.vector.ImageVector {
     val currentHour = java.time.LocalTime.now().hour
     val now = java.time.LocalDate.now()
     val month = now.monthValue
@@ -109,7 +109,7 @@ private fun getGreetingIcon(): androidx.compose.ui.graphics.vector.ImageVector {
 }
 
 @Composable
-private fun homeGreetingCard(
+private fun HomeGreetingCard(
     userName: String,
     greeting: String,
     subtitle: String,

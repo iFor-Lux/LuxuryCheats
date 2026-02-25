@@ -43,7 +43,7 @@ private object InnerConstants {
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun homeSeguridadInner(
+fun HomeSeguridadInner(
     modifier: Modifier = Modifier,
     rotation: Float = 0f,
 ) {

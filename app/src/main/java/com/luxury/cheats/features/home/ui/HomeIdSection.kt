@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.sp
  * - W: 341, H: 35 (Input), BG: 404040
  */
 @Composable
-fun homeIdSection(
+fun HomeIdSection(
     modifier: Modifier = Modifier,
     idValue: String = "",
     onIdValueChange: (String) -> Unit = {},
@@ -64,7 +64,7 @@ fun homeIdSection(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            homeIdInputField(
+            HomeIdInputField(
                 idValue = idValue,
                 onIdValueChange = onIdValueChange,
                 onSearchClick = onSearchClick,
@@ -74,7 +74,7 @@ fun homeIdSection(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            homeIdSaveButton(
+            HomeIdSaveButton(
                 onClick = {
                     onSaveClick()
                     onSearchClick()
@@ -85,7 +85,7 @@ fun homeIdSection(
 }
 
 @Composable
-private fun homeIdInputField(
+private fun HomeIdInputField(
     idValue: String,
     onIdValueChange: (String) -> Unit,
     onSearchClick: () -> Unit,
@@ -131,7 +131,7 @@ private fun homeIdInputField(
 }
 
 @Composable
-private fun homeIdSaveButton(onClick: () -> Unit) {
+private fun HomeIdSaveButton(onClick: () -> Unit) {
     Box(
         modifier =
             Modifier

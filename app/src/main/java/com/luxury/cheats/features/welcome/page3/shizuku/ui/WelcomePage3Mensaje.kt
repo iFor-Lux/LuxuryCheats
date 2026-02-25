@@ -26,7 +26,7 @@ import com.luxury.cheats.core.theme.newsreaderItalicFamily
  * Sección informativa que explica detalladamente la función de Shizuku.
  */
 @Composable
-fun welcomePage3Mensaje() {
+fun WelcomePage3Mensaje() {
     val containerColor = MaterialTheme.colorScheme.surfaceVariant
     val textColor = MaterialTheme.colorScheme.onSurface
     val highlightColor = MaterialTheme.colorScheme.tertiary
@@ -50,7 +50,7 @@ fun welcomePage3Mensaje() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = buildShizukuExplication(highlightColor),
+                text = BuildShizukuExplication(highlightColor),
                 fontSize = 8.sp,
                 color = textColor,
                 lineHeight = 10.sp,
@@ -60,7 +60,7 @@ fun welcomePage3Mensaje() {
 }
 
 @Composable
-private fun buildShizukuExplication(highlightColor: Color) =
+private fun BuildShizukuExplication(highlightColor: Color) =
     buildAnnotatedString {
         append("Shizuku nos permite obtener acceso 100% a los archivos del juego - apartir de ")
         withStyle(style = getHighlightStyle(highlightColor)) {

@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun loginPantallaTextSection(modifier: Modifier = Modifier) {
+fun LoginPantallaTextSection(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,

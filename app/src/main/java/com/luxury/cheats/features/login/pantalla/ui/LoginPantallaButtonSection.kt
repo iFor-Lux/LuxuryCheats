@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun loginPantallaButtonSection(
+fun LoginPantallaButtonSection(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {

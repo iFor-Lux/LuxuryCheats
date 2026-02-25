@@ -14,4 +14,12 @@ data class WelcomePage1State(
      * Indica si hay un error
      */
     val error: String? = null,
+    /**
+     * Indica si el menú de idiomas está expandido
+     */
+    val isLanguageExpanded: Boolean = false,
+    /**
+     * Idioma seleccionado actualmente
+     */
+    val selectedLanguage: String = "Español",
 )

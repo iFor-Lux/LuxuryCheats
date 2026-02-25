@@ -30,14 +30,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 /**
  * Bottom Sheet for activation instructions.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun infoActivationBottomSheet(
+fun InfoActivationBottomSheet(
     onDismissRequest: () -> Unit,
     onContinueClick: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(),
@@ -62,7 +62,7 @@ fun infoActivationBottomSheet(
                         .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)),
             )
 
-            infoActivationContent(
+            InfoActivationContent(
                 onContinueClick = onContinueClick,
                 onCancelClick = onDismissRequest,
             )
@@ -75,7 +75,7 @@ fun infoActivationBottomSheet(
  * Fixed size card: 360x388
  */
 @Composable
-fun infoActivationContent(
+fun InfoActivationContent(
     onContinueClick: () -> Unit,
     onCancelClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -100,20 +100,20 @@ fun infoActivationContent(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                infoActivationHeader()
+                InfoActivationHeader()
                 Spacer(modifier = Modifier.height(20.dp))
-                infoActivationMedia()
+                InfoActivationMedia()
                 Spacer(modifier = Modifier.height(20.dp))
-                infoActivationBody()
+                InfoActivationBody()
                 Spacer(modifier = Modifier.weight(1f))
-                infoActivationActions(onCancelClick, onContinueClick)
+                InfoActivationActions(onCancelClick, onContinueClick)
             }
         }
     }
 }
 
 @Composable
-private fun infoActivationHeader() {
+private fun InfoActivationHeader() {
     Text(
         text = "COMO ACTIVAR",
         fontSize = 24.sp,
@@ -124,7 +124,7 @@ private fun infoActivationHeader() {
 }
 
 @Composable
-private fun infoActivationMedia() {
+private fun InfoActivationMedia() {
     Box(
         modifier =
             Modifier
@@ -136,7 +136,7 @@ private fun infoActivationMedia() {
 }
 
 @Composable
-private fun infoActivationBody() {
+private fun InfoActivationBody() {
     Text(
         text =
             "Para activar los beneficios, asegúrate de haber otorgado todos los " +
@@ -150,7 +150,7 @@ private fun infoActivationBody() {
 }
 
 @Composable
-private fun infoActivationActions(
+private fun InfoActivationActions(
     onCancelClick: () -> Unit,
     onContinueClick: () -> Unit,
 ) {
@@ -204,10 +204,10 @@ private fun infoActivationActions(
  */
 @Preview(showBackground = true)
 @Composable
-fun infoActivationPreview() {
-    luxuryCheatsTheme {
+fun InfoActivationPreview() {
+    LuxuryCheatsTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            infoActivationContent(
+            InfoActivationContent(
                 onContinueClick = {},
                 onCancelClick = {},
             )

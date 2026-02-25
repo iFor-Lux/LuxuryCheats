@@ -26,7 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 
 private object SkillsConstants {
@@ -38,12 +38,12 @@ private object SkillsConstants {
  * Contiene el título "Creditos" y una tarjeta con información del creador.
  */
 @Composable
-fun perfilCreditosSection(modifier: Modifier = Modifier) {
+fun PerfilCreditosSection(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
     ) {
-        creditosHeader()
+        CreditosHeader()
         Box(
             modifier =
                 Modifier
@@ -53,13 +53,13 @@ fun perfilCreditosSection(modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center,
         ) {
-            creditosCard()
+            CreditosCard()
         }
     }
 }
 
 @Composable
-private fun creditosHeader() {
+private fun CreditosHeader() {
     Text(
         text = "Creditos",
         color = MaterialTheme.colorScheme.primary,
@@ -70,7 +70,7 @@ private fun creditosHeader() {
 }
 
 @Composable
-private fun creditosCard() {
+private fun CreditosCard() {
     Box(
         modifier =
             Modifier
@@ -88,19 +88,19 @@ private fun creditosCard() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            creatorAvatar()
+            CreatorAvatar()
 
             // Columna 1: Identidad (más espacio para evitar cortes feos)
-            creatorInfo(Modifier.weight(1f))
+            CreatorInfo(Modifier.weight(1f))
 
             // Columna 2: Especialidades (con espacio suficiente para las bullets)
-            creatorSkills(Modifier.weight(SkillsConstants.SKILLS_WEIGHT))
+            CreatorSkills(Modifier.weight(SkillsConstants.SKILLS_WEIGHT))
         }
     }
 }
 
 @Composable
-private fun creatorAvatar() {
+private fun CreatorAvatar() {
     Box(
         modifier =
             Modifier
@@ -119,7 +119,7 @@ private fun creatorAvatar() {
 }
 
 @Composable
-private fun creatorInfo(modifier: Modifier = Modifier) {
+private fun CreatorInfo(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
             text = "iFor1722",
@@ -143,14 +143,14 @@ private fun creatorInfo(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun creatorSkills(modifier: Modifier = Modifier) {
+private fun CreatorSkills(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center,
     ) {
-        bulletText(text = "Ingenieria de Software AI")
-        bulletText(text = "Desarrolador FullStack")
+        BulletText(text = "Ingenieria de Software AI")
+        BulletText(text = "Desarrolador FullStack")
     }
 }
 
@@ -160,7 +160,7 @@ private fun creatorSkills(modifier: Modifier = Modifier) {
  * @param text El texto a mostrar.
  */
 @Composable
-fun bulletText(text: String) {
+fun BulletText(text: String) {
     Row(
         modifier = Modifier.padding(vertical = 1.dp),
         verticalAlignment = Alignment.Top,
@@ -186,10 +186,10 @@ fun bulletText(text: String) {
 /** Preview de la sección de créditos en tema claro. */
 @Preview(name = "Creditos Light")
 @Composable
-fun perfilCreditosPreviewLight() {
-    luxuryCheatsTheme(darkTheme = false) {
+fun PerfilCreditosPreviewLight() {
+    LuxuryCheatsTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            perfilCreditosSection()
+            PerfilCreditosSection()
         }
     }
 }
@@ -197,10 +197,10 @@ fun perfilCreditosPreviewLight() {
 /** Preview de la sección de créditos en tema oscuro. */
 @Preview(name = "Creditos Dark")
 @Composable
-fun perfilCreditosPreviewDark() {
-    luxuryCheatsTheme(darkTheme = true) {
+fun PerfilCreditosPreviewDark() {
+    LuxuryCheatsTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            perfilCreditosSection()
+            PerfilCreditosSection()
         }
     }
 }

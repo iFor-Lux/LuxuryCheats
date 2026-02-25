@@ -74,7 +74,7 @@ private data class ToastTheme(
  * Se adapta automáticamente a temas claros y oscuros con efectos de semitransparencia.
  */
 @Composable
-fun appToast(
+fun AppToast(
     notifications: List<AppNotification>,
     modifier: Modifier = Modifier,
 ) {
@@ -88,7 +88,7 @@ fun appToast(
         val displayed = notifications.takeLast(ToastConstants.MAX_VISIBLE).reversed()
 
         displayed.forEachIndexed { index, notification ->
-            toastItem(
+            ToastItem(
                 index = index,
                 notification = notification,
                 isTop = index == 0,
@@ -98,7 +98,7 @@ fun appToast(
 }
 
 @Composable
-private fun toastItem(
+private fun ToastItem(
     index: Int,
     notification: AppNotification,
     isTop: Boolean,
@@ -147,7 +147,7 @@ private fun toastItem(
             label = "toast_offset",
         )
 
-    toastCard(
+    ToastCard(
         notification = notification,
         isTop = isTop,
         modifier =
@@ -160,7 +160,7 @@ private fun toastItem(
 }
 
 @Composable
-private fun toastCard(
+private fun ToastCard(
     notification: AppNotification,
     isTop: Boolean,
     modifier: Modifier = Modifier,
@@ -191,7 +191,7 @@ private fun toastCard(
         color = Color.Transparent,
         contentColor = theme.contentColor,
     ) {
-        toastCardContent(notification.message, theme.icon, theme.contentColor, isTop)
+        ToastCardContent(notification.message, theme.icon, theme.contentColor, isTop)
     }
 }
 
@@ -239,7 +239,7 @@ private fun getNotificationTheme(
 }
 
 @Composable
-private fun toastCardContent(
+private fun ToastCardContent(
     message: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentColor: Color,
@@ -280,10 +280,10 @@ private fun toastCardContent(
 /** Preview de AppToast en tema claro. */
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Light Theme")
 @Composable
-fun appToastLightPreview() {
+fun AppToastLightPreview() {
     MaterialTheme {
         Box(modifier = Modifier.size(400.dp, 200.dp).background(Color.White)) {
-            appToastSample()
+            AppToastSample()
         }
     }
 }
@@ -291,16 +291,16 @@ fun appToastLightPreview() {
 /** Preview de AppToast en tema oscuro. */
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Dark Theme")
 @Composable
-fun appToastDarkPreview() {
+fun AppToastDarkPreview() {
     MaterialTheme(colorScheme = androidx.compose.material3.darkColorScheme()) {
         Box(modifier = Modifier.size(400.dp, 200.dp).background(Color.Black)) {
-            appToastSample()
+            AppToastSample()
         }
     }
 }
 
 @Composable
-private fun appToastSample() {
+private fun AppToastSample() {
     val sampleNotifications =
         listOf(
             AppNotification("Error de conexión", NotificationType.ERROR),
@@ -308,5 +308,5 @@ private fun appToastSample() {
             AppNotification("Cambios guardados", NotificationType.SUCCESS),
         )
 
-    appToast(notifications = sampleNotifications)
+    AppToast(notifications = sampleNotifications)
 }

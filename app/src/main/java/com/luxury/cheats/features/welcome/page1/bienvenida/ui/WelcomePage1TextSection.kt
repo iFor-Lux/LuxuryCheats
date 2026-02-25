@@ -27,7 +27,7 @@ private val SUBTITLE_HORIZONTAL_PADDING = 20.dp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun welcomePage1TextSection(modifier: Modifier = Modifier) {
+fun WelcomePage1TextSection(modifier: Modifier = Modifier) {
     Column(
         modifier =
             modifier

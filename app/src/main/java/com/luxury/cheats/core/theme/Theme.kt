@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun luxuryCheatsTheme(
+fun LuxuryCheatsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit,

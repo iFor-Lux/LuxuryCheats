@@ -48,7 +48,7 @@ private object OuterMorphingConstants {
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun homeSeguridadOuter(
+fun HomeSeguridadOuter(
     size: Dp,
     isActivated: Boolean,
     interactionSource: MutableInteractionSource,

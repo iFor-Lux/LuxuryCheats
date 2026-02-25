@@ -19,18 +19,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.luxury.cheats.core.ui.dotPatternBackground
-import com.luxury.cheats.core.ui.welcomeEclipseSection
+import com.luxury.cheats.core.ui.DotPatternBackground
+import com.luxury.cheats.core.ui.WelcomeEclipseSection
 import com.luxury.cheats.features.home.logic.HomeAction
 import com.luxury.cheats.features.home.logic.HomeViewModel
-import com.luxury.cheats.features.home.ui.homeScreen
-import com.luxury.cheats.features.login.pantalla.ui.loginPantallaScreen
-import com.luxury.cheats.features.perfil.ui.perfilScreen
-import com.luxury.cheats.features.update.ui.downloadUpdateScreen
-import com.luxury.cheats.features.welcome.page1.bienvenida.ui.welcomePage1Screen
-import com.luxury.cheats.features.welcome.page2.permisos.ui.welcomePage2Screen
-import com.luxury.cheats.features.welcome.page3.shizuku.ui.welcomePage3Screen
-import com.luxury.cheats.features.welcome.splash.ui.welcomeSplashScreen
+import com.luxury.cheats.features.home.ui.HomeScreen
+import com.luxury.cheats.features.login.pantalla.ui.LoginPantallaScreen
+import com.luxury.cheats.features.perfil.ui.PerfilScreen
+import com.luxury.cheats.features.update.ui.DownloadUpdateScreen
+import com.luxury.cheats.features.welcome.page1.bienvenida.ui.WelcomePage1Screen
+import com.luxury.cheats.features.welcome.page2.permisos.ui.WelcomePage2Screen
+import com.luxury.cheats.features.welcome.page3.shizuku.ui.WelcomePage3Screen
+import com.luxury.cheats.features.welcome.splash.ui.WelcomeSplashScreen
 
 private const val BACKGROUND_ANIM_DURATION = 500
 
@@ -40,7 +40,7 @@ private const val BACKGROUND_ANIM_DURATION = 500
  */
 
 @Composable
-fun appNavHost(
+fun AppNavHost(
     navController: NavHostController,
     onLogoReady: () -> Unit,
     backdrop: LayerBackdrop,
@@ -83,13 +83,13 @@ fun appNavHost(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        authBackgroundLayer(
+        AuthBackgroundLayer(
             isAuthScreen = isAuthScreen,
             backdrop = backdrop,
             animatedGlobalAlpha = animatedGlobalAlpha,
         )
 
-        appNavGraph(
+        AppNavGraph(
             navController = navController,
             onLogoReady = onLogoReady,
             backdrop = backdrop,
@@ -99,7 +99,7 @@ fun appNavHost(
 }
 
 @Composable
-private fun authBackgroundLayer(
+private fun AuthBackgroundLayer(
     isAuthScreen: Boolean,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop,
     animatedGlobalAlpha: Float,
@@ -112,14 +112,14 @@ private fun authBackgroundLayer(
                     .layerBackdrop(backdrop)
                     .alpha(animatedGlobalAlpha),
         ) {
-            com.luxury.cheats.core.ui.dotPatternBackground()
-            com.luxury.cheats.core.ui.welcomeEclipseSection()
+            DotPatternBackground()
+            WelcomeEclipseSection()
         }
     }
 }
 
 @Composable
-private fun appNavGraph(
+private fun AppNavGraph(
     navController: NavHostController,
     onLogoReady: () -> Unit,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop,
@@ -134,7 +134,7 @@ private fun appNavGraph(
             welcomeGraph(navController, onLogoReady)
 
             composable<Login> {
-                com.luxury.cheats.features.login.pantalla.ui.loginPantallaScreen(
+                LoginPantallaScreen(
                     onLoginSuccess = {
                         navController.navigate(MainGraph) {
                             popUpTo<AuthGraph> { inclusive = true }
@@ -158,7 +158,7 @@ private fun androidx.navigation.NavGraphBuilder.welcomeGraph(
     onLogoReady: () -> Unit,
 ) {
     composable<Splash> {
-        welcomeSplashScreen(
+        WelcomeSplashScreen(
             onNavigateToPage1 = {
                 navController.navigate(WelcomePage1) {
                     popUpTo<Splash> { inclusive = true }
@@ -169,21 +169,21 @@ private fun androidx.navigation.NavGraphBuilder.welcomeGraph(
     }
 
     composable<WelcomePage1> {
-        welcomePage1Screen(
+        WelcomePage1Screen(
             onNavigateBack = { navController.popBackStack() },
             onNavigateNext = { navController.navigate(WelcomePage2) },
         )
     }
 
     composable<WelcomePage2> {
-        welcomePage2Screen(
+        WelcomePage2Screen(
             onNavigateBack = { navController.popBackStack() },
             onNavigateNext = { navController.navigate(WelcomePage3) },
         )
     }
 
     composable<WelcomePage3> {
-        welcomePage3Screen(
+        WelcomePage3Screen(
             onNavigateBack = { navController.popBackStack() },
             onNavigateNext = {
                 navController.navigate(Login)
@@ -200,7 +200,7 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
         val viewModel: HomeViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsState()
 
-        homeScreen(
+        HomeScreen(
             uiState = uiState,
             onAction = { action: HomeAction -> viewModel.onAction(action) },
             navController = navController,
@@ -209,11 +209,11 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
     }
 
     composable<Perfil> {
-        perfilScreen(backdrop = backdrop)
+        PerfilScreen(backdrop = backdrop)
     }
 
     composable<Update> {
-        downloadUpdateScreen(
+        DownloadUpdateScreen(
             onBackClick = { navController.popBackStack() },
         )
     }

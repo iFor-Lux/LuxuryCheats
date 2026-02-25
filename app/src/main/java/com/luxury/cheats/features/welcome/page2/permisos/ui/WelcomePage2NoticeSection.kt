@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
  * Explica la necesidad de conceder múltiples permisos.
  */
 @Composable
-fun welcomePage2NoticeSection() {
+fun WelcomePage2NoticeSection() {
     val containerColor = MaterialTheme.colorScheme.surfaceVariant
     val titleColor = MaterialTheme.colorScheme.onSurface
     val descriptionColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)

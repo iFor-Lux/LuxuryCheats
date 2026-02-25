@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
  * - W: 235, H: 45, Corner: 30
  */
 @Composable
-fun homeEstadoSection(
+fun HomeEstadoSection(
     modifier: Modifier = Modifier,
     onVerEstadoClick: () -> Unit = {},
 ) {

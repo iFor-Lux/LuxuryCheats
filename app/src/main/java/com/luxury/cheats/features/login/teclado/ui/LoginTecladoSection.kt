@@ -53,7 +53,7 @@ data class TecladoActions(
  * Orquestador con transiciones ultra fluidas estilo Pixel.
  */
 @Composable
-fun loginTecladoSection(
+fun LoginTecladoSection(
     type: TecladoType,
     isUpperCase: Boolean,
     actions: TecladoActions,

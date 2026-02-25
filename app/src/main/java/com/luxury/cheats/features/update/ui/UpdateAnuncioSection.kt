@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 /**
  * Widget de anuncio de actualización diseñado con estética Premium.
@@ -37,7 +37,7 @@ import com.luxury.cheats.core.theme.luxuryCheatsTheme
  * - Soporte para Material You y temas Claro/Oscuro.
  */
 @Composable
-fun updateAnuncioSection(
+fun UpdateAnuncioSection(
     modifier: Modifier = Modifier,
     title: String = "NUEVA ACTUALIZACION",
     description: String =
@@ -66,17 +66,17 @@ fun updateAnuncioSection(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            updateBanner()
-            updateTitle(title)
-            updateDescription(description)
+            UpdateBanner()
+            UpdateTitle(title)
+            UpdateDescription(description)
             Spacer(modifier = Modifier.padding(vertical = 4.dp))
-            updateButton(onUpdateClick)
+            UpdateButton(onUpdateClick)
         }
     }
 }
 
 @Composable
-private fun updateBanner() {
+private fun UpdateBanner() {
     val isPreview = LocalInspectionMode.current
     Box(
         modifier =
@@ -114,7 +114,7 @@ private fun updateBanner() {
 }
 
 @Composable
-private fun updateTitle(title: String) {
+private fun UpdateTitle(title: String) {
     Text(
         text = title.uppercase(),
         color = MaterialTheme.colorScheme.primary,
@@ -127,7 +127,7 @@ private fun updateTitle(title: String) {
 }
 
 @Composable
-private fun updateDescription(description: String) {
+private fun UpdateDescription(description: String) {
     Text(
         text = description,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -143,7 +143,7 @@ private fun updateDescription(description: String) {
 }
 
 @Composable
-private fun updateButton(onClick: () -> Unit) {
+private fun UpdateButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier.size(width = 187.dp, height = 40.dp),
@@ -166,11 +166,11 @@ private fun updateButton(onClick: () -> Unit) {
 /** Preview del anuncio de actualización en tema oscuro. */
 @Preview(name = "Update Anuncio Dark", showBackground = true)
 @Composable
-fun updateAnuncioSectionPreviewDark() {
-    luxuryCheatsTheme(darkTheme = true) {
+fun UpdateAnuncioSectionPreviewDark() {
+    LuxuryCheatsTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
             Box(Modifier.padding(20.dp)) {
-                updateAnuncioSection()
+                UpdateAnuncioSection()
             }
         }
     }
@@ -179,11 +179,11 @@ fun updateAnuncioSectionPreviewDark() {
 /** Preview del anuncio de actualización en tema claro. */
 @Preview(name = "Update Anuncio Light", showBackground = true)
 @Composable
-fun updateAnuncioSectionPreviewLight() {
-    luxuryCheatsTheme(darkTheme = false) {
+fun UpdateAnuncioSectionPreviewLight() {
+    LuxuryCheatsTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
             Box(Modifier.padding(20.dp)) {
-                updateAnuncioSection()
+                UpdateAnuncioSection()
             }
         }
     }

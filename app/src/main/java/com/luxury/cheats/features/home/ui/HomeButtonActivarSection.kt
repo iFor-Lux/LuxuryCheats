@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
  * - Borde naranja (FFAE00)
  */
 @Composable
-fun homeButtonActivarSection(
+fun HomeButtonActivarSection(
     modifier: Modifier = Modifier,
     onActivarClick: () -> Unit = {},
 ) {

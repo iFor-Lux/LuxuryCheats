@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
  * - W: 412, H: 115
  */
 @Composable
-fun homeImagenSection(modifier: Modifier = Modifier) {
+fun HomeImagenSection(modifier: Modifier = Modifier) {
     Box(
         modifier =
             modifier

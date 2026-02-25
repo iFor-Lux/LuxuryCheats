@@ -21,18 +21,18 @@ import androidx.navigation.compose.rememberNavController
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.luxury.cheats.core.ui.LogoViewModel
-import com.luxury.cheats.core.ui.luxuryNavigationBar
-import com.luxury.cheats.core.ui.persistentLogo
+import com.luxury.cheats.core.ui.LuxuryNavigationBar
+import com.luxury.cheats.core.ui.PersistentLogo
 import com.luxury.cheats.navigations.Home
 import com.luxury.cheats.navigations.Perfil
-import com.luxury.cheats.navigations.appNavHost
+import com.luxury.cheats.navigations.AppNavHost
 
 /**
  * Componente raíz de la aplicación.
  * Gestiona el controlador de navegación, la barra de navegación persistente y el logo global.
  */
 @Composable
-fun luxuryCheatsApp(viewModel: LogoViewModel = hiltViewModel()) {
+fun LuxuryCheatsApp(viewModel: LogoViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val isLogoReady by viewModel.isReadyFlow.collectAsState()
     val logoOffsetY by viewModel.logoOffsetY.collectAsState()
@@ -49,21 +49,21 @@ fun luxuryCheatsApp(viewModel: LogoViewModel = hiltViewModel()) {
         Box(modifier = Modifier.fillMaxSize()) {
             // CAPA 1: NavHost (Sin captura global para evitar recursión en overlays)
             Box(modifier = Modifier.fillMaxSize()) {
-                appNavHost(
+                AppNavHost(
                     navController = navController,
                     onLogoReady = { /* No-op: Managed by ViewModel state */ },
                     backdrop = backdrop,
                 )
             }
 
-            navigationBarOverlay(
+            NavigationBarOverlay(
                 navController = navController,
                 navBackStackEntry = navBackStackEntry,
                 backdrop = backdrop,
             )
 
             // CAPA 3: Logo Persistente
-            logoPersistenceLayer(
+            LogoPersistenceLayer(
                 navBackStackEntry = navBackStackEntry,
                 isLogoReady = isLogoReady,
                 webView = webView,
@@ -74,7 +74,7 @@ fun luxuryCheatsApp(viewModel: LogoViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun navigationBarOverlay(
+private fun NavigationBarOverlay(
     navController: NavHostController,
     navBackStackEntry: NavBackStackEntry?,
     backdrop: LayerBackdrop,
@@ -90,7 +90,7 @@ private fun navigationBarOverlay(
                     .padding(bottom = 32.dp),
             contentAlignment = Alignment.BottomCenter,
         ) {
-            luxuryNavigationBar(
+            LuxuryNavigationBar(
                 activeTab = if (isHome) "Inicio" else "Perfil",
                 backdrop = backdrop,
                 onTabSelected = { tab: String ->
@@ -126,14 +126,14 @@ private fun handleTabSelection(
 }
 
 @Composable
-private fun logoPersistenceLayer(
+private fun LogoPersistenceLayer(
     navBackStackEntry: NavBackStackEntry?,
     isLogoReady: Boolean,
     webView: android.webkit.WebView?,
     customLogoOffsetY: androidx.compose.ui.unit.Dp,
 ) {
     webView?.let {
-        persistentLogo(
+        PersistentLogo(
             navDestination = navBackStackEntry?.destination,
             isLogoReady = isLogoReady,
             webView = it,

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
  * @param state Estado actual del perfil con los datos a mostrar.
  */
 @Composable
-fun perfilDetallesSection(
+fun PerfilDetallesSection(
     modifier: Modifier = Modifier,
     state: com.luxury.cheats.features.perfil.logic.PerfilState = com.luxury.cheats.features.perfil.logic.PerfilState(),
 ) {
@@ -53,13 +53,13 @@ fun perfilDetallesSection(
             Column(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                detailItem(label = "FECHA DE CREACION", value = state.creationDate)
-                detailItem(label = "HORA DE CREACION", value = state.creationHour)
-                detailItem(label = "FECHA DE VENCIMIENTO", value = state.expiryDate)
-                detailItem(label = "MODELO", value = state.model)
-                detailItem(label = "RAM", value = state.ram)
-                detailItem(label = "TARGET SDK", value = state.targetSdk)
-                detailItem(label = "ARQUITECTURA", value = state.architecture, isLast = true)
+                DetailItem(label = "FECHA DE CREACION", value = state.creationDate)
+                DetailItem(label = "HORA DE CREACION", value = state.creationHour)
+                DetailItem(label = "FECHA DE VENCIMIENTO", value = state.expiryDate)
+                DetailItem(label = "MODELO", value = state.model)
+                DetailItem(label = "RAM", value = state.ram)
+                DetailItem(label = "TARGET SDK", value = state.targetSdk)
+                DetailItem(label = "ARQUITECTURA", value = state.architecture, isLast = true)
             }
         }
     }
@@ -73,7 +73,7 @@ fun perfilDetallesSection(
  * @param isLast Indica si es el último elemento para ocultar el divisor.
  */
 @Composable
-fun detailItem(
+fun DetailItem(
     label: String,
     value: String = "---",
     isLast: Boolean = false,

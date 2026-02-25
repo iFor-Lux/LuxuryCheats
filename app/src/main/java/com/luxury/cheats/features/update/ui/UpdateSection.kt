@@ -42,8 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
-import com.luxury.cheats.features.download.ui.downloadArchivoBottomSheet
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.features.update.logic.UpdateAction
 import com.luxury.cheats.features.update.logic.UpdateViewModel
 import com.luxury.cheats.core.util.VersionUtils
@@ -55,7 +55,7 @@ private const val DATE_LENGTH = 10
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun downloadUpdateScreen(
+fun DownloadUpdateScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
 ) {
@@ -86,21 +86,21 @@ fun downloadUpdateScreen(
                 .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        downloadHeader(onBackClick)
+        DownloadHeader(onBackClick)
         Spacer(modifier = Modifier.height(20.dp))
-        downloadMainCard(
+        DownloadMainCard(
             uiState = uiState,
             onDownloadClick = {
                 viewModel.onAction(UpdateAction.DownloadClicked)
             },
         )
         Spacer(modifier = Modifier.height(32.dp))
-        downloadNewsSection(uiState.appUpdate?.description ?: "")
+        DownloadNewsSection(uiState.appUpdate?.description ?: "")
         Spacer(modifier = Modifier.height(32.dp))
     }
 
     if (uiState.showDownloadSheet) {
-        downloadArchivoBottomSheet(
+        DownloadArchivoBottomSheet(
             params =
                 com.luxury.cheats.features.download.logic.DownloadParams(
                     cheatName = "LuxuryUpdate.apk",
@@ -114,7 +114,7 @@ fun downloadUpdateScreen(
 }
 
 @Composable
-private fun downloadHeader(onBackClick: () -> Unit) {
+private fun DownloadHeader(onBackClick: () -> Unit) {
     Box(
         modifier =
             Modifier
@@ -142,7 +142,7 @@ private fun downloadHeader(onBackClick: () -> Unit) {
 }
 
 @Composable
-private fun downloadMainCard(
+private fun DownloadMainCard(
     uiState: com.luxury.cheats.features.update.logic.UpdateState,
     onDownloadClick: () -> Unit,
 ) {
@@ -170,17 +170,17 @@ private fun downloadMainCard(
             modifier = Modifier.fillMaxWidth().wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            downloadAppIcon()
+            DownloadAppIcon()
             Spacer(modifier = Modifier.height(24.dp))
-            downloadVersionInfo(uiState.appVersion, uiState.releaseDate)
+            DownloadVersionInfo(uiState.appVersion, uiState.releaseDate)
 
             if (hasUpdate) {
                 Spacer(modifier = Modifier.height(24.dp))
-                downloadDivider()
+                DownloadDivider()
                 Spacer(modifier = Modifier.height(24.dp))
-                downloadStatusInfo(uiState.appUpdate)
+                DownloadStatusInfo(uiState.appUpdate)
                 Spacer(modifier = Modifier.weight(1f))
-                downloadActionButton(onClick = onDownloadClick)
+                DownloadActionButton(onClick = onDownloadClick)
             } else {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
@@ -195,7 +195,7 @@ private fun downloadMainCard(
 }
 
 @Composable
-private fun downloadAppIcon() {
+private fun DownloadAppIcon() {
     Box(
         modifier =
             Modifier
@@ -214,7 +214,7 @@ private fun downloadAppIcon() {
 }
 
 @Composable
-private fun downloadVersionInfo(
+private fun DownloadVersionInfo(
     appVersion: String,
     releaseDate: String,
 ) {
@@ -235,7 +235,7 @@ private fun downloadVersionInfo(
 }
 
 @Composable
-private fun downloadDivider() {
+private fun DownloadDivider() {
     HorizontalDivider(
         modifier = Modifier.width(300.dp),
         thickness = 1.dp,
@@ -244,7 +244,7 @@ private fun downloadDivider() {
 }
 
 @Composable
-private fun downloadStatusInfo(update: com.luxury.cheats.features.update.logic.AppUpdate?) {
+private fun DownloadStatusInfo(update: com.luxury.cheats.features.update.logic.AppUpdate?) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
             imageVector = Icons.Default.Update,
@@ -282,7 +282,7 @@ private fun downloadStatusInfo(update: com.luxury.cheats.features.update.logic.A
 }
 
 @Composable
-private fun downloadActionButton(onClick: () -> Unit) {
+private fun DownloadActionButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier.size(width = 300.dp, height = 60.dp),
@@ -302,7 +302,7 @@ private fun downloadActionButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun downloadNewsSection(description: String) {
+private fun DownloadNewsSection(description: String) {
     if (description.isBlank()) return
 
     // Dividimos por saltos de línea para crear puntos de novedades
@@ -354,18 +354,18 @@ private fun downloadNewsSection(description: String) {
 /** Preview de la pantalla de descarga en tema oscuro. */
 @Preview(name = "Download Update Dark", showSystemUi = true)
 @Composable
-fun downloadUpdateScreenPreviewDark() {
-    luxuryCheatsTheme(darkTheme = true) {
-        downloadUpdateScreen()
+fun DownloadUpdateScreenPreviewDark() {
+    LuxuryCheatsTheme(darkTheme = true) {
+        DownloadUpdateScreen()
     }
 }
 
 /** Preview de la pantalla de descarga en tema claro. */
 @Preview(name = "Download Update Light", showSystemUi = true)
 @Composable
-fun downloadUpdateScreenPreviewLight() {
-    luxuryCheatsTheme(darkTheme = false) {
-        downloadUpdateScreen()
+fun DownloadUpdateScreenPreviewLight() {
+    LuxuryCheatsTheme(darkTheme = false) {
+        DownloadUpdateScreen()
     }
 }
 

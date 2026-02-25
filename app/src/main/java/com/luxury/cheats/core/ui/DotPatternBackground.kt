@@ -19,7 +19,7 @@ private const val SAFE_MAX_DOT_LIMIT = 500
  * Background estático de puntos (Dot Pattern)
  */
 @Composable
-fun dotPatternBackground(
+fun DotPatternBackground(
     modifier: Modifier = Modifier,
     // Mucho más denso para look ultra-premium
     dotSpacingX: Float = 40f,

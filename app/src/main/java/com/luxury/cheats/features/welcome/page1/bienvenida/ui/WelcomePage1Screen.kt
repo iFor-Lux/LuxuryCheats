@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.luxury.cheats.features.welcome.page1.bienvenida.logic.WelcomePage1Action
+import com.luxury.cheats.features.welcome.page1.bienvenida.logic.WelcomePage1State
 import com.luxury.cheats.features.welcome.page1.bienvenida.logic.WelcomePage1ViewModel
 
 private object WelcomeWeights {
@@ -30,7 +34,7 @@ private object WelcomeWeights {
  * - Usa el mismo WebView del logo (sin animación, más pequeño)
  */
 @Composable
-fun welcomePage1Screen(
+fun WelcomePage1Screen(
     modifier: Modifier = Modifier,
     viewModel: WelcomePage1ViewModel = viewModel(),
     onNavigateNext: () -> Unit = {},
@@ -51,8 +55,12 @@ fun welcomePage1Screen(
         logoViewModel.setLogoOffsetY(logoPresetOffsetY)
     }
 
-    welcomePage1Content(
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    WelcomePage1Content(
         modifier = modifier,
+        state = state,
+        handleAction = viewModel::handleAction,
         onNavigateNext = onNavigateNext,
         verticalPadding = verticalPadding,
         horizontalPadding = horizontalPadding,
@@ -60,14 +68,20 @@ fun welcomePage1Screen(
 }
 
 @Composable
-private fun welcomePage1Content(
+private fun WelcomePage1Content(
     modifier: Modifier = Modifier,
+    state: WelcomePage1State = WelcomePage1State(),
+    handleAction: (WelcomePage1Action) -> Unit = {},
     onNavigateNext: () -> Unit = {},
     verticalPadding: androidx.compose.ui.unit.Dp = 0.dp,
     horizontalPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        welcomePage1LanguageSection(
+        WelcomePage1LanguageSection(
+            isExpanded = state.isLanguageExpanded,
+            selectedLanguage = state.selectedLanguage,
+            onExpandedChange = { handleAction(WelcomePage1Action.ToggleLanguageMenu(it)) },
+            onLanguageSelected = { handleAction(WelcomePage1Action.SelectLanguage(it)) },
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
@@ -83,24 +97,24 @@ private fun welcomePage1Content(
         ) {
             // El logo persistente ahora se posiciona solo mediante logoPresetOffsetY
             // Dejamos un espacio base si es necesario, o lo quitamos para control total
-            welcomePage1LogoSection()
+            WelcomePage1LogoSection()
 
             // Espacio flexible entre Logo y Texto
             Spacer(modifier = Modifier.weight(WelcomeWeights.LOGO_SPACER_WEIGHT))
 
-            welcomePage1TextSection()
+            WelcomePage1TextSection()
 
             // Espacio flexible entre Texto y Botón
             Spacer(modifier = Modifier.weight(WelcomeWeights.TEXT_SPACER_WEIGHT))
 
-            welcomePage1ButtonSection(
+            WelcomePage1ButtonSection(
                 onNavigateNext = onNavigateNext,
             )
 
             // Espacio flexible entre Botón e Insignias
             Spacer(modifier = Modifier.weight(WelcomeWeights.BUTTON_SPACER_WEIGHT))
 
-            welcomePage1BadgesSection()
+            WelcomePage1BadgesSection()
 
             // Padding final
             Spacer(modifier = Modifier.height(32.dp))
@@ -111,9 +125,9 @@ private fun welcomePage1Content(
 /** Preview de la pantalla de bienvenida (Página 1). */
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun welcomePage1ScreenPreview() {
+fun WelcomePage1ScreenPreview() {
     MaterialTheme {
-        welcomePage1Content(
+        WelcomePage1Content(
             verticalPadding = 100.dp,
         )
     }

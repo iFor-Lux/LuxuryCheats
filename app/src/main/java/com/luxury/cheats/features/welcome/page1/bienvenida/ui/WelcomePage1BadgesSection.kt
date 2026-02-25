@@ -38,7 +38,7 @@ private val COLOR_PRIVATE = Color(0xFFFF1CBB)
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun welcomePage1BadgesSection(modifier: Modifier = Modifier) {
+fun WelcomePage1BadgesSection(modifier: Modifier = Modifier) {
     FlowRow(
         modifier =
             modifier
@@ -48,16 +48,16 @@ fun welcomePage1BadgesSection(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         maxItemsInEachRow = 3,
     ) {
-        badgeItem(text = "5 años de experiencia", color = COLOR_EXPERIENCE, width = BADGE_WIDTH_EXPERIENCE)
-        badgeItem(text = "100% Antiblacklist", color = COLOR_ANTIBLACKLIST, width = BADGE_WIDTH_ANTIBLACKLIST)
-        badgeItem(text = "100% Antiban", color = COLOR_ANTIBAN, width = BADGE_WIDTH_ANTIBAN)
-        badgeItem(text = "Android 9 -16", color = COLOR_ANDROID, width = BADGE_WIDTH_ANDROID)
-        badgeItem(text = "Privado", color = COLOR_PRIVATE, width = BADGE_WIDTH_PRIVATE)
+        BadgeItem(text = "5 años de experiencia", color = COLOR_EXPERIENCE, width = BADGE_WIDTH_EXPERIENCE)
+        BadgeItem(text = "100% Antiblacklist", color = COLOR_ANTIBLACKLIST, width = BADGE_WIDTH_ANTIBLACKLIST)
+        BadgeItem(text = "100% Antiban", color = COLOR_ANTIBAN, width = BADGE_WIDTH_ANTIBAN)
+        BadgeItem(text = "Android 9 -16", color = COLOR_ANDROID, width = BADGE_WIDTH_ANDROID)
+        BadgeItem(text = "Privado", color = COLOR_PRIVATE, width = BADGE_WIDTH_PRIVATE)
     }
 }
 
 @Composable
-private fun badgeItem(
+private fun BadgeItem(
     text: String,
     color: Color,
     width: androidx.compose.ui.unit.Dp,

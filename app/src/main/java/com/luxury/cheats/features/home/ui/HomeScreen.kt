@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.luxury.cheats.features.download.logic.DownloadParams
-import com.luxury.cheats.features.download.ui.downloadArchivoBottomSheet
+import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.features.home.logic.HomeAction
-import com.luxury.cheats.features.home.ui.seguridad.homeSeguridadSection
-import com.luxury.cheats.features.update.ui.updateAnuncioSection
-import com.luxury.cheats.features.widgets.infoMessageDialog
+import com.luxury.cheats.features.home.ui.seguridad.HomeSeguridadSection
+import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
+import com.luxury.cheats.features.widgets.InfoMessageDialog
 import com.luxury.cheats.navigations.Update
 
 /**
@@ -40,14 +40,14 @@ import com.luxury.cheats.navigations.Update
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun homeScreen(
+fun HomeScreen(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
-    homeScreenContent(
+    HomeScreenContent(
         uiState = uiState,
         onAction = onAction,
         navController = navController,
@@ -62,7 +62,7 @@ fun homeScreen(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun homeScreenContent(
+fun HomeScreenContent(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     navController: NavHostController,
@@ -89,11 +89,11 @@ fun homeScreenContent(
                     .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier),
         ) {
             SquarePatternBackground()
-            homeSectionsList(uiState, scrollState, onAction)
-            com.luxury.cheats.core.ui.fadingEdges()
+            HomeSectionsList(uiState, scrollState, onAction)
+            com.luxury.cheats.core.ui.FadingEdges()
         }
 
-        homeOverlays(
+        HomeOverlays(
             uiState = uiState,
             onAction = onAction,
             navController = navController,
@@ -104,13 +104,13 @@ fun homeScreenContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun homeOverlays(
+private fun HomeOverlays(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     navController: NavHostController,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
-    com.luxury.cheats.core.ui.appToast(
+    com.luxury.cheats.core.ui.AppToast(
         notifications = uiState.notifications,
         modifier =
             Modifier
@@ -121,7 +121,7 @@ private fun homeOverlays(
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { onAction(HomeAction.DismissUpdateAnuncio) },
         ) {
-            updateAnuncioSection(
+            UpdateAnuncioSection(
                 title = update.title,
                 description = update.description,
                 onUpdateClick = {
@@ -133,14 +133,14 @@ private fun homeOverlays(
     }
 
     uiState.currentInAppNotification?.let { notification ->
-        infoMessageDialog(
+        InfoMessageDialog(
             notification = notification,
             onDismissRequest = { onAction(HomeAction.DismissInAppNotification) },
         )
     }
 
     if (uiState.isDownloadArchivoVisible) {
-        downloadArchivoBottomSheet(
+        DownloadArchivoBottomSheet(
             params =
                 DownloadParams(
                     cheatName = uiState.downloadingFileName,
@@ -152,7 +152,7 @@ private fun homeOverlays(
 }
 
 @Composable
-private fun homeSectionsList(
+private fun HomeSectionsList(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     scrollState: androidx.compose.foundation.ScrollState,
     onAction: (HomeAction) -> Unit,
@@ -165,8 +165,8 @@ private fun homeSectionsList(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        homeImagenSection()
-        homeSaludoSection(
+        HomeImagenSection()
+        HomeSaludoSection(
             userName = uiState.userName,
             greeting = uiState.greeting,
             subtitle = uiState.greetingSubtitle,
@@ -174,7 +174,7 @@ private fun homeSectionsList(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        homeSeguridadSection(
+        HomeSeguridadSection(
             modifier = Modifier.size(200.dp),
             isActivated = uiState.isSeguridadUnlocked,
             onClick = { onAction(HomeAction.ToggleSeguridad) },
@@ -182,13 +182,13 @@ private fun homeSectionsList(
 
         // Botones y secciones que aparecen al activar seguridad
         if (uiState.isSeguridadUnlocked) {
-            homeUnlockedContent(uiState, onAction)
+            HomeUnlockedContent(uiState, onAction)
         }
 
         // Sección de Opciones (aparece al hacer click en Activar)
         if (uiState.isOpcionesVisible) {
             Spacer(modifier = Modifier.height(20.dp))
-            homeOpcionesSection(
+            HomeOpcionesSection(
                 uiState = uiState,
                 onAction = onAction,
             )
@@ -199,7 +199,7 @@ private fun homeSectionsList(
 }
 
 @Composable
-private fun homeUnlockedContent(
+private fun HomeUnlockedContent(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
 ) {
@@ -208,7 +208,7 @@ private fun homeUnlockedContent(
     Spacer(modifier = Modifier.height(20.dp))
 
     // Botón Ver Estado
-    homeEstadoSection(
+    HomeEstadoSection(
         onVerEstadoClick = { onAction(HomeAction.ToggleIdAndConsole) },
     )
 
@@ -216,7 +216,7 @@ private fun homeUnlockedContent(
     if (uiState.isIdAndConsoleVisible) {
         Spacer(modifier = Modifier.height(20.dp))
 
-        homeIdSection(
+        HomeIdSection(
             idValue = uiState.idValue,
             onIdValueChange = { onAction(HomeAction.OnIdValueChange(it)) },
             onSearchClick = { onAction(HomeAction.ExecuteSearch) },
@@ -225,7 +225,7 @@ private fun homeUnlockedContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        homeConsoleSection(
+        HomeConsoleSection(
             consoleText = uiState.consoleOutput,
             isExpanded = uiState.isConsoleExpanded,
             onExpandClick = { onAction(HomeAction.ToggleConsoleExpansion) },
@@ -235,7 +235,7 @@ private fun homeUnlockedContent(
     Spacer(modifier = Modifier.height(15.dp))
 
     // Botón Activar
-    homeButtonActivarSection(
+    HomeButtonActivarSection(
         onActivarClick = { onAction(HomeAction.ToggleOpciones) },
     )
 }
@@ -245,9 +245,9 @@ private fun homeUnlockedContent(
  */
 @Preview(showSystemUi = true)
 @Composable
-fun homeScreenPreview() {
+fun HomeScreenPreview() {
     MaterialTheme {
-        homeScreenContent(
+        HomeScreenContent(
             uiState =
                 com.luxury.cheats.features.home.logic.HomeState(
                     userName = "Lux User",

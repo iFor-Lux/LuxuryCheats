@@ -21,7 +21,7 @@ import com.luxury.cheats.core.ui.LogoViewModel
  * - Observa el ViewModel compartido para notificar cuando está listo.
  */
 @Composable
-fun welcomeLogoSection(
+fun WelcomeLogoSection(
     modifier: Modifier = Modifier,
     onReady: (() -> Unit)? = null,
 ) {

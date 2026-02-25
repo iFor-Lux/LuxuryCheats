@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.login.pantalla.logic.LoginCredentials
 import com.luxury.cheats.features.login.pantalla.logic.LoginDisplayOptions
 import com.luxury.cheats.features.login.pantalla.logic.LoginInteractionState
@@ -47,7 +47,7 @@ import com.luxury.cheats.features.login.pantalla.logic.LoginPantallaViewModel
  * Pantalla principal de inicio de sesión.
  */
 @Composable
-fun loginPantallaScreen(
+fun LoginPantallaScreen(
     onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier,
     onUpdateBackgroundVisibility: (Boolean) -> Unit = {},
@@ -78,7 +78,7 @@ fun loginPantallaScreen(
         onUpdateBackgroundVisibility(isVisible)
     }
 
-    loginScreenContent(
+    LoginScreenContent(
         state = state,
         onAction = viewModel::onAction,
         onLoginSuccess = onLoginSuccess,
@@ -88,7 +88,7 @@ fun loginPantallaScreen(
 }
 
 @Composable
-private fun loginScreenContent(
+private fun LoginScreenContent(
     state: LoginPantallaState,
     onAction: (LoginPantallaAction) -> Unit,
     onLoginSuccess: () -> Unit,
@@ -110,9 +110,9 @@ private fun loginScreenContent(
     ) {
         // Fondo local eliminado para usar el global y evitar parpadeos
 
-        loginMainCard(state, onAction, onLoginSuccess)
+        LoginMainCard(state, onAction, onLoginSuccess)
 
-        com.luxury.cheats.features.login.teclado.ui.loginTecladoSection(
+        com.luxury.cheats.features.login.teclado.ui.LoginTecladoSection(
             type = state.tecladoType,
             isUpperCase = state.isUpperCase,
             actions =
@@ -125,7 +125,7 @@ private fun loginScreenContent(
             modifier = Modifier.align(Alignment.BottomCenter),
         )
 
-        loginPantallaMessageSection(
+        LoginPantallaMessageSection(
             notifications = state.notifications,
             modifier =
                 Modifier
@@ -137,7 +137,7 @@ private fun loginScreenContent(
 }
 
 @Composable
-private fun loginMainCard(
+private fun LoginMainCard(
     state: LoginPantallaState,
     onAction: (LoginPantallaAction) -> Unit,
     onLoginSuccess: () -> Unit,
@@ -173,12 +173,12 @@ private fun loginMainCard(
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(46.dp)),
         )
 
-        loginCardContent(state, cardAlpha, contentOffset, onAction)
+        LoginCardContent(state, cardAlpha, contentOffset, onAction)
     }
 }
 
 @Composable
-private fun loginCardContent(
+private fun LoginCardContent(
     state: LoginPantallaState,
     cardAlpha: Float,
     contentOffset: androidx.compose.ui.unit.Dp,
@@ -192,10 +192,10 @@ private fun loginCardContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(8.dp))
-        loginPantallaTextSection(modifier = Modifier.alpha(cardAlpha))
+        LoginPantallaTextSection(modifier = Modifier.alpha(cardAlpha))
         Spacer(modifier = Modifier.height(12.dp))
 
-        loginPantallaUserPasswordSection(
+        LoginPantallaUserPasswordSection(
             credentials =
                 LoginCredentials(
                     username = state.username,
@@ -222,7 +222,7 @@ private fun loginCardContent(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        loginPantallaButtonSection(
+        LoginPantallaButtonSection(
             onLoginClick = {
                 if (state.interactionState != LoginInteractionState.EXPANDED) {
                     onAction(LoginPantallaAction.OnLoginClick)
@@ -238,10 +238,10 @@ private fun loginCardContent(
  */
 @Preview(name = "Login Light")
 @Composable
-fun loginPantallaScreenPreviewLight() {
-    luxuryCheatsTheme(darkTheme = false) {
+fun LoginPantallaScreenPreviewLight() {
+    LuxuryCheatsTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            loginPantallaScreen(onLoginSuccess = {})
+            LoginPantallaScreen(onLoginSuccess = {})
         }
     }
 }
@@ -251,10 +251,10 @@ fun loginPantallaScreenPreviewLight() {
  */
 @Preview(name = "Login Dark")
 @Composable
-fun loginPantallaScreenPreviewDark() {
-    luxuryCheatsTheme(darkTheme = true) {
+fun LoginPantallaScreenPreviewDark() {
+    LuxuryCheatsTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            loginPantallaScreen(onLoginSuccess = {})
+            LoginPantallaScreen(onLoginSuccess = {})
         }
     }
 }

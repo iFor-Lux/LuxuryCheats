@@ -26,7 +26,7 @@ private const val STROKE_COLOR_LIGHT = 0x60911AA9 // Morado Luxury pero con tran
  * Sección de Eclipse decorativo
  */
 @Composable
-fun welcomeEclipseSection(modifier: Modifier = Modifier) {
+fun WelcomeEclipseSection(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val isDark = isSystemInDarkTheme()
     val (fillColor, strokeColor) = getEclipseColors(isDark)

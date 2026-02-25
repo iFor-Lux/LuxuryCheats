@@ -28,7 +28,7 @@ private object FadingConstants {
  * Simula el efecto de "Fading Edges" de apps premium como ChatGPT o iOS.
  */
 @Composable
-fun fadingEdges(
+fun FadingEdges(
     modifier: Modifier = Modifier,
     topHeight: Dp = 100.dp,
     bottomHeight: Dp = 120.dp,

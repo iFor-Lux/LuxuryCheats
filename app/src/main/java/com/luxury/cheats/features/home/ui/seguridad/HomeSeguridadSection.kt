@@ -15,10 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.luxury.cheats.features.home.ui.seguridad.activado.logic.homeSeguridadInnerMorphing
-import com.luxury.cheats.features.home.ui.seguridad.cambios.homeSeguridadOuter
+import com.luxury.cheats.features.home.ui.seguridad.activado.logic.HomeSeguridadInnerMorphing
+import com.luxury.cheats.features.home.ui.seguridad.cambios.HomeSeguridadOuter
 import com.luxury.cheats.features.home.ui.seguridad.desactivado.logic.HomeSeguridadLogic
-import com.luxury.cheats.features.home.ui.seguridad.desactivado.ui.homeSeguridadInner as desactivadoInner
+import com.luxury.cheats.features.home.ui.seguridad.desactivado.ui.HomeSeguridadInner
 
 /**
  * Orquestador de Seguridad con Shape Morphing.
@@ -26,7 +26,7 @@ import com.luxury.cheats.features.home.ui.seguridad.desactivado.ui.homeSeguridad
  * - Inner: usa forma fija cuando desactivado, cicla entre formas cuando activado
  */
 @Composable
-fun homeSeguridadSection(
+fun HomeSeguridadSection(
     modifier: Modifier = Modifier,
     isActivated: Boolean = false,
     onClick: () -> Unit = {},
@@ -39,7 +39,7 @@ fun homeSeguridadSection(
         modifier = modifier.size(containerSize),
         contentAlignment = Alignment.Center,
     ) {
-        homeSeguridadOuter(
+        HomeSeguridadOuter(
             size = containerSize,
             isActivated = isActivated,
             interactionSource = interactionSource,
@@ -54,13 +54,13 @@ fun homeSeguridadSection(
             ) {
                 if (isActivated) {
                     // Activado: Inner con morphing entre formas
-                    homeSeguridadInnerMorphing(
+                    HomeSeguridadInnerMorphing(
                         modifier = Modifier.fillMaxSize(),
                         rotation = rotation,
                     )
                 } else {
                     // Desactivado: Inner con forma fija
-                    desactivadoInner(
+                    HomeSeguridadInner(
                         modifier = Modifier.fillMaxSize(),
                         rotation = rotation,
                     )
@@ -75,7 +75,7 @@ fun homeSeguridadSection(
  */
 @Preview(showBackground = true, backgroundColor = 0xFFF5F5F7)
 @Composable
-fun homeSeguridadSectionPreview() {
+fun HomeSeguridadSectionPreview() {
     var isActivated by remember { mutableStateOf(false) }
 
     MaterialTheme {
@@ -86,7 +86,7 @@ fun homeSeguridadSectionPreview() {
                     .padding(20.dp),
             contentAlignment = Alignment.Center,
         ) {
-            homeSeguridadSection(
+            HomeSeguridadSection(
                 isActivated = isActivated,
                 onClick = { isActivated = !isActivated },
             )

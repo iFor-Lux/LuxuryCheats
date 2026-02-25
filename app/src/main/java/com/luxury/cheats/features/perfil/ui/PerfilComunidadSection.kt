@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 
 /**
@@ -28,12 +28,12 @@ import com.luxury.cheats.core.theme.luxuryCheatsTheme
  * Contiene el título "Comunidad" y un Box contenedor con una descripción y banner de acción.
  */
 @Composable
-fun perfilComunidadSection(modifier: Modifier = Modifier) {
+fun PerfilComunidadSection(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
     ) {
-        comunidadHeader()
+        ComunidadHeader()
         Box(
             modifier =
                 Modifier
@@ -45,16 +45,16 @@ fun perfilComunidadSection(modifier: Modifier = Modifier) {
             contentAlignment = Alignment.TopCenter,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                comunidadDescription()
+                ComunidadDescription()
                 Spacer(modifier = Modifier.height(20.dp))
-                comunidadBanner()
+                ComunidadBanner()
             }
         }
     }
 }
 
 @Composable
-private fun comunidadHeader() {
+private fun ComunidadHeader() {
     Text(
         text = "Comunidad",
         color = MaterialTheme.colorScheme.primary,
@@ -65,7 +65,7 @@ private fun comunidadHeader() {
 }
 
 @Composable
-private fun comunidadDescription() {
+private fun ComunidadDescription() {
     Text(
         text =
             "Un agradecimiento especial a los increibles mienbros de nuestra comunidad " +
@@ -80,7 +80,7 @@ private fun comunidadDescription() {
 }
 
 @Composable
-private fun comunidadBanner() {
+private fun ComunidadBanner() {
     Box(
         modifier =
             Modifier
@@ -113,10 +113,10 @@ private fun comunidadBanner() {
 /** Preview de la sección de comunidad en tema claro. */
 @Preview(name = "Comunidad Light")
 @Composable
-fun perfilComunidadPreviewLight() {
-    luxuryCheatsTheme(darkTheme = false) {
+fun PerfilComunidadPreviewLight() {
+    LuxuryCheatsTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            perfilComunidadSection()
+            PerfilComunidadSection()
         }
     }
 }
@@ -124,10 +124,10 @@ fun perfilComunidadPreviewLight() {
 /** Preview de la sección de comunidad en tema oscuro. */
 @Preview(name = "Comunidad Dark")
 @Composable
-fun perfilComunidadPreviewDark() {
-    luxuryCheatsTheme(darkTheme = true) {
+fun PerfilComunidadPreviewDark() {
+    LuxuryCheatsTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            perfilComunidadSection()
+            PerfilComunidadSection()
         }
     }
 }

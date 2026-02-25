@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.perfil.logic.PerfilAction
 import com.luxury.cheats.features.perfil.logic.PerfilState
 import com.luxury.cheats.features.perfil.logic.PerfilViewModel
@@ -32,7 +32,7 @@ import com.luxury.cheats.features.perfil.logic.PerfilViewModel
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun perfilScreen(
+fun PerfilScreen(
     modifier: Modifier = Modifier,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
@@ -80,7 +80,7 @@ fun perfilScreen(
                 ),
         ) {
             SquarePatternBackground()
-            perfilContent(
+            PerfilContent(
                 uiState = uiState,
                 modifier = Modifier,
                 onAction = { action ->
@@ -91,13 +91,13 @@ fun perfilScreen(
                     }
                 },
             )
-            com.luxury.cheats.core.ui.fadingEdges()
+            com.luxury.cheats.core.ui.FadingEdges()
         }
     }
 }
 
 @Composable
-private fun perfilContent(
+private fun PerfilContent(
     uiState: PerfilState,
     onAction: (com.luxury.cheats.features.perfil.logic.PerfilAction) -> Unit,
     modifier: Modifier = Modifier,
@@ -114,7 +114,7 @@ private fun perfilContent(
         item { Spacer(modifier = Modifier.statusBarsPadding()) }
 
         item {
-            perfilInfoSection(
+            PerfilInfoSection(
                 data =
                     ProfileInfoData(
                         userName = uiState.username,
@@ -130,19 +130,19 @@ private fun perfilContent(
             )
         }
 
-        item { perfilDetallesSection(state = uiState) }
-        item { perfilCreditosSection() }
-        item { perfilComunidadSection() }
+        item { PerfilDetallesSection(state = uiState) }
+        item { PerfilCreditosSection() }
+        item { PerfilComunidadSection() }
     }
 }
 
 /** Preview de la pantalla de Perfil en tema claro. */
 @Preview(name = "Perfil Light")
 @Composable
-fun perfilScreenPreviewLight() {
-    luxuryCheatsTheme(darkTheme = false) {
+fun PerfilScreenPreviewLight() {
+    LuxuryCheatsTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            perfilScreen()
+            PerfilScreen()
         }
     }
 }
@@ -150,10 +150,10 @@ fun perfilScreenPreviewLight() {
 /** Preview de la pantalla de Perfil en tema oscuro. */
 @Preview(name = "Perfil Dark")
 @Composable
-fun perfilScreenPreviewDark() {
-    luxuryCheatsTheme(darkTheme = true) {
+fun PerfilScreenPreviewDark() {
+    LuxuryCheatsTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            perfilScreen()
+            PerfilScreen()
         }
     }
 }

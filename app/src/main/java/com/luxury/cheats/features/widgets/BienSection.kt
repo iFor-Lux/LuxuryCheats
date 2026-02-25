@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
 private const val AURA_INNER_ALPHA = 0.45f
 private const val AURA_OUTER_ALPHA = 0.15f
@@ -55,7 +55,7 @@ private const val SUCCESS_GREEN_COLOR = 0xFF4CAF50
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun bienBottomSheet(
+fun BienBottomSheet(
     onDismissRequest: () -> Unit,
     onContinueClick: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(),
@@ -85,7 +85,7 @@ fun bienBottomSheet(
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
-        bienContent(
+        BienContent(
             onContinueClick = {
                 onContinueClick()
                 onDismissRequest()
@@ -100,7 +100,7 @@ fun bienBottomSheet(
  * @param modifier Modificador de layout.
  */
 @Composable
-fun bienContent(
+fun BienContent(
     onContinueClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -112,16 +112,16 @@ fun bienContent(
                 .padding(bottom = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        successAuraIcon()
+        SuccessAuraIcon()
         Spacer(modifier = Modifier.height(24.dp))
-        successTextSection()
+        SuccessTextSection()
         Spacer(modifier = Modifier.height(32.dp))
-        successActionButton(onContinueClick)
+        SuccessActionButton(onContinueClick)
     }
 }
 
 @Composable
-private fun successAuraIcon() {
+private fun SuccessAuraIcon() {
     Box(
         modifier = Modifier.size(200.dp),
         contentAlignment = Alignment.Center,
@@ -153,7 +153,7 @@ private fun successAuraIcon() {
 }
 
 @Composable
-private fun successTextSection() {
+private fun SuccessTextSection() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "Correcto",
@@ -174,7 +174,7 @@ private fun successTextSection() {
 }
 
 @Composable
-private fun successActionButton(onContinueClick: () -> Unit) {
+private fun SuccessActionButton(onContinueClick: () -> Unit) {
     Button(
         onClick = onContinueClick,
         modifier =
@@ -202,10 +202,10 @@ private fun successActionButton(onContinueClick: () -> Unit) {
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun bienContentPreview() {
-    luxuryCheatsTheme {
+fun BienContentPreview() {
+    LuxuryCheatsTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            bienContent(onContinueClick = {})
+            BienContent(onContinueClick = {})
         }
     }
 }

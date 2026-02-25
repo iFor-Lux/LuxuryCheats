@@ -46,7 +46,7 @@ private val LOGO_CANVAS_SCRIPT_TEMPLATE =
  * - Gestiona el logo WebView que persiste entre pantallas (Splash -> Page 1 -> Page 2).
  */
 @Composable
-fun persistentLogo(
+fun PersistentLogo(
     navDestination: NavDestination?,
     isLogoReady: Boolean,
     // [NEW] Recibimos el WebView explícitamente
@@ -86,7 +86,7 @@ fun persistentLogo(
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        val animatedOffsetY = calculateLogoOffset(navDestination, LOGO_BASE_SIZE_DP, customLogoOffsetY)
+        val animatedOffsetY = CalculateLogoOffset(navDestination, LOGO_BASE_SIZE_DP, customLogoOffsetY)
 
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -96,14 +96,14 @@ fun persistentLogo(
                         .align(Alignment.TopCenter)
                         .offset(x = HORIZONTAL_CENTER_OFFSET_DP, y = animatedOffsetY),
             ) {
-                logoWebView(logoAlpha, finalScale, webView)
+                LogoWebView(logoAlpha, finalScale, webView)
             }
         }
     }
 }
 
 @Composable
-private fun calculateLogoOffset(
+private fun CalculateLogoOffset(
     navDestination: NavDestination?,
     logoBaseSize: Dp,
     customLogoOffsetY: Dp,
@@ -138,7 +138,7 @@ private fun calculateLogoOffset(
 }
 
 @Composable
-private fun logoWebView(
+private fun LogoWebView(
     alpha: Float,
     scale: Float,
     webView: android.webkit.WebView,

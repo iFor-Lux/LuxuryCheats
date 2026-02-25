@@ -48,7 +48,7 @@ private object ButtonConstants {
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun welcomePage1ButtonSection(
+fun WelcomePage1ButtonSection(
     onNavigateNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {

@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.core.ui.welcomeNavBarSection
+import com.luxury.cheats.core.ui.WelcomeNavBarSection
 import com.luxury.cheats.features.welcome.page3.shizuku.logic.WelcomePage3ViewModel
 
 /**
@@ -30,7 +30,7 @@ import com.luxury.cheats.features.welcome.page3.shizuku.logic.WelcomePage3ViewMo
  * @param viewModel ViewModel encargado de la lógica de Shizuku.
  */
 @Composable
-fun welcomePage3Screen(
+fun WelcomePage3Screen(
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit,
     viewModel: WelcomePage3ViewModel = viewModel(),
@@ -61,19 +61,19 @@ fun welcomePage3Screen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(100.dp))
-            welcomePage3TextSection()
+            WelcomePage3TextSection()
 
             Spacer(modifier = Modifier.height(24.dp))
-            welcomePage3Imagen()
+            WelcomePage3Imagen()
 
             Spacer(modifier = Modifier.height(30.dp)) // Reducido para mejor ajuste
-            welcomePage3Mensaje()
+            WelcomePage3Mensaje()
 
             // Espacio extra al final para que el contenido no quede debajo de la Nav Bar
             Spacer(modifier = Modifier.height(140.dp))
         }
 
-        welcomeNavBarSection(
+        WelcomeNavBarSection(
             currentPage = "3/4",
             onBack = onNavigateBack,
             onNext = onNavigateNext,

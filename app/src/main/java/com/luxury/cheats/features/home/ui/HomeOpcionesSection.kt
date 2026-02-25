@@ -68,7 +68,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.luxuryCheatsTheme
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.home.logic.HomeAction
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -109,7 +109,7 @@ data class CheatOption(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun homeOpcionesSection(
+fun HomeOpcionesSection(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier,
@@ -139,7 +139,7 @@ fun homeOpcionesSection(
                 .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        homeOptionsCarousel(
+        HomeOptionsCarousel(
             options = options,
             uiState = uiState,
             config =
@@ -154,7 +154,7 @@ fun homeOpcionesSection(
         Spacer(modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-            wideOptionCard(
+            WideOptionCard(
                 title = "PANEL DE CONTROL",
                 description = "Ajustes avanzados y configuración",
             )
@@ -164,7 +164,7 @@ fun homeOpcionesSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun homeOptionsCarousel(
+private fun HomeOptionsCarousel(
     options: List<CheatOption>,
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     config: CarouselConfig,
@@ -189,7 +189,7 @@ private fun homeOptionsCarousel(
     ) { index ->
         val option = options[index]
 
-        optionCard(
+        OptionCard(
             option = option,
             checked = uiState.cheatOptions[option.title] ?: option.initialValue,
             screenCenterX = config.screenCenterX,
@@ -218,7 +218,7 @@ private data class CarouselConfig(
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun optionCard(
+fun OptionCard(
     option: CheatOption,
     checked: Boolean,
     screenCenterX: Float,
@@ -254,13 +254,13 @@ fun optionCard(
                     itemCenterX = position.x + coordinates.size.width / 2f
                 },
     ) {
-        topographicBackground(
+        TopographicBackground(
             modifier = Modifier.fillMaxSize(),
             lineColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
             lineCount = 7,
         )
 
-        optionCardLayout(
+        OptionCardLayout(
             isCollapsed = isCollapsed,
             option = option,
             checked = checked,
@@ -274,7 +274,7 @@ fun optionCard(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun optionCardLayout(
+private fun OptionCardLayout(
     isCollapsed: Boolean,
     option: CheatOption,
     checked: Boolean,
@@ -293,9 +293,9 @@ private fun optionCardLayout(
             label = "layout_change",
         ) { collapsed ->
             if (collapsed) {
-                optionCardCollapsed(option.title, alpha)
+                OptionCardCollapsed(option.title, alpha)
             } else {
-                optionCardHero(
+                OptionCardHero(
                     option = option,
                     checked = checked,
                     alpha = alpha,
@@ -307,7 +307,7 @@ private fun optionCardLayout(
 }
 
 @Composable
-private fun optionCardCollapsed(
+private fun OptionCardCollapsed(
     title: String,
     alpha: Float,
 ) {
@@ -331,7 +331,7 @@ private fun optionCardCollapsed(
 }
 
 @Composable
-private fun optionCardHero(
+private fun OptionCardHero(
     option: CheatOption,
     checked: Boolean,
     alpha: Float,
@@ -344,14 +344,14 @@ private fun optionCardHero(
                 .padding(8.dp)
                 .graphicsLayer { this.alpha = alpha },
     ) {
-        optionCardHeader(option, checked, onCheckedChange)
+        OptionCardHeader(option, checked, onCheckedChange)
         Spacer(modifier = Modifier.weight(1f))
-        optionCardFooter(option.title, option.description)
+        OptionCardFooter(option.title, option.description)
     }
 }
 
 @Composable
-private fun optionCardHeader(
+private fun OptionCardHeader(
     option: CheatOption,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -381,7 +381,7 @@ private fun optionCardHeader(
 }
 
 @Composable
-private fun optionCardFooter(
+private fun OptionCardFooter(
     title: String,
     description: String,
 ) {
@@ -410,7 +410,7 @@ private fun optionCardFooter(
  * @param description Descripción detallada de la opción.
  */
 @Composable
-fun wideOptionCard(
+fun WideOptionCard(
     title: String,
     description: String,
     modifier: Modifier = Modifier,
@@ -462,7 +462,7 @@ fun wideOptionCard(
  * Dibuja líneas onduladas que imitan un mapa de relieve.
  */
 @Composable
-fun topographicBackground(
+fun TopographicBackground(
     modifier: Modifier = Modifier,
     lineColor: Color = Color.White.copy(alpha = 0.15f),
     lineCount: Int = 9,
@@ -516,8 +516,8 @@ fun topographicBackground(
  */
 @Preview(showBackground = true)
 @Composable
-fun homeOpcionesSectionPreview() {
-    luxuryCheatsTheme {
-        homeOpcionesSection(uiState = com.luxury.cheats.features.home.logic.HomeState(), onAction = {})
+fun HomeOpcionesSectionPreview() {
+    LuxuryCheatsTheme {
+        HomeOpcionesSection(uiState = com.luxury.cheats.features.home.logic.HomeState(), onAction = {})
     }
 }

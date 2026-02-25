@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
  * - W: 341, H: 215 (o expansible), BG: 202020, Corner: 30
  */
 @Composable
-fun homeConsoleSection(
+fun HomeConsoleSection(
     modifier: Modifier = Modifier,
     consoleText: String = "",
     isExpanded: Boolean = false,
@@ -65,16 +65,16 @@ fun homeConsoleSection(
         }
 
         Column(modifier = Modifier.fillMaxSize()) {
-            consoleHeader()
+            ConsoleHeader()
             HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
-            consoleContent(
+            ConsoleContent(
                 text = consoleText,
                 scrollState = scrollState,
                 modifier = Modifier.weight(1f),
             )
         }
 
-        expandButton(
+        ExpandButton(
             isExpanded = isExpanded,
             onExpandClick = onExpandClick,
             modifier = Modifier.align(Alignment.BottomEnd),
@@ -83,7 +83,7 @@ fun homeConsoleSection(
 }
 
 @Composable
-private fun expandButton(
+private fun ExpandButton(
     isExpanded: Boolean,
     onExpandClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -111,7 +111,7 @@ private fun expandButton(
  * Cabecera de la sección de consola.
  */
 @Composable
-private fun consoleHeader() {
+private fun ConsoleHeader() {
     Box(
         modifier =
             Modifier
@@ -134,7 +134,7 @@ private fun consoleHeader() {
  * @param modifier Modificador de Compose.
  */
 @Composable
-private fun consoleContent(
+private fun ConsoleContent(
     text: String,
     scrollState: androidx.compose.foundation.ScrollState,
     modifier: Modifier = Modifier,

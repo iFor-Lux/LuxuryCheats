@@ -51,7 +51,7 @@ import com.luxury.cheats.features.perfil.logic.PerfilAction
  * @param onAction Callback para eventos de usuario.
  */
 @Composable
-fun perfilInfoSection(
+fun PerfilInfoSection(
     modifier: Modifier = Modifier,
     data: ProfileInfoData = ProfileInfoData(),
     onAction: (PerfilAction) -> Unit = {},
@@ -67,16 +67,16 @@ fun perfilInfoSection(
         contentAlignment = Alignment.TopCenter,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            infoHeaderSection(
+            InfoHeaderSection(
                 isVip = data.isVip,
                 profileImageUri = data.profileImageUri,
                 bannerImageUri = data.bannerImageUri,
                 onAction = onAction,
             )
             Spacer(modifier = Modifier.height(12.dp))
-            infoUserDetails(data.userName, data.userId)
+            InfoUserDetails(data.userName, data.userId)
             Spacer(modifier = Modifier.height(20.dp))
-            infoStatusButtons(
+            InfoStatusButtons(
                 remainingDays = data.remainingDays,
                 androidVersion = data.androidVersion,
                 appVersion = data.appVersion,
@@ -100,7 +100,7 @@ data class ProfileInfoData(
 )
 
 @Composable
-private fun infoHeaderSection(
+private fun InfoHeaderSection(
     isVip: Boolean,
     profileImageUri: String?,
     bannerImageUri: String?,
@@ -121,12 +121,12 @@ private fun infoHeaderSection(
                     .fillMaxSize()
                     .layerBackdrop(backdrop),
         ) {
-            infoBanner(
+            InfoBanner(
                 uri = bannerImageUri,
                 modifier = Modifier.align(Alignment.TopCenter),
                 onClick = { onAction(PerfilAction.BannerImageClicked) },
             )
-            infoAvatar(
+            InfoAvatar(
                 uri = profileImageUri,
                 modifier = Modifier.align(Alignment.BottomStart),
                 onClick = { onAction(PerfilAction.ProfileImageClicked) },
@@ -134,7 +134,7 @@ private fun infoHeaderSection(
         }
 
         if (isVip) {
-            infoVipTag(
+            InfoVipTag(
                 backdrop = backdrop,
                 modifier = Modifier.align(Alignment.BottomEnd),
             )
@@ -143,7 +143,7 @@ private fun infoHeaderSection(
 }
 
 @Composable
-private fun infoBanner(
+private fun InfoBanner(
     uri: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
@@ -170,7 +170,7 @@ private fun infoBanner(
 }
 
 @Composable
-private fun infoAvatar(
+private fun InfoAvatar(
     uri: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
@@ -199,7 +199,7 @@ private fun infoAvatar(
 }
 
 @Composable
-private fun infoVipTag(
+private fun InfoVipTag(
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier,
 ) {
@@ -249,7 +249,7 @@ private fun infoVipTag(
 }
 
 @Composable
-private fun infoUserDetails(
+private fun InfoUserDetails(
     userName: String,
     userId: String,
 ) {
@@ -276,7 +276,7 @@ private fun infoUserDetails(
 }
 
 @Composable
-private fun infoStatusButtons(
+private fun InfoStatusButtons(
     remainingDays: String,
     androidVersion: String,
     appVersion: String,
@@ -289,17 +289,17 @@ private fun infoStatusButtons(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        statusButton(
+        StatusButton(
             text = remainingDays.uppercase(),
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 5.dp, bottomEnd = 5.dp),
         )
-        statusButton(
+        StatusButton(
             text = "ANDROID $androidVersion",
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(5.dp),
         )
-        statusButton(
+        StatusButton(
             text = appVersion,
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp, topStart = 5.dp, bottomStart = 5.dp),
@@ -315,7 +315,7 @@ private fun infoStatusButtons(
  * @param shape Forma geométrica del botón.
  */
 @Composable
-fun statusButton(
+fun StatusButton(
     text: String,
     modifier: Modifier = Modifier,
     shape: androidx.compose.ui.graphics.Shape,

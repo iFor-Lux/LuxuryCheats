@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.sp
  * Sección de texto descriptivo para la página de permisos.
  */
 @Composable
-fun welcomePage2TextSection() {
+fun WelcomePage2TextSection() {
     val titleColor = MaterialTheme.colorScheme.onSurface
     val descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant
 

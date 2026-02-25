@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.core.ui.appToast
-import com.luxury.cheats.core.ui.welcomeNavBarSection
+import com.luxury.cheats.core.ui.AppToast
+import com.luxury.cheats.core.ui.WelcomeNavBarSection
 import com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2Action
 import com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2ViewModel
 
@@ -33,13 +33,13 @@ import com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2ViewM
  * @param viewModel ViewModel encargado de la lógica de permisos.
  */
 @Composable
-fun welcomePage2Screen(
+fun WelcomePage2Screen(
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit,
     viewModel: WelcomePage2ViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    permissionLifecycleObserver(viewModel)
+    PermissionLifecycleObserver(viewModel)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -51,24 +51,24 @@ fun welcomePage2Screen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(100.dp)) // Reducido un poco para dar aire
-            welcomePage2TextSection()
+            WelcomePage2TextSection()
 
             Spacer(modifier = Modifier.height(20.dp))
-            welcomePage2NoticeSection()
+            WelcomePage2NoticeSection()
 
             Spacer(modifier = Modifier.height(24.dp))
-            permissionsList(uiState, viewModel)
+            PermissionsList(uiState, viewModel)
 
             // Espacio extra al final para que el contenido no quede debajo de la Nav Bar en pantallas pequeñas
             Spacer(modifier = Modifier.height(140.dp))
         }
 
-        appToast(
+        AppToast(
             notifications = uiState.notifications,
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 24.dp),
         )
 
-        welcomeNavBarSection(
+        WelcomeNavBarSection(
             currentPage = "2/4",
             onBack = onNavigateBack,
             onNext = {
@@ -89,7 +89,7 @@ fun welcomePage2Screen(
 }
 
 @Composable
-private fun permissionLifecycleObserver(viewModel: WelcomePage2ViewModel) {
+private fun PermissionLifecycleObserver(viewModel: WelcomePage2ViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer =
@@ -106,33 +106,33 @@ private fun permissionLifecycleObserver(viewModel: WelcomePage2ViewModel) {
 }
 
 @Composable
-private fun permissionsList(
+private fun PermissionsList(
     uiState: com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2State,
     viewModel: WelcomePage2ViewModel,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        welcomePage2Permission1Section(
+        WelcomePage2Permission1Section(
             isGranted = uiState.isStorageGranted,
             isDenied = uiState.isStorageDenied,
             onClick = { viewModel.handleAction(WelcomePage2Action.StorageClicked) },
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        welcomePage2Permission2Section(
+        WelcomePage2Permission2Section(
             isGranted = uiState.isNotificationsGranted,
             isDenied = uiState.isNotificationsDenied,
             onClick = { viewModel.handleAction(WelcomePage2Action.NotificationsClicked) },
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        welcomePage2Permission3Section(
+        WelcomePage2Permission3Section(
             isGranted = uiState.isOverlayGranted,
             isDenied = uiState.isOverlayDenied,
             onClick = { viewModel.handleAction(WelcomePage2Action.OverlayClicked) },
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        welcomePage2Permission4Section(
+        WelcomePage2Permission4Section(
             isGranted = uiState.isAdminGranted,
             isDenied = uiState.isAdminDenied,
             onClick = { viewModel.handleAction(WelcomePage2Action.AdminClicked) },

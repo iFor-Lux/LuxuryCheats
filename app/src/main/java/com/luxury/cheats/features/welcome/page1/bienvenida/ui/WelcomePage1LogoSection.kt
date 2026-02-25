@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun welcomePage1LogoSection(modifier: Modifier = Modifier) {
+fun WelcomePage1LogoSection(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.TopCenter,

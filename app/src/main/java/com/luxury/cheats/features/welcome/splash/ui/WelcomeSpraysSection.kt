@@ -27,7 +27,7 @@ import com.luxury.cheats.features.welcome.splash.logic.sprays.WelcomeSpraysAnima
  * - Lógica de animaciones separada en WelcomeSpraysAnimations
  */
 @Composable
-fun welcomeSpraysSection(modifier: Modifier = Modifier) {
+fun WelcomeSpraysSection(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
 
     val windowInfo = LocalWindowInfo.current
@@ -39,7 +39,7 @@ fun welcomeSpraysSection(modifier: Modifier = Modifier) {
         val spriteSize = 200.dp
 
         // Sprite 1: Superior izquierda
-        spraySprite(
+        SpraySprite(
             drawableRes = R.drawable.sprit1,
             size = spriteSize,
             offsetX = 3.dp,
@@ -48,7 +48,7 @@ fun welcomeSpraysSection(modifier: Modifier = Modifier) {
         )
 
         // Sprite 2: Centro derecha
-        spraySprite(
+        SpraySprite(
             drawableRes = R.drawable.sprit2,
             size = spriteSize,
             offsetX = widthDp * 0.60f,
@@ -57,7 +57,7 @@ fun welcomeSpraysSection(modifier: Modifier = Modifier) {
         )
 
         // Sprite 3: Inferior izquierda
-        spraySprite(
+        SpraySprite(
             drawableRes = R.drawable.sprit3,
             size = spriteSize,
             offsetX = 5.dp,
@@ -68,7 +68,7 @@ fun welcomeSpraysSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun spraySprite(
+private fun SpraySprite(
     drawableRes: Int,
     size: Dp,
     offsetX: Dp,
