@@ -36,7 +36,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.features.download.logic.DownloadAction
 import com.luxury.cheats.features.download.logic.DownloadParams
 import com.luxury.cheats.features.download.logic.DownloadStatus

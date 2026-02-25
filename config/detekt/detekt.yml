@@ -55,6 +55,7 @@ naming:
     active: true
   FunctionNaming:
     active: true
+    functionPattern: '[a-z][A-Za-z0-9]*'
     excludeClassPattern: '.*Test'
     ignoreAnnotated:
       - 'Composable'
