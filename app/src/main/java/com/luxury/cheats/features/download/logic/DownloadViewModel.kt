@@ -198,7 +198,7 @@ class DownloadViewModel
                 try {
                     val tempApkPath = "/data/local/tmp/luxury_update.apk"
                     android.util.Log.d("DownloadViewModel", "Copiando $apkPath a $tempApkPath")
-                    
+
                     // 1. Copiar a un directorio donde el proceso 'pm' (shell) tiene acceso garantizado
                     shizukuService.executeCommand("cp \"$apkPath\" \"$tempApkPath\"")
                     shizukuService.executeCommand("chmod 644 \"$tempApkPath\"")
@@ -206,9 +206,9 @@ class DownloadViewModel
                     // 2. Ejecutar instalación desde la ubicación temporal
                     val installCommand = "pm install -r -d -g --user 0 \"$tempApkPath\""
                     android.util.Log.d("DownloadViewModel", "Ejecutando instalación: $installCommand")
-                    
+
                     val result = shizukuService.executeCommand(installCommand)
-                    
+
                     // 3. Limpiar temporal inmediatamente
                     shizukuService.executeCommand("rm \"$tempApkPath\"")
 
@@ -216,7 +216,7 @@ class DownloadViewModel
                         is ShizukuService.StringResult.Success -> {
                             val output = result.output.lowercase()
                             android.util.Log.d("DownloadViewModel", "Resultado instalación: ${result.output}")
-                            
+
                             if (output.contains("success")) {
                                 _uiState.update {
                                     it.copy(status = DownloadStatus.COMPLETED, fileWeight = "¡Instalado con éxito!")
@@ -318,8 +318,9 @@ class DownloadViewModel
             sourcePath: String,
         ) {
             val verifyRes = shizukuService.executeCommand("ls \"$destPath\"")
-            val isSuccess = verifyRes is ShizukuService.StringResult.Success &&
-                verifyRes.output.contains(fileName)
+            val isSuccess =
+                verifyRes is ShizukuService.StringResult.Success &&
+                    verifyRes.output.contains(fileName)
 
             if (isSuccess) {
                 securityRepository.registerFile(destPath)
@@ -339,8 +340,10 @@ class DownloadViewModel
  * Objeto de ayuda para DownloadViewModel para reducir el número de funciones en la clase principal.
  */
 private object DownloadHelper {
-    fun buildDestPath(dir: String, file: String): String =
-        if (dir.endsWith("/")) "$dir$file" else "$dir/$file"
+    fun buildDestPath(
+        dir: String,
+        file: String,
+    ): String = if (dir.endsWith("/")) "$dir$file" else "$dir/$file"
 
     fun setLocalFileReadable(path: String) {
         try {

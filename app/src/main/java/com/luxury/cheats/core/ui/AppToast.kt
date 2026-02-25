@@ -91,7 +91,7 @@ fun appToast(
             toastItem(
                 index = index,
                 notification = notification,
-                isTop = index == 0
+                isTop = index == 0,
             )
         }
     }
@@ -104,41 +104,48 @@ private fun toastItem(
     isTop: Boolean,
 ) {
     // M3 Expressive Spring
-    val springSpec = spring<Float>(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessLow
-    )
+    val springSpec =
+        spring<Float>(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow,
+        )
 
-    val entryProgress by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = springSpec,
-        label = "entry_animation"
-    )
+    val entryProgress by
+        animateFloatAsState(
+            targetValue = 1f,
+            animationSpec = springSpec,
+            label = "entry_animation",
+        )
 
-    val scale by animateFloatAsState(
-        targetValue = (if (isTop) 1f else 1f - index * ToastConstants.SCALE_DEC) * entryProgress,
-        animationSpec = springSpec,
-        label = "toast_scale"
-    )
+    val scale by
+        animateFloatAsState(
+            targetValue = (if (isTop) 1f else 1f - index * ToastConstants.SCALE_DEC) * entryProgress,
+            animationSpec = springSpec,
+            label = "toast_scale",
+        )
 
-    val alphaTarget = if (isTop) {
-        entryProgress
-    } else {
-        (ToastConstants.ALPHA_BASE - index * ToastConstants.ALPHA_DEC).coerceAtLeast(0f) * entryProgress
-    }
+    val alphaTarget =
+        if (isTop) {
+            entryProgress
+        } else {
+            (ToastConstants.ALPHA_BASE - index * ToastConstants.ALPHA_DEC).coerceAtLeast(0f) * entryProgress
+        }
 
-    val alpha by animateFloatAsState(
-        targetValue = alphaTarget,
-        animationSpec = springSpec,
-        label = "toast_alpha"
-    )
+    val alpha by
+        animateFloatAsState(
+            targetValue = alphaTarget,
+            animationSpec = springSpec,
+            label = "toast_alpha",
+        )
 
-    val yOffset by animateFloatAsState(
-        targetValue = (index * ToastConstants.OFFSET_STEP).toFloat() -
-            (1f - entryProgress) * ToastConstants.ENTRY_ANIM_START_OFFSET,
-        animationSpec = springSpec,
-        label = "toast_offset"
-    )
+    val yOffset by
+        animateFloatAsState(
+            targetValue =
+                (index * ToastConstants.OFFSET_STEP).toFloat() -
+                    (1f - entryProgress) * ToastConstants.ENTRY_ANIM_START_OFFSET,
+            animationSpec = springSpec,
+            label = "toast_offset",
+        )
 
     toastCard(
         notification = notification,
@@ -161,9 +168,9 @@ private fun toastCard(
     val isDark = isSystemInDarkTheme()
     val theme = getNotificationTheme(notification.type, isDark)
     val shape = RoundedCornerShape(24.dp) // M3 rounded corners
-    
+
     val glassAlpha = if (isDark) ToastConstants.GLASS_ALPHA_DARK else ToastConstants.GLASS_ALPHA_LIGHT
-    
+
     Surface(
         modifier =
             modifier
@@ -172,14 +179,14 @@ private fun toastCard(
                 .shadow(
                     elevation = if (isTop) 8.dp else 0.dp,
                     shape = shape,
-                    spotColor = theme.containerColor.copy(alpha = 0.2f)
+                    spotColor = theme.containerColor.copy(alpha = 0.2f),
                 )
                 .clip(shape)
                 .background(theme.containerColor.copy(alpha = glassAlpha))
                 .border(
                     width = 0.5.dp,
                     color = theme.contentColor.copy(alpha = ToastConstants.BORDER_ALPHA),
-                    shape = shape
+                    shape = shape,
                 ),
         color = Color.Transparent,
         contentColor = theme.contentColor,
@@ -189,34 +196,45 @@ private fun toastCard(
 }
 
 @Composable
-private fun getNotificationTheme(type: NotificationType, isDark: Boolean): ToastTheme {
+private fun getNotificationTheme(
+    type: NotificationType,
+    isDark: Boolean,
+): ToastTheme {
     val colorScheme = MaterialTheme.colorScheme
-    
+
     return when (type) {
-        NotificationType.ERROR -> ToastTheme(
-            containerColor = colorScheme.errorContainer,
-            contentColor = colorScheme.onErrorContainer,
-            icon = Icons.Default.Warning
-        )
-        NotificationType.WARNING -> ToastTheme(
-            containerColor = Color(ToastConstants.WARNING_CONTAINER_LIGHT)
-                .let { if (isDark) Color(ToastConstants.WARNING_CONTAINER_DARK) else it },
-            contentColor = Color(ToastConstants.WARNING_CONTENT_LIGHT)
-                .let { if (isDark) Color(ToastConstants.WARNING_CONTENT_DARK) else it },
-            icon = Icons.Default.Info
-        )
-        NotificationType.SUCCESS -> ToastTheme(
-            containerColor = Color(ToastConstants.SUCCESS_CONTAINER_LIGHT)
-                .let { if (isDark) Color(ToastConstants.SUCCESS_CONTAINER_DARK) else it },
-            contentColor = Color(ToastConstants.SUCCESS_CONTENT_LIGHT)
-                .let { if (isDark) Color(ToastConstants.SUCCESS_CONTENT_DARK) else it },
-            icon = Icons.Default.CheckCircle
-        )
-        NotificationType.INFO -> ToastTheme(
-            containerColor = colorScheme.secondaryContainer,
-            contentColor = colorScheme.onSecondaryContainer,
-            icon = Icons.Default.Info
-        )
+        NotificationType.ERROR ->
+            ToastTheme(
+                containerColor = colorScheme.errorContainer,
+                contentColor = colorScheme.onErrorContainer,
+                icon = Icons.Default.Warning,
+            )
+        NotificationType.WARNING ->
+            ToastTheme(
+                containerColor =
+                    Color(ToastConstants.WARNING_CONTAINER_LIGHT)
+                        .let { if (isDark) Color(ToastConstants.WARNING_CONTAINER_DARK) else it },
+                contentColor =
+                    Color(ToastConstants.WARNING_CONTENT_LIGHT)
+                        .let { if (isDark) Color(ToastConstants.WARNING_CONTENT_DARK) else it },
+                icon = Icons.Default.Info,
+            )
+        NotificationType.SUCCESS ->
+            ToastTheme(
+                containerColor =
+                    Color(ToastConstants.SUCCESS_CONTAINER_LIGHT)
+                        .let { if (isDark) Color(ToastConstants.SUCCESS_CONTAINER_DARK) else it },
+                contentColor =
+                    Color(ToastConstants.SUCCESS_CONTENT_LIGHT)
+                        .let { if (isDark) Color(ToastConstants.SUCCESS_CONTENT_DARK) else it },
+                icon = Icons.Default.CheckCircle,
+            )
+        NotificationType.INFO ->
+            ToastTheme(
+                containerColor = colorScheme.secondaryContainer,
+                contentColor = colorScheme.onSecondaryContainer,
+                icon = Icons.Default.Info,
+            )
     }
 }
 
@@ -228,31 +246,33 @@ private fun toastCardContent(
     isVisible: Boolean,
 ) {
     Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-            .alpha(if (isVisible) 1f else 0f),
+        modifier =
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .alpha(if (isVisible) 1f else 0f),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(18.dp),
-            tint = contentColor.copy(alpha = 0.8f)
+            tint = contentColor.copy(alpha = 0.8f),
         )
-        
+
         Spacer(modifier = Modifier.width(12.dp))
-        
+
         Text(
             text = message,
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontSize = 13.sp,
-                letterSpacing = 0.4.sp
-            ),
+            style =
+                MaterialTheme.typography.labelMedium.copy(
+                    fontSize = 13.sp,
+                    letterSpacing = 0.4.sp,
+                ),
             color = contentColor,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Start,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -260,10 +280,10 @@ private fun toastCardContent(
 /** Preview de AppToast en tema claro. */
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Light Theme")
 @Composable
-fun AppToastLightPreview() {
+fun appToastLightPreview() {
     MaterialTheme {
         Box(modifier = Modifier.size(400.dp, 200.dp).background(Color.White)) {
-            AppToastSample()
+            appToastSample()
         }
     }
 }
@@ -271,16 +291,16 @@ fun AppToastLightPreview() {
 /** Preview de AppToast en tema oscuro. */
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Dark Theme")
 @Composable
-fun AppToastDarkPreview() {
+fun appToastDarkPreview() {
     MaterialTheme(colorScheme = androidx.compose.material3.darkColorScheme()) {
         Box(modifier = Modifier.size(400.dp, 200.dp).background(Color.Black)) {
-            AppToastSample()
+            appToastSample()
         }
     }
 }
 
 @Composable
-private fun AppToastSample() {
+private fun appToastSample() {
     val sampleNotifications =
         listOf(
             AppNotification("Error de conexión", NotificationType.ERROR),

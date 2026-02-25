@@ -6,23 +6,24 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * Servicio de Autenticación - Versión simplificada usando SDK de Firebase.
  */
 class AuthService {
     private val db by lazy { FirebaseDatabase.getInstance().getReference("users") }
+
+    /** Constantes para la conexión de red. */
+    companion object {
+        private const val CONNECT_TIMEOUT_MS = 8000
+        private const val READ_TIMEOUT_MS = 8000
+    }
 
     /** Resultado de la operación de login. */
     sealed class LoginResult {
@@ -56,35 +57,55 @@ class AuthService {
         p: String,
     ): LoginResult {
         return try {
-            // 1. Verificar si hay conexión con el servidor
-            if (!isOnline()) {
-                return LoginResult.Error("Sin conexión a internet. El login requiere estar online.")
-            }
-
             val t0 = System.currentTimeMillis()
 
-            // 2. FORZAR consulta al servidor mediante REST (ignora la caché del SDK)
-            // Esto resuelve el problema de usuarios eliminados que aún se "ven" en la caché local
-            val userDataJson = fetchUserDataRest(u)
+            // 1. FORZAR consulta al servidor mediante REST (ignora la caché del SDK)
+            // La propia petición REST fallará con una excepción descriptiva si no hay internet.
+            val fetchResult = fetchUserDataRest(u)
 
             val t1 = System.currentTimeMillis()
             Log.d("PERF", "Query REST = ${t1 - t0} ms")
 
-            if (userDataJson == null) {
-                return LoginResult.Error("Usuario no encontrado")
+            when (fetchResult) {
+                is FetchResult.Success -> {
+                    val userDataJson = fetchResult.data
+                    val userKey = userDataJson.optString("_key")
+                    validateUserData(p, userDataJson, userKey)
+                }
+                is FetchResult.NoInternet -> {
+                    LoginResult.Error("Sin conexión a internet. El login requiere estar online.")
+                }
+                is FetchResult.NotFound -> {
+                    LoginResult.Error("Usuario no encontrado")
+                }
+                is FetchResult.Error -> {
+                    LoginResult.Error("Error: ${fetchResult.message}")
+                }
             }
-
-            val userKey = userDataJson.optString("_key")
-            validateUserData(p, userDataJson, userKey)
-        } catch (e: Exception) {
-            LoginResult.Error("Error: ${e.localizedMessage}")
+        } catch (e: java.io.IOException) {
+            Log.e("AuthService", "Login failed due to IO exception", e)
+            LoginResult.Error("Fallo de red: ${e.localizedMessage}")
+        } catch (e: org.json.JSONException) {
+            Log.e("AuthService", "Login failed due to JSON parsing", e)
+            LoginResult.Error("Error de datos: ${e.localizedMessage}")
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.e("AuthService", "Unexpected login error", e)
+            LoginResult.Error("Error inesperado: ${e.localizedMessage}")
         }
+    }
+
+    /** Resultado interno de la búsqueda de usuario. */
+    private sealed class FetchResult {
+        data class Success(val data: JSONObject) : FetchResult()
+        object NoInternet : FetchResult()
+        object NotFound : FetchResult()
+        data class Error(val message: String) : FetchResult()
     }
 
     /**
      * Consulta directamente a la base de datos vía REST para saltar la persistencia local del SDK.
      */
-    private suspend fun fetchUserDataRest(u: String): JSONObject? =
+    private suspend fun fetchUserDataRest(u: String): FetchResult =
         withContext(Dispatchers.IO) {
             try {
                 // El nodo /users está indexado por "username", por lo que la consulta REST es eficiente
@@ -94,44 +115,37 @@ class AuthService {
                 val url = URL(queryUrl)
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
-                conn.connectTimeout = 8000
-                conn.readTimeout = 8000
+                conn.connectTimeout = CONNECT_TIMEOUT_MS
+                conn.readTimeout = READ_TIMEOUT_MS
 
-                if (conn.responseCode != HttpURLConnection.HTTP_OK) return@withContext null
+                val responseCode = conn.responseCode
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    return@withContext FetchResult.Error("HTTP $responseCode")
+                }
 
-                val response =
-                    conn.inputStream.bufferedReader().use { it.readText() }
-                if (response == "null" || response == "{}" || response.isBlank()) return@withContext null
+                val response = conn.inputStream.bufferedReader().use { it.readText() }
+                if (response == "null" || response == "{}" || response.isBlank()) {
+                    return@withContext FetchResult.NotFound
+                }
 
                 val json = JSONObject(response)
                 val keys = json.keys()
-                if (!keys.hasNext()) return@withContext null
+                if (!keys.hasNext()) return@withContext FetchResult.NotFound
 
                 val key = keys.next()
                 val userData = json.getJSONObject(key)
                 userData.put("_key", key) // Preservar la clave del usuario
-                userData
-            } catch (e: Exception) {
+                FetchResult.Success(userData)
+            } catch (e: java.net.UnknownHostException) {
+                Log.e("AuthService", "No Internet: ${e.message}")
+                FetchResult.NoInternet
+            } catch (e: java.net.SocketTimeoutException) {
+                Log.e("AuthService", "Timeout: ${e.message}")
+                FetchResult.NoInternet
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 Log.e("AuthService", "REST Query Failed: ${e.message}")
-                null
+                FetchResult.Error(e.message ?: "Unknown error")
             }
-        }
-
-    private suspend fun isOnline(): Boolean =
-        suspendCancellableCoroutine { cont ->
-            FirebaseDatabase.getInstance().getReference(".info/connected")
-                .addListenerForSingleValueEvent(
-                    object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            val connected = snapshot.getValue(Boolean::class.java) ?: false
-                            cont.resume(connected)
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            cont.resume(false)
-                        }
-                    },
-                )
         }
 
     private fun validateUserData(

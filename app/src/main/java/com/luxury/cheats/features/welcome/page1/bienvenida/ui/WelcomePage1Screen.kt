@@ -51,7 +51,7 @@ fun welcomePage1Screen(
         logoViewModel.setLogoOffsetY(logoPresetOffsetY)
     }
 
-    WelcomePage1Content(
+    welcomePage1Content(
         modifier = modifier,
         onNavigateNext = onNavigateNext,
         verticalPadding = verticalPadding,
@@ -60,13 +60,12 @@ fun welcomePage1Screen(
 }
 
 @Composable
-private fun WelcomePage1Content(
+private fun welcomePage1Content(
     modifier: Modifier = Modifier,
     onNavigateNext: () -> Unit = {},
     verticalPadding: androidx.compose.ui.unit.Dp = 0.dp,
     horizontalPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
-
     Box(modifier = modifier.fillMaxSize()) {
         welcomePage1LanguageSection(
             modifier =
@@ -108,13 +107,14 @@ private fun WelcomePage1Content(
         }
     }
 }
+
 /** Preview de la pantalla de bienvenida (Página 1). */
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun WelcomePage1ScreenPreview() {
+fun welcomePage1ScreenPreview() {
     MaterialTheme {
-        WelcomePage1Content(
-            verticalPadding = 100.dp
+        welcomePage1Content(
+            verticalPadding = 100.dp,
         )
     }
 }

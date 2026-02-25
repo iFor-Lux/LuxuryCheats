@@ -28,7 +28,7 @@ private object FadingConstants {
  * Simula el efecto de "Fading Edges" de apps premium como ChatGPT o iOS.
  */
 @Composable
-fun FadingEdges(
+fun fadingEdges(
     modifier: Modifier = Modifier,
     topHeight: Dp = 100.dp,
     bottomHeight: Dp = 120.dp,
@@ -37,36 +37,44 @@ fun FadingEdges(
     Box(modifier = modifier.fillMaxSize()) {
         // Desvanecimiento Superior (Más largo e intenso)
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(topHeight)
-                .align(Alignment.TopCenter)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to color,
-                            FadingConstants.FADE_STOP_TOP to color.copy(alpha = FadingConstants.OPACITY_DENSE),
-                            1.0f to Color.Transparent
-                        )
-                    )
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(topHeight)
+                    .align(Alignment.TopCenter)
+                    .background(
+                        brush =
+                            Brush.verticalGradient(
+                                colorStops =
+                                    arrayOf(
+                                        0.0f to color,
+                                        FadingConstants.FADE_STOP_TOP to
+                                            color.copy(alpha = FadingConstants.OPACITY_DENSE),
+                                        1.0f to Color.Transparent,
+                                    ),
+                            ),
+                    ),
         )
 
         // Desvanecimiento Inferior (Más largo e intenso)
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(bottomHeight)
-                .align(Alignment.BottomCenter)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to Color.Transparent,
-                            FadingConstants.FADE_STOP_BOTTOM to color.copy(alpha = FadingConstants.OPACITY_DENSE),
-                            1.0f to color
-                        )
-                    )
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(bottomHeight)
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        brush =
+                            Brush.verticalGradient(
+                                colorStops =
+                                    arrayOf(
+                                        0.0f to Color.Transparent,
+                                        FadingConstants.FADE_STOP_BOTTOM to
+                                            color.copy(alpha = FadingConstants.OPACITY_DENSE),
+                                        1.0f to color,
+                                    ),
+                            ),
+                    ),
         )
     }
 }

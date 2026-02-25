@@ -47,7 +47,10 @@ class UpdateViewModel(
         }
     }
 
-    private fun loadInitialCache(localVersion: String, storedInfo: Pair<String, String>?) {
+    private fun loadInitialCache(
+        localVersion: String,
+        storedInfo: Pair<String, String>?,
+    ) {
         if (storedInfo != null && storedInfo.first == localVersion) {
             _uiState.update {
                 it.copy(appVersion = localVersion, releaseDate = formatTimestamp(storedInfo.second))
@@ -55,7 +58,10 @@ class UpdateViewModel(
         }
     }
 
-    private fun processUpdateResult(update: AppUpdate, localVersion: String) {
+    private fun processUpdateResult(
+        update: AppUpdate,
+        localVersion: String,
+    ) {
         if (update.version == localVersion) {
             preferencesService.accessUpdateInfo(version = localVersion, timestamp = update.timestamp)
         }
@@ -64,22 +70,27 @@ class UpdateViewModel(
             it.copy(
                 appUpdate = update,
                 appVersion = localVersion,
-                releaseDate = if (update.version == localVersion) {
-                    formatTimestamp(update.timestamp)
-                } else {
-                    it.releaseDate.ifEmpty { "2025-01-01" }
-                }
+                releaseDate =
+                    if (update.version == localVersion) {
+                        formatTimestamp(update.timestamp)
+                    } else {
+                        it.releaseDate.ifEmpty { "2025-01-01" }
+                    },
             )
         }
     }
 
-    private fun handleUpdateError(localVersion: String, storedInfo: Pair<String, String>?) {
+    private fun handleUpdateError(
+        localVersion: String,
+        storedInfo: Pair<String, String>?,
+    ) {
         _uiState.update {
             it.copy(
                 appVersion = localVersion,
-                releaseDate = it.releaseDate.ifEmpty {
-                    formatTimestamp(storedInfo?.second ?: "2025-01-01")
-                }
+                releaseDate =
+                    it.releaseDate.ifEmpty {
+                        formatTimestamp(storedInfo?.second ?: "2025-01-01")
+                    },
             )
         }
     }

@@ -17,22 +17,28 @@ internal data class PermissionTheme(
  * Provee el tema adecuado (colores) según si el permiso está concedido o denegado.
  */
 @Composable
-internal fun getSharedPermissionTheme(isGranted: Boolean, isDenied: Boolean): PermissionTheme {
+internal fun getSharedPermissionTheme(
+    isGranted: Boolean,
+    isDenied: Boolean,
+): PermissionTheme {
     return PermissionTheme(
-        iconBg = when {
-            isGranted -> MaterialTheme.colorScheme.primaryContainer
-            isDenied -> MaterialTheme.colorScheme.errorContainer
-            else -> MaterialTheme.colorScheme.surfaceVariant
-        },
-        iconTint = when {
-            isGranted -> MaterialTheme.colorScheme.onPrimaryContainer
-            isDenied -> MaterialTheme.colorScheme.onErrorContainer
-            else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-        },
-        border = when {
-            isGranted -> MaterialTheme.colorScheme.primary
-            isDenied -> MaterialTheme.colorScheme.error
-            else -> Color.Transparent
-        }
+        iconBg =
+            when {
+                isGranted -> MaterialTheme.colorScheme.primaryContainer
+                isDenied -> MaterialTheme.colorScheme.errorContainer
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            },
+        iconTint =
+            when {
+                isGranted -> MaterialTheme.colorScheme.onPrimaryContainer
+                isDenied -> MaterialTheme.colorScheme.onErrorContainer
+                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+            },
+        border =
+            when {
+                isGranted -> MaterialTheme.colorScheme.primary
+                isDenied -> MaterialTheme.colorScheme.error
+                else -> Color.Transparent
+            },
     )
 }

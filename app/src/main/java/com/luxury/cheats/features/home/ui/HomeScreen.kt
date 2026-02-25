@@ -90,7 +90,7 @@ fun homeScreenContent(
         ) {
             SquarePatternBackground()
             homeSectionsList(uiState, scrollState, onAction)
-            com.luxury.cheats.core.ui.FadingEdges()
+            com.luxury.cheats.core.ui.fadingEdges()
         }
 
         homeOverlays(

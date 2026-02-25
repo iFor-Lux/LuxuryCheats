@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.luxury.cheats.core.ui.welcomeNavBarSection
 import com.luxury.cheats.core.ui.appToast
+import com.luxury.cheats.core.ui.welcomeNavBarSection
 import com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2Action
 import com.luxury.cheats.features.welcome.page2.permisos.logic.WelcomePage2ViewModel
 
@@ -78,7 +78,8 @@ fun welcomePage2Screen(
                     viewModel.handleAction(WelcomePage2Action.NextClicked)
                 }
             },
-            isNextEnabled = true, // Siempre habilitado para poder mostrar el Toast al hacer click
+            // Siempre habilitado para poder mostrar el Toast al hacer click
+            isNextEnabled = true,
             modifier =
                 Modifier
                     .align(Alignment.BottomCenter)

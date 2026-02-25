@@ -3,8 +3,10 @@ package com.luxury.cheats.features.home.logic
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.luxury.cheats.BuildConfig
 import com.luxury.cheats.core.ui.AppNotification
 import com.luxury.cheats.core.ui.NotificationType
+import com.luxury.cheats.core.util.VersionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,8 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.luxury.cheats.core.util.VersionUtils
-import com.luxury.cheats.BuildConfig
 
 /**
  * ViewModel para la pantalla Home
@@ -70,9 +70,12 @@ class HomeViewModel
             try {
                 val update = updateService.getAppUpdate()
                 val localVersion = BuildConfig.VERSION_NAME
-                
-                android.util.Log.d("HomeViewModel", "Update Check -> Remote: ${update.version}, " +
-                        "Local: $localVersion, Active: ${update.active}")
+
+                android.util.Log.d(
+                    "HomeViewModel",
+                    "Update Check -> Remote: ${update.version}, " +
+                        "Local: $localVersion, Active: ${update.active}",
+                )
 
                 if (update.active && VersionUtils.isVersionNewer(update.version, localVersion)) {
                     android.util.Log.d("HomeViewModel", "Showing update announcement dialog")
@@ -207,7 +210,7 @@ class HomeViewModel
                         if (currentState.idValue.isEmpty()) {
                             addNotification(
                                 message = "DEBE INGRESAR UN ID PRIMERO PARA ACTIVAR LAS OPCIONES",
-                                type = NotificationType.WARNING
+                                type = NotificationType.WARNING,
                             )
                             return
                         }
@@ -431,6 +434,9 @@ class HomeViewModel
             }
         }
 
+        /**
+         * Constantes de configuración para el HomeViewModel.
+         */
         companion object {
             private const val NOTIFICATION_AUTO_DISMISS_DELAY = 3000L
         }

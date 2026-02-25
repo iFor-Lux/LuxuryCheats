@@ -16,7 +16,9 @@ import javax.inject.Singleton
  */
 @Suppress("TooGenericExceptionCaught")
 @Singleton
-class ShizukuService @Inject constructor() {
+class ShizukuService
+    @Inject
+    constructor() {
         private var isBinderReceived = false
 
         /** Constantes de configuración para el servicio Shizuku y limpieza de archivos. */
@@ -140,51 +142,17 @@ class ShizukuService @Inject constructor() {
                     val error = StringBuilder()
 
                     // Leer streams en hilos separados para evitar deadlocks
-                    val outThread = Thread {
-                        try {
-                            val reader = BufferedReader(InputStreamReader(process.inputStream))
-                            var line: String?
-                            while (reader.readLine().also { line = it } != null) {
-                                output.append(line).append("\n")
-                            }
-                        } catch (e: Exception) {
-                            Log.e("ShizukuService", "Error reading stdout", e)
-                        }
-                    }
-
-                    val errThread = Thread {
-                        try {
-                            val errorReader = BufferedReader(InputStreamReader(process.errorStream))
-                            var line: String?
-                            while (errorReader.readLine().also { line = it } != null) {
-                                error.append(line).append("\n")
-                            }
-                        } catch (e: Exception) {
-                            Log.e("ShizukuService", "Error reading stderr", e)
-                        }
-                    }
+                    val outThread = startStreamReaderThread(process.inputStream, output, "stdout")
+                    val errThread = startStreamReaderThread(process.errorStream, error, "stderr")
 
                     outThread.start()
                     errThread.start()
 
-                    // Esperar a que el proceso termine con un timeout razonable
-                    // (por ejemplo, 2 minutos para instalaciones grandes)
-                    // Como Process.waitFor(long, TimeUnit) es API 26, usamos un bucle simple
-                    // para compatibilidad si es necesario, pero aquí confiaremos en
-                    // waitFor() normal por ahora, asegurando que los hilos de lectura terminen.
-                    
                     val exitCode = process.waitFor()
-                    outThread.join(THREAD_JOIN_TIMEOUT_MS) // Esperar un poco más a que los hilos terminen de leer
+                    outThread.join(THREAD_JOIN_TIMEOUT_MS)
                     errThread.join(THREAD_JOIN_TIMEOUT_MS)
 
-                    if (exitCode == 0) {
-                        StringResult.Success(output.toString().trim())
-                    } else {
-                        val errorMsg = error.toString().trim().ifEmpty { 
-                            output.toString().trim().ifEmpty { "Unknown error (Exit code $exitCode)" }
-                        }
-                        StringResult.Error(errorMsg)
-                    }
+                    handleProcessResult(exitCode, output, error)
                 } catch (e: java.io.IOException) {
                     Log.e("ShizukuService", "IO error executing command: $command", e)
                     StringResult.Error("IO error: ${e.message}")
@@ -193,6 +161,39 @@ class ShizukuService @Inject constructor() {
                     StringResult.Error(e.message ?: "Exception executing command")
                 }
             }
+
+        private fun startStreamReaderThread(
+            inputStream: java.io.InputStream,
+            buffer: StringBuilder,
+            streamName: String,
+        ): Thread =
+            Thread {
+                try {
+                    val reader = BufferedReader(InputStreamReader(inputStream))
+                    var line: String?
+                    while (reader.readLine().also { line = it } != null) {
+                        buffer.append(line).append("\n")
+                    }
+                } catch (e: Exception) {
+                    Log.e("ShizukuService", "Error reading $streamName", e)
+                }
+            }
+
+        private fun handleProcessResult(
+            exitCode: Int,
+            output: StringBuilder,
+            error: StringBuilder,
+        ): StringResult {
+            return if (exitCode == 0) {
+                StringResult.Success(output.toString().trim())
+            } else {
+                val errorMsg =
+                    error.toString().trim().ifEmpty {
+                        output.toString().trim().ifEmpty { "Unknown error (Exit code $exitCode)" }
+                    }
+                StringResult.Error(errorMsg)
+            }
+        }
 
         /** Resultado de la ejecución de un comando. */
         sealed class StringResult {

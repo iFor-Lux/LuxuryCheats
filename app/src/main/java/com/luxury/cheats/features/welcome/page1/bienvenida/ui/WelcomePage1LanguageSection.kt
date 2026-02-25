@@ -1,13 +1,19 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.luxury.cheats.features.welcome.page1.bienvenida.ui
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Language
@@ -15,7 +21,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SplitButtonDefaults
@@ -39,30 +44,106 @@ import androidx.compose.ui.unit.sp
 import com.luxury.cheats.R
 
 /**
- * Botón de Lenguaje (Top Right) usando Material Design 3 Expressive (Variant 2)
+ * Botón de Lenguaje (Top Right) usando Material Design 3 Expressive (Diseño Suavizado)
  */
 private object LanguageConstants {
     val TOP_PADDING = 60.dp
     val HORIZONTAL_PADDING = 16.dp
-    const val ICON_ROTATION_DURATION = 150
     val FONT_SIZE = 14.sp
-    const val DIVIDER_ALPHA = 0.1f
+
+    const val PERCENT_50 = 50
+    const val MENU_ITEM_WIDTH = 140
+    const val MENU_ITEM_HEIGHT = 36
+    const val MENU_PADDING = 4
+    val MENU_SPACING = 8.dp
+
+    // Escalas de presión más sutiles
+    const val PRESSED_SCALE = 0.95f
+    const val COLLISION_SCALE = 0.98f
+    const val COLLISION_TRANSLATION_DP = 6f
+
+    // Oscilación mínima
+    const val JIGGLE_ANGLE = 1f
 }
+
+/** Configuración visual para el botón de lenguaje. */
+private data class LanguageButtonColors(
+    val container: Color,
+    val content: Color,
+)
+
+/** Estado de interacción compartido para el botón. */
+private data class LanguageButtonInteraction(
+    val interactionSource: MutableInteractionSource,
+    val isPressed: Boolean,
+    val isOtherPressed: Boolean,
+)
+
+/** Estado compartido para la lógica de lenguaje. */
+private data class LanguageState(
+    val isExpanded: Boolean,
+    val selectedLanguage: String,
+    val onExpandedChange: (Boolean) -> Unit,
+    val onLanguageSelected: (String) -> Unit,
+)
 
 /**
  * Sección de selección de idioma para la primera página de bienvenida.
  * @param modifier Modificador de layout.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun welcomePage1LanguageSection(modifier: Modifier = Modifier) {
     var isExpanded by remember { mutableStateOf(false) }
     val initialLanguage = stringResource(R.string.welcome_page1_language)
     var selectedLanguage by remember { mutableStateOf(initialLanguage) }
 
-    val containerColor = MaterialTheme.colorScheme.surfaceContainer
-    val contentColor = MaterialTheme.colorScheme.onSurface
+    val colors =
+        LanguageButtonColors(
+            container = MaterialTheme.colorScheme.surfaceContainer,
+            content = MaterialTheme.colorScheme.onSurface,
+        )
 
+    val leadingInteractionSource = remember { MutableInteractionSource() }
+    val trailingInteractionSource = remember { MutableInteractionSource() }
+
+    val leadingInt =
+        LanguageButtonInteraction(
+            interactionSource = leadingInteractionSource,
+            isPressed = leadingInteractionSource.collectIsPressedAsState().value,
+            isOtherPressed = trailingInteractionSource.collectIsPressedAsState().value,
+        )
+    val trailingInt =
+        LanguageButtonInteraction(
+            interactionSource = trailingInteractionSource,
+            isPressed = trailingInteractionSource.collectIsPressedAsState().value,
+            isOtherPressed = leadingInteractionSource.collectIsPressedAsState().value,
+        )
+
+    val state =
+        LanguageState(
+            isExpanded = isExpanded,
+            selectedLanguage = selectedLanguage,
+            onExpandedChange = { isExpanded = it },
+            onLanguageSelected = { selectedLanguage = it },
+        )
+
+    languageHeaderLayout(
+        modifier = modifier,
+        state = state,
+        colors = colors,
+        leadingInt = leadingInt,
+        trailingInt = trailingInt,
+    )
+}
+
+@Composable
+private fun languageHeaderLayout(
+    modifier: Modifier,
+    state: LanguageState,
+    colors: LanguageButtonColors,
+    leadingInt: LanguageButtonInteraction,
+    trailingInt: LanguageButtonInteraction,
+) {
     Box(
         modifier =
             modifier
@@ -77,98 +158,170 @@ fun welcomePage1LanguageSection(modifier: Modifier = Modifier) {
         SplitButtonLayout(
             leadingButton = {
                 languageLeadingButton(
-                    containerColor = containerColor,
-                    contentColor = contentColor,
-                    selectedLanguage = selectedLanguage,
-                    onClick = { isExpanded = !isExpanded },
+                    colors = colors,
+                    selectedLanguage = state.selectedLanguage,
+                    interaction = leadingInt,
+                    onClick = { state.onExpandedChange(!state.isExpanded) },
                 )
             },
             trailingButton = {
                 languageTrailingButton(
-                    isExpanded = isExpanded,
-                    containerColor = containerColor,
-                    contentColor = contentColor,
-                    onCheckedChange = { isExpanded = it },
+                    isExpanded = state.isExpanded,
+                    colors = colors,
+                    interaction = trailingInt,
+                    onCheckedChange = state.onExpandedChange,
                 )
             },
         )
 
         languageDropdownMenu(
-            isExpanded = isExpanded,
-            contentColor = contentColor,
-            onDismissRequest = { isExpanded = false },
+            isExpanded = state.isExpanded,
+            contentColor = colors.content,
+            onDismissRequest = { state.onExpandedChange(false) },
             onLanguageSelected = {
-                selectedLanguage = it
-                isExpanded = false
+                state.onLanguageSelected(it)
+                state.onExpandedChange(false)
             },
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun languageLeadingButton(
-    containerColor: Color,
-    contentColor: Color,
+    colors: LanguageButtonColors,
     selectedLanguage: String,
+    interaction: LanguageButtonInteraction,
     onClick: () -> Unit,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
+    val buttonColors =
+        ButtonDefaults.buttonColors(
+            containerColor = colors.container,
+            contentColor = colors.content,
+        )
+
+    // Animación de escala sutil integrada
+    val scale by
+        animateFloatAsState(
+            targetValue =
+                when {
+                    interaction.isPressed -> LanguageConstants.PRESSED_SCALE
+                    interaction.isOtherPressed -> LanguageConstants.COLLISION_SCALE
+                    else -> 1f
+                },
+            animationSpec = motionScheme.defaultSpatialSpec(),
+            label = "LeadingScale",
+        )
+
     SplitButtonDefaults.LeadingButton(
         onClick = onClick,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = containerColor,
-                contentColor = contentColor,
-            ),
+        interactionSource = interaction.interactionSource,
+        colors = buttonColors,
         content = {
-            Icon(
-                imageVector = Icons.Default.Language,
-                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
-                contentDescription = null,
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(
-                text = selectedLanguage,
-                fontSize = LanguageConstants.FONT_SIZE,
-                fontWeight = FontWeight.Medium,
+            languageLeadingContent(
+                selectedLanguage = selectedLanguage,
+                scale = scale,
+                isOtherPressed = interaction.isOtherPressed,
+                isPressed = interaction.isPressed,
             )
         },
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun languageLeadingContent(
+    selectedLanguage: String,
+    scale: Float,
+    isOtherPressed: Boolean,
+    isPressed: Boolean,
+) {
+    val motionScheme = MaterialTheme.motionScheme
+    val translationX by
+        animateFloatAsState(
+            targetValue = if (isOtherPressed) -LanguageConstants.COLLISION_TRANSLATION_DP else 0f,
+            animationSpec = motionScheme.defaultSpatialSpec(),
+            label = "LeadingTranslationX",
+        )
+    val rotationZ by
+        animateFloatAsState(
+            targetValue = if (isPressed) -LanguageConstants.JIGGLE_ANGLE else 0f,
+            animationSpec = motionScheme.defaultSpatialSpec(),
+            label = "LeadingJiggle",
+        )
+
+    Icon(
+        imageVector = Icons.Default.Language,
+        modifier =
+            Modifier
+                .size(SplitButtonDefaults.LeadingIconSize)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                    this.translationX = translationX
+                    this.rotationZ = rotationZ
+                },
+        contentDescription = null,
+    )
+    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+    Text(
+        text = selectedLanguage,
+        fontSize = LanguageConstants.FONT_SIZE,
+        fontWeight = FontWeight.Medium,
+    )
+}
+
 @Composable
 private fun languageTrailingButton(
     isExpanded: Boolean,
-    containerColor: Color,
-    contentColor: Color,
+    colors: LanguageButtonColors,
+    interaction: LanguageButtonInteraction,
     onCheckedChange: (Boolean) -> Unit,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
+    val buttonColors =
+        ButtonDefaults.buttonColors(
+            containerColor = colors.container,
+            contentColor = colors.content,
+        )
+
+    val scale by
+        animateFloatAsState(
+            targetValue =
+                when {
+                    interaction.isPressed -> LanguageConstants.PRESSED_SCALE
+                    interaction.isOtherPressed -> LanguageConstants.COLLISION_SCALE
+                    else -> 1f
+                },
+            animationSpec = motionScheme.defaultSpatialSpec(),
+            label = "TrailingScale",
+        )
+
+    val iconRotation by
+        animateFloatAsState(
+            targetValue = if (isExpanded) 180f else 0f,
+            animationSpec = motionScheme.defaultEffectsSpec(),
+            label = "ArrowRotation",
+        )
+
     SplitButtonDefaults.TrailingButton(
         checked = isExpanded,
         onCheckedChange = onCheckedChange,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = containerColor,
-                contentColor = contentColor,
-            ),
+        interactionSource = interaction.interactionSource,
+        colors = buttonColors,
         modifier =
             Modifier.semantics {
                 stateDescription = if (isExpanded) "Expanded" else "Collapsed"
             },
         content = {
-            val rotation: Float by animateFloatAsState(
-                targetValue = if (isExpanded) 180f else 0f,
-                animationSpec = tween(durationMillis = LanguageConstants.ICON_ROTATION_DURATION),
-                label = "Trailing Icon Rotation",
-            )
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
                 modifier =
                     Modifier
                         .size(SplitButtonDefaults.TrailingIconSize)
                         .graphicsLayer {
-                            this.rotationZ = rotation
+                            this.rotationZ = iconRotation
+                            scaleX = scale
+                            scaleY = scale
                         },
                 contentDescription = stringResource(R.string.welcome_page1_select_language),
             )
@@ -183,22 +336,81 @@ private fun languageDropdownMenu(
     onDismissRequest: () -> Unit,
     onLanguageSelected: (String) -> Unit,
 ) {
-    DropdownMenu(
-        expanded = isExpanded,
-        onDismissRequest = onDismissRequest,
-        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh),
+    MaterialTheme(
+        colorScheme =
+            MaterialTheme.colorScheme.copy(
+                surface = Color.Transparent,
+                surfaceContainer = Color.Transparent,
+            ),
+    ) {
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = onDismissRequest,
+            modifier =
+                Modifier
+                    .background(Color.Transparent)
+                    .padding(top = 4.dp),
+            containerColor = Color.Transparent,
+            shadowElevation = 0.dp,
+        ) {
+            languageMenuColumn(
+                contentColor = contentColor,
+                onLanguageSelected = onLanguageSelected,
+            )
+        }
+    }
+}
+
+@Composable
+private fun languageMenuColumn(
+    contentColor: Color,
+    onLanguageSelected: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = LanguageConstants.MENU_PADDING.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val spanish = stringResource(R.string.welcome_page1_spanish)
         val english = stringResource(R.string.welcome_page1_english)
 
-        DropdownMenuItem(
-            text = { Text(spanish, color = contentColor) },
-            onClick = { onLanguageSelected(spanish) },
-        )
-        HorizontalDivider(color = contentColor.copy(alpha = LanguageConstants.DIVIDER_ALPHA))
-        DropdownMenuItem(
-            text = { Text(english, color = contentColor) },
-            onClick = { onLanguageSelected(english) },
-        )
+        languageMenuItem(text = spanish, contentColor = contentColor) {
+            onLanguageSelected(spanish)
+        }
+        Spacer(modifier = Modifier.size(LanguageConstants.MENU_SPACING))
+        languageMenuItem(text = english, contentColor = contentColor) {
+            onLanguageSelected(english)
+        }
     }
+}
+
+@Composable
+private fun languageMenuItem(
+    text: String,
+    contentColor: Color,
+    onClick: () -> Unit,
+) {
+    DropdownMenuItem(
+        modifier =
+            Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    shape = RoundedCornerShape(LanguageConstants.PERCENT_50),
+                )
+                .size(
+                    width = LanguageConstants.MENU_ITEM_WIDTH.dp,
+                    height = LanguageConstants.MENU_ITEM_HEIGHT.dp,
+                ),
+        text = {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = text,
+                    color = contentColor,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                )
+            }
+        },
+        onClick = onClick,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+    )
 }
