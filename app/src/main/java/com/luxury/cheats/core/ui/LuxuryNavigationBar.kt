@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -50,7 +51,7 @@ fun LuxuryNavigationBar(
     val shape = RoundedCornerShape(30.dp)
 
     Box(
-        modifier = modifier.size(width = 190.dp, height = 99.dp),
+        modifier = modifier.size(width = 280.dp, height = 99.dp),
         contentAlignment = Alignment.Center,
     ) {
         LuxuryNavBarBackground(backdrop, shape)
@@ -114,6 +115,14 @@ private fun LuxuryNavBarItems(
                 isActive = activeTab == "Inicio",
                 activeColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                 onSelect = { onTabSelected("Inicio") },
+            )
+
+            NavItem(
+                label = "Tools",
+                icon = Icons.Default.Build,
+                isActive = activeTab == "Tools",
+                activeColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f),
+                onSelect = { onTabSelected("Tools") },
             )
 
             NavItem(

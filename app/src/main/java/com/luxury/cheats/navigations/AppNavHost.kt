@@ -26,6 +26,7 @@ import com.luxury.cheats.features.home.logic.HomeViewModel
 import com.luxury.cheats.features.home.ui.HomeScreen
 import com.luxury.cheats.features.login.pantalla.ui.LoginPantallaScreen
 import com.luxury.cheats.features.perfil.ui.PerfilScreen
+import com.luxury.cheats.features.tools.ui.ToolsScreen
 import com.luxury.cheats.features.update.ui.DownloadUpdateScreen
 import com.luxury.cheats.features.welcome.page1.bienvenida.ui.WelcomePage1Screen
 import com.luxury.cheats.features.welcome.page2.permisos.ui.WelcomePage2Screen
@@ -210,6 +211,10 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
 
     composable<Perfil> {
         PerfilScreen(backdrop = backdrop)
+    }
+
+    composable<Tools> {
+        ToolsScreen(backdrop = backdrop)
     }
 
     composable<Update> {

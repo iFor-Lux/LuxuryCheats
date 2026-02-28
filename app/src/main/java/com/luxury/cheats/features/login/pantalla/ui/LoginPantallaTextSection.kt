@@ -14,6 +14,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import com.luxury.cheats.core.theme.newsreaderItalicFamily
+
 /**
  * Sección de texto de encabezado para la pantalla de login.
  *
@@ -26,7 +28,8 @@ fun LoginPantallaTextSection(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "LOGIN",
+            text = "Login",
+            fontFamily = newsreaderItalicFamily,
             fontSize = 36.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.tertiary,

@@ -53,6 +53,11 @@ object Home
 @Keep
 object Perfil
 
+/** Ruta para la pantalla de herramientas. */
+@Serializable
+@Keep
+object Tools
+
 /** Ruta para la pantalla de actualización y descarga de archivos. */
 @Serializable
 @Keep

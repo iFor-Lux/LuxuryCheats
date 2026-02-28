@@ -24,6 +24,7 @@ import com.luxury.cheats.core.ui.LuxuryNavigationBar
 import com.luxury.cheats.core.ui.PersistentLogo
 import com.luxury.cheats.navigations.Home
 import com.luxury.cheats.navigations.Perfil
+import com.luxury.cheats.navigations.Tools
 import com.luxury.cheats.navigations.AppNavHost
 
 /**
@@ -80,8 +81,9 @@ private fun NavigationBarOverlay(
 ) {
     val isHome = navBackStackEntry?.destination?.hasRoute<Home>() == true
     val isPerfil = navBackStackEntry?.destination?.hasRoute<Perfil>() == true
+    val isTools = navBackStackEntry?.destination?.hasRoute<Tools>() == true
 
-    if (isHome || isPerfil) {
+    if (isHome || isPerfil || isTools) {
         Box(
             modifier =
                 Modifier
@@ -90,10 +92,14 @@ private fun NavigationBarOverlay(
             contentAlignment = Alignment.BottomCenter,
         ) {
             LuxuryNavigationBar(
-                activeTab = if (isHome) "Inicio" else "Perfil",
+                activeTab = when {
+                    isHome -> "Inicio"
+                    isTools -> "Tools"
+                    else -> "Perfil"
+                },
                 backdrop = backdrop,
                 onTabSelected = { tab: String ->
-                    handleTabSelection(navController, tab, isHome, isPerfil)
+                    handleTabSelection(navController, tab, isHome, isPerfil, isTools)
                 },
             )
         }
@@ -105,6 +111,7 @@ private fun handleTabSelection(
     tab: String,
     isHome: Boolean,
     isPerfil: Boolean,
+    isTools: Boolean,
 ) {
     if (tab == "Inicio" && !isHome) {
         navController.navigate(Home) {
@@ -112,6 +119,12 @@ private fun handleTabSelection(
                 saveState = true
                 inclusive = false
             }
+            launchSingleTop = true
+            restoreState = true
+        }
+    } else if (tab == "Tools" && !isTools) {
+        navController.navigate(Tools) {
+            popUpTo<Home>() { saveState = true }
             launchSingleTop = true
             restoreState = true
         }
