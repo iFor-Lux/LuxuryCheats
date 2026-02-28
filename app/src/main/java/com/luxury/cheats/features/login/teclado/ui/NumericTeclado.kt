@@ -21,7 +21,7 @@ private const val KEY_WIDTH = 80
  * Se eliminó la tecla de retorno por petición del usuario.
  */
 @Composable
-fun numericTeclado(
+fun NumericTeclado(
     onKeyPress: (String) -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -44,14 +44,17 @@ fun numericTeclado(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             ) {
                 row.forEach { num ->
-                    tecladoKey(
+                    val isDot = num == "."
+                    TecladoKey(
                         text = num,
                         onClick = { onKeyPress(num) },
                         modifier = Modifier.width(KEY_WIDTH.dp),
+                        color = if (isDot) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = if (isDot) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 if (index == LAST_ROW_INDEX) {
-                    tecladoIconKey(
+                    TecladoIconKey(
                         icon = Icons.AutoMirrored.Filled.Backspace,
                         onClick = onDelete,
                         modifier = Modifier.width(KEY_WIDTH.dp),

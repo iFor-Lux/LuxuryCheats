@@ -30,7 +30,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -92,6 +94,13 @@ private fun HomeIdInputField(
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
+    val textFieldValue = remember(idValue) {
+        androidx.compose.ui.text.input.TextFieldValue(
+            text = idValue,
+            selection = androidx.compose.ui.text.TextRange(idValue.length)
+        )
+    }
+
     Box(
         modifier =
             modifier
@@ -103,18 +112,21 @@ private fun HomeIdInputField(
     ) {
         BasicTextField(
             modifier = Modifier.focusRequester(focusRequester),
-            value = idValue,
+            value = textFieldValue,
             onValueChange = { newValue ->
-                if (newValue.all { it.isDigit() }) onIdValueChange(newValue)
+                if (newValue.text.all { it.isDigit() }) {
+                    onIdValueChange(newValue.text)
+                }
             },
             textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             keyboardOptions =
                 KeyboardOptions(
                     keyboardType = KeyboardType.Number,
-                    imeAction = androidx.compose.ui.text.input.ImeAction.Search,
+                    imeAction = ImeAction.Search,
                 ),
             keyboardActions = KeyboardActions(onSearch = { onSearchClick() }),
+            visualTransformation = VisualTransformation.None,
             singleLine = true,
             decorationBox = { innerTextField ->
                 if (idValue.isEmpty()) {

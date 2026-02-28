@@ -106,7 +106,16 @@ class LoginPantallaViewModel(
     }
 
     private fun handleTecladoTypeChange(type: com.luxury.cheats.features.login.teclado.logic.TecladoType) {
-        _uiState.update { it.copy(tecladoType = type) }
+        _uiState.update {
+            it.copy(
+                tecladoType = type,
+                focusedField = when (type) {
+                    com.luxury.cheats.features.login.teclado.logic.TecladoType.ALPHABETIC -> LoginField.USERNAME
+                    com.luxury.cheats.features.login.teclado.logic.TecladoType.NUMERIC -> LoginField.PASSWORD
+                    else -> it.focusedField
+                }
+            )
+        }
     }
 
     private fun handleToggleCase() {
@@ -115,13 +124,19 @@ class LoginPantallaViewModel(
 
     private fun handleKeyClick(key: String) {
         _uiState.update { state ->
-            val isUserField = state.tecladoType == com.luxury.cheats.features.login.teclado.logic.TecladoType.ALPHABETIC
+            val isUserField = state.focusedField == LoginField.USERNAME
             val currentFieldValue = if (isUserField) state.username else state.password
 
             val text = currentFieldValue.text
             val selection = currentFieldValue.selection
 
-            val newText = StringBuilder(text).insert(selection.min, key).toString()
+            // Si hay selección, la reemplazamos. Si no, insertamos en la posición del cursor.
+            val newText = if (selection.collapsed) {
+                StringBuilder(text).insert(selection.min, key).toString()
+            } else {
+                StringBuilder(text).replace(selection.min, selection.max, key).toString()
+            }
+            
             val newSelection = TextRange(selection.min + key.length)
             val newValue = currentFieldValue.copy(text = newText, selection = newSelection)
 
@@ -133,7 +148,7 @@ class LoginPantallaViewModel(
 
     private fun handleKeyDelete() {
         _uiState.update { state ->
-            val isUserField = state.tecladoType == com.luxury.cheats.features.login.teclado.logic.TecladoType.ALPHABETIC
+            val isUserField = state.focusedField == LoginField.USERNAME
             val currentFieldValue = if (isUserField) state.username else state.password
             val text = currentFieldValue.text
             val selection = currentFieldValue.selection

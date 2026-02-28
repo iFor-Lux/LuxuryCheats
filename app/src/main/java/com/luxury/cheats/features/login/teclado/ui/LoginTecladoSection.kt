@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import com.luxury.cheats.features.login.teclado.logic.TecladoType
 
 private object TecladoConstants {
-    const val TRANSITION_DURATION = 150
-    const val SCALE_TRANSITION = 0.95f
+    const val TRANSITION_DURATION = 200
+    const val SCALE_TRANSITION = 0.98f
     const val EMPTY_BOX_HEIGHT = 200
 }
 
@@ -46,6 +46,7 @@ data class TecladoActions(
     val onDelete: () -> Unit,
     val onToggleCase: () -> Unit,
     val onDone: () -> Unit,
+    val onTecladoTypeChange: (TecladoType) -> Unit,
 )
 
 /**
@@ -92,35 +93,48 @@ fun LoginTecladoSection(
                         .navigationBarsPadding(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                keyboardTransitionContent(type, isUpperCase, actions)
+                KeyboardTransitionContent(type, isUpperCase, actions)
             }
         }
     }
 }
 
 @Composable
-private fun keyboardTransitionContent(
+private fun KeyboardTransitionContent(
     type: TecladoType,
     isUpperCase: Boolean,
     actions: TecladoActions,
 ) {
     AnimatedContent(
         targetState = type,
-        transitionSpec = { keyboardTransitionSpec(targetState == TecladoType.NUMERIC) },
+        transitionSpec = {
+            fadeIn(animationSpec = tween(TecladoConstants.TRANSITION_DURATION)) +
+                scaleIn(initialScale = TecladoConstants.SCALE_TRANSITION, animationSpec = tween(TecladoConstants.TRANSITION_DURATION)) togetherWith
+                fadeOut(animationSpec = tween(TecladoConstants.TRANSITION_DURATION))
+        },
         label = "keyboardLayoutTransition",
     ) { targetType ->
         when (targetType) {
             TecladoType.ALPHABETIC ->
-                alphabeticTeclado(
+                AlphabeticTeclado(
                     isUpperCase = isUpperCase,
                     onKeyPress = actions.onKeyPress,
                     onDelete = actions.onDelete,
                     onToggleCase = actions.onToggleCase,
+                    onTecladoTypeChange = actions.onTecladoTypeChange,
+                    onDone = actions.onDone,
                 )
             TecladoType.NUMERIC ->
-                numericTeclado(
+                NumericTeclado(
                     onKeyPress = actions.onKeyPress,
                     onDelete = actions.onDelete,
+                )
+            TecladoType.SYMBOLS ->
+                SymbolsTeclado(
+                    onKeyPress = actions.onKeyPress,
+                    onDelete = actions.onDelete,
+                    onTecladoTypeChange = actions.onTecladoTypeChange,
+                    onDone = actions.onDone,
                 )
             TecladoType.NONE ->
                 Box(
@@ -131,15 +145,3 @@ private fun keyboardTransitionContent(
         }
     }
 }
-
-private fun keyboardTransitionSpec(isFlowingRight: Boolean) =
-    fadeIn(tween(TecladoConstants.TRANSITION_DURATION)) +
-        slideInHorizontally(
-            initialOffsetX = { if (isFlowingRight) it / 2 else -it / 2 },
-            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
-        ) + scaleIn(initialScale = TecladoConstants.SCALE_TRANSITION) togetherWith
-        fadeOut(tween(TecladoConstants.TRANSITION_DURATION)) +
-        slideOutHorizontally(
-            targetOffsetX = { if (isFlowingRight) -it / 2 else it / 2 },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        ) + scaleOut(targetScale = TecladoConstants.SCALE_TRANSITION)

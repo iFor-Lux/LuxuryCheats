@@ -47,24 +47,29 @@ data class TecladoKeyStyle(
  * @param modifier Modificador de Compose.
  */
 @Composable
-fun tecladoKey(
+fun TecladoKey(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    color: Color? = null,
+    contentColor: Color? = null,
 ) {
+    val defaultColor = if (text == " ") MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceVariant
+    val defaultContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+
     Surface(
         onClick = onClick,
         modifier = modifier.height(KeyConstants.KEY_HEIGHT.dp),
         shape = RoundedCornerShape(KeyConstants.ROUNDED_CORNER.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = color ?: defaultColor,
         tonalElevation = 2.dp,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
-                text = text,
-                fontSize = KeyConstants.FONT_SIZE_TEXT.sp,
+                text = if (text == " ") "Espacio" else text,
+                fontSize = if (text == " ") 14.sp else KeyConstants.FONT_SIZE_TEXT.sp,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = contentColor ?: defaultContentColor,
             )
         }
     }
@@ -79,7 +84,7 @@ fun tecladoKey(
  * @param style Estilo y comportamiento de la tecla.
  */
 @Composable
-fun tecladoIconKey(
+fun TecladoIconKey(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

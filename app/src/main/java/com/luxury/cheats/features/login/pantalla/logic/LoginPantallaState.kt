@@ -12,6 +12,14 @@ enum class LoginInteractionState {
 }
 
 /**
+ * Representa el campo de texto que tiene el foco para el teclado virtual.
+ */
+enum class LoginField {
+    USERNAME,
+    PASSWORD,
+}
+
+/**
  * Tipos de notificaciones disponibles en la pantalla de login.
  */
 enum class LoginNotificationType {
@@ -45,6 +53,7 @@ data class LoginPantallaState(
     val notifications: List<LoginNotification> = emptyList(),
     val interactionState: LoginInteractionState = LoginInteractionState.COMPACT,
     val tecladoType: TecladoType = TecladoType.NONE,
+    val focusedField: LoginField = LoginField.USERNAME,
     val isUpperCase: Boolean = false,
     val isLoading: Boolean = false,
     val isLoginSuccessful: Boolean = false,

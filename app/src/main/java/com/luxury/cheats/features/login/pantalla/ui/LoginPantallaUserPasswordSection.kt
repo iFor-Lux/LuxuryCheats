@@ -1,11 +1,18 @@
 package com.luxury.cheats.features.login.pantalla.ui
 
+import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,9 +48,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.EditCommand
@@ -197,6 +210,27 @@ private fun createDummyTextInputService(): TextInputService {
 }
 
 @Composable
+private fun BlinkingCursor() {
+    val infiniteTransition = rememberInfiniteTransition(label = "cursor")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cursorAlpha"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(2.dp, 20.dp)
+            .graphicsLayer { this.alpha = alpha }
+            .background(MaterialTheme.colorScheme.primary)
+    )
+}
+
+@Composable
 private fun LoginUserField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -204,6 +238,8 @@ private fun LoginUserField(
     modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
+    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    var isFocused by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
         Box(modifier = Modifier.width(210.dp)) {
@@ -218,12 +254,25 @@ private fun LoginUserField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
+            onTextLayout = { textLayoutResult = it },
             modifier =
                 Modifier
                     .width(210.dp)
                     .height(35.dp)
                     .focusRequester(focusRequester)
-                    .onFocusChanged { if (it.isFocused) onFocusChanged(true) }
+                    .onFocusChanged {
+                        isFocused = it.isFocused
+                        if (it.isFocused) onFocusChanged(true)
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures { offset ->
+                            focusRequester.requestFocus()
+                            textLayoutResult?.let { layout ->
+                                val position = layout.getOffsetForPosition(offset)
+                                onValueChange(value.copy(selection = androidx.compose.ui.text.TextRange(position)))
+                            }
+                        }
+                    }
                     .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp)),
             readOnly = true,
             textStyle =
@@ -231,7 +280,7 @@ private fun LoginUserField(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                 ),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            cursorBrush = SolidColor(androidx.compose.ui.graphics.Color.Transparent),
             decorationBox = { innerTextField ->
                 Box(
                     modifier =
@@ -242,6 +291,20 @@ private fun LoginUserField(
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     innerTextField()
+
+                    if (isFocused) {
+                        textLayoutResult?.let { layout ->
+                            // Aseguramos que el offset esté dentro de los límites del layout actual
+                            val offset = value.selection.max.coerceIn(0, layout.layoutInput.text.length)
+                            val cursorRect = layout.getCursorRect(offset)
+                            val density = LocalDensity.current
+                            val xOffset = with(density) { cursorRect.left.toDp() }
+
+                            Box(modifier = Modifier.offset(x = xOffset)) {
+                                BlinkingCursor()
+                            }
+                        }
+                    }
                 }
             },
         )
@@ -269,6 +332,9 @@ private fun LoginPasswordField(
 ) {
     val focusRequester = remember { FocusRequester() }
     var passwordVisible by remember { mutableStateOf(false) }
+    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    var isFocused by remember { mutableStateOf(false) }
+
     Column(modifier = modifier) {
         PasswordFieldLabel()
         Spacer(modifier = Modifier.height(2.dp))
@@ -281,18 +347,31 @@ private fun LoginPasswordField(
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
+                onTextLayout = { textLayoutResult = it },
                 modifier =
                     Modifier
                         .fillMaxSize()
                         .focusRequester(focusRequester)
-                        .onFocusChanged { if (it.isFocused) onFocusChanged(true) },
+                        .onFocusChanged {
+                            isFocused = it.isFocused
+                            if (it.isFocused) onFocusChanged(true)
+                        }
+                        .pointerInput(Unit) {
+                            detectTapGestures { offset ->
+                                focusRequester.requestFocus()
+                                textLayoutResult?.let { layout ->
+                                    val position = layout.getOffsetForPosition(offset)
+                                    onValueChange(value.copy(selection = androidx.compose.ui.text.TextRange(position)))
+                                }
+                            }
+                        },
                 readOnly = true,
                 textStyle =
                     TextStyle(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp,
                     ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                cursorBrush = SolidColor(androidx.compose.ui.graphics.Color.Transparent),
                 visualTransformation =
                     if (passwordVisible) {
                         VisualTransformation.None
@@ -304,6 +383,9 @@ private fun LoginPasswordField(
                         innerTextField = innerTextField,
                         passwordVisible = passwordVisible,
                         onPasswordVisibleChange = { passwordVisible = it },
+                        isFocused = isFocused,
+                        textLayoutResult = textLayoutResult,
+                        selection = value.selection
                     )
                 },
             )
@@ -316,6 +398,9 @@ private fun PasswordTextFieldDecoration(
     innerTextField: @Composable () -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibleChange: (Boolean) -> Unit,
+    isFocused: Boolean,
+    textLayoutResult: TextLayoutResult?,
+    selection: androidx.compose.ui.text.TextRange
 ) {
     Box(
         modifier =
@@ -331,6 +416,20 @@ private fun PasswordTextFieldDecoration(
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 innerTextField()
+
+                if (isFocused) {
+                    textLayoutResult?.let { layout ->
+                        // Aseguramos que el offset esté dentro de los límites del layout actual
+                        val offset = selection.max.coerceIn(0, layout.layoutInput.text.length)
+                        val cursorRect = layout.getCursorRect(offset)
+                        val density = LocalDensity.current
+                        val xOffset = with(density) { cursorRect.left.toDp() }
+
+                        Box(modifier = Modifier.offset(x = xOffset)) {
+                            BlinkingCursor()
+                        }
+                    }
+                }
             }
             IconButton(
                 onClick = { onPasswordVisibleChange(!passwordVisible) },

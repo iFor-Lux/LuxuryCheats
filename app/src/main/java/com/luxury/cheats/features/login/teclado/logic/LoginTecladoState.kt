@@ -7,6 +7,7 @@ enum class TecladoType {
     NONE,
     ALPHABETIC,
     NUMERIC,
+    SYMBOLS,
 }
 
 /**

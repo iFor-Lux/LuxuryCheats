@@ -120,7 +120,11 @@ private fun LoginScreenContent(
                     onKeyPress = { onAction(LoginPantallaAction.OnKeyClick(it)) },
                     onDelete = { onAction(LoginPantallaAction.OnKeyDelete) },
                     onToggleCase = { onAction(LoginPantallaAction.OnToggleCase) },
-                    onDone = { onAction(LoginPantallaAction.OnInteractionStateChange(LoginInteractionState.COMPACT)) },
+                    onDone = { 
+                        onAction(LoginPantallaAction.OnInteractionStateChange(LoginInteractionState.COMPACT))
+                        onAction(LoginPantallaAction.OnLoginClick) 
+                    },
+                    onTecladoTypeChange = { onAction(LoginPantallaAction.OnTecladoTypeChange(it)) }
                 ),
             modifier = Modifier.align(Alignment.BottomCenter),
         )
