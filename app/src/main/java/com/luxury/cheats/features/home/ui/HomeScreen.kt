@@ -1,5 +1,6 @@
 package com.luxury.cheats.features.home.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,13 +10,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.luxury.cheats.core.ui.SquarePatternBackground
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -89,7 +93,7 @@ fun HomeScreenContent(
                     .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier),
         ) {
             SquarePatternBackground()
-            HomeSectionsList(uiState, scrollState, onAction)
+            HomeSectionsList(uiState, scrollState, onAction, navController)
             com.luxury.cheats.core.ui.FadingEdges()
         }
 
@@ -149,6 +153,26 @@ private fun HomeOverlays(
             onDismissRequest = { onAction(HomeAction.DismissDownloadArchivo) },
         )
     }
+
+    if (uiState.isPanelControlFloatingVisible) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { onAction(HomeAction.DismissPanelControlFloating) },
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(width = 300.dp, height = 400.dp)
+                        .background(androidx.compose.ui.graphics.Color.Black, RoundedCornerShape(20.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "Panel Control Floating",
+                    color = androidx.compose.ui.graphics.Color.White,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -156,6 +180,7 @@ private fun HomeSectionsList(
     uiState: com.luxury.cheats.features.home.logic.HomeState,
     scrollState: androidx.compose.foundation.ScrollState,
     onAction: (HomeAction) -> Unit,
+    navController: NavHostController,
 ) {
     Column(
         modifier =
@@ -191,6 +216,10 @@ private fun HomeSectionsList(
             HomeOpcionesSection(
                 uiState = uiState,
                 onAction = onAction,
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            HomePanelControlSection(
+                onAction = onAction
             )
         }
 

@@ -42,4 +42,14 @@ sealed class HomeAction {
 
     /** Acción para cerrar el bottom sheet de descarga. */
     object DismissDownloadArchivo : HomeAction()
+
+    /** Acción para alternar el panel flotante de control. */
+    object TogglePanelControlFloating : HomeAction()
+
+    /** Acción para cerrar el panel flotante de control. */
+    object DismissPanelControlFloating : HomeAction()
+
+    /** Acción para alternar el widget flotante. */
+    object ToggleFloatingWidget : HomeAction()
+
 }

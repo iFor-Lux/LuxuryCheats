@@ -197,8 +197,11 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
     navController: NavHostController,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
-    composable<Home> {
-        val viewModel: HomeViewModel = hiltViewModel()
+    composable<Home> { entry ->
+        val parentEntry = remember(entry) {
+            navController.getBackStackEntry<MainGraph>()
+        }
+        val viewModel: HomeViewModel = hiltViewModel(parentEntry)
         val uiState by viewModel.uiState.collectAsState()
 
         HomeScreen(
@@ -213,8 +216,9 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
         PerfilScreen(backdrop = backdrop)
     }
 
-    composable<Tools> {
-        ToolsScreen(backdrop = backdrop)
+    composable<Tools> { entry ->
+        val viewModel: com.luxury.cheats.features.tools.logic.ToolsViewModel = hiltViewModel()
+        ToolsScreen(viewModel = viewModel)
     }
 
     composable<Update> {

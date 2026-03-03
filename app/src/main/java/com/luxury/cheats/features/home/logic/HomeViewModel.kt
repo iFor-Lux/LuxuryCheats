@@ -12,6 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,6 +29,7 @@ class HomeViewModel
         private val playerRepository: com.luxury.cheats.services.freefireapi.PlayerRepository,
         private val updateService: com.luxury.cheats.features.update.service.UpdateService,
         private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService,
+        private val floatingWidgetManager: com.luxury.cheats.services.floating.FloatingWidgetManager,
         @ApplicationContext private val context: android.content.Context,
     ) : ViewModel() {
         private val adminComponent =
@@ -168,8 +170,39 @@ class HomeViewModel
                 is HomeAction.ShowDownloadArchivo -> uiStateManager.showDownloadArchivo(action.cheatName)
                 is HomeAction.ToggleCheat -> uiStateManager.toggleCheat(action.cheatName, action.enable)
                 HomeAction.DismissDownloadArchivo -> _uiState.update { it.copy(isDownloadArchivoVisible = false) }
+                HomeAction.TogglePanelControlFloating -> uiStateManager.handleToggle("panel_floating")
+                HomeAction.DismissPanelControlFloating -> _uiState.update { it.copy(isPanelControlFloatingVisible = false) }
+                HomeAction.ToggleFloatingWidget -> toggleFloatingWidget()
             }
         }
+
+        private fun toggleFloatingWidget() {
+            val isActive = !_uiState.value.isFloatingWidgetActive
+            
+            if (isActive && !android.provider.Settings.canDrawOverlays(context)) {
+                val intent = Intent(
+                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    android.net.Uri.parse("package:${context.packageName}")
+                ).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+                return
+            }
+
+            _uiState.update { it.copy(isFloatingWidgetActive = isActive) }
+            val intent = Intent(context, com.luxury.cheats.services.floating.FloatingControlService::class.java)
+            if (isActive) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    context.startForegroundService(intent)
+                } else {
+                    context.startService(intent)
+                }
+            } else {
+                context.stopService(intent)
+            }
+        }
+
 
         private fun handleSaveId() {
             val currentId = _uiState.value.idValue
@@ -229,6 +262,7 @@ class HomeViewModel
                             state.copy(isOpcionesVisible = !state.isOpcionesVisible)
                         }
                         "console_expansion" -> state.copy(isConsoleExpanded = !state.isConsoleExpanded)
+                        "panel_floating" -> state.copy(isPanelControlFloatingVisible = !state.isPanelControlFloatingVisible)
                         else -> state
                     }
                 }

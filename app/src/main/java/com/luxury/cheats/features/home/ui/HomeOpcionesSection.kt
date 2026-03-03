@@ -31,7 +31,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -74,7 +73,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 private const val SECTION_WIDTH = 340
-private const val SECTION_HEIGHT = 450
+private const val SECTION_HEIGHT = 320
 private const val WIDE_CARD_HEIGHT = 80
 
 private object OptionsConstants {
@@ -151,14 +150,7 @@ fun HomeOpcionesSection(
             onAction = onAction,
         )
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-            WideOptionCard(
-                title = "PANEL DE CONTROL",
-                description = "Ajustes avanzados y configuración",
-            )
-        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -403,59 +395,6 @@ private fun OptionCardFooter(
     }
 }
 
-/**
- * Tarjeta de opción ancha para el panel de control.
- *
- * @param title Título de la opción.
- * @param description Descripción detallada de la opción.
- */
-@Composable
-fun WideOptionCard(
-    title: String,
-    description: String,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(WIDE_CARD_HEIGHT.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(20.dp))
-                .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .size(40.dp)
-                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Default.Share,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = description,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                fontSize = 10.sp,
-            )
-        }
-    }
-}
 
 /**
  * Fondo Topográfico Personalizado.

@@ -40,6 +40,12 @@
 
 
         <service
+            android:name=".services.floating.FloatingControlService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
+        <service
             android:name=".services.security.SecurityService"
             android:enabled="true"
             android:exported="false"

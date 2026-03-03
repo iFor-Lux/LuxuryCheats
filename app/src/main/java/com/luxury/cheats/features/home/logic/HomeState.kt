@@ -28,4 +28,6 @@ data class HomeState(
     val cheatOptions: Map<String, Boolean> = emptyMap(),
     // Caché de pesos pre-cargados
     val fileWeightsCache: Map<String, String> = emptyMap(),
+    val isPanelControlFloatingVisible: Boolean = false,
+    val isFloatingWidgetActive: Boolean = false
 )
