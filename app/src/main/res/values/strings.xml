@@ -9,4 +9,5 @@
     <string name="welcome_page1_title">Bienvenido a\nLuxury.Reg !!!</string>
     <string name="welcome_page1_subtitle">La mejor herramienta para dominar Free Fire\n con cheats avanzados y seguros</string>
     <string name="welcome_page1_start">Comenzar</string>
+    <string name="accessibility_service_description">Luxury Island requiere permiso de accesibilidad para interceptar toques en la barra de estado y mostrar la isla dinámica.</string>
 </resources>

@@ -86,9 +86,15 @@ import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.circle
 import androidx.graphics.shapes.star
 import androidx.graphics.shapes.toPath
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import com.luxury.cheats.features.tools.logic.ToolsAction
 import com.luxury.cheats.features.tools.logic.ToolsState
 import com.luxury.cheats.features.tools.logic.ToolsViewModel
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.IconButton
+import kotlin.math.roundToInt
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -180,12 +186,12 @@ fun FloatingConfigSection(
                 val widthPercent = ((uiState.floatingWidth - 50f) / (400f - 50f) * 100f).coerceIn(0f, 100f)
                 ConfigSlider(
                     label = "ANCHO",
-                    valueText = "${widthPercent.toInt()}",
+                    valueText = "${widthPercent.roundToInt()}",
                     value = widthPercent,
                     range = 0f..100f,
                     onValueChange = { percent ->
                         val actualWidth = 50 + (percent / 100f * (400 - 50))
-                        onAction(ToolsAction.UpdateFloatingConfig(width = actualWidth.toInt()))
+                        onAction(ToolsAction.UpdateFloatingConfig(width = actualWidth.roundToInt()))
                     }
                 )
 
@@ -193,12 +199,13 @@ fun FloatingConfigSection(
                 val heightPercent = ((uiState.floatingHeight - 5f) / (50f - 5f) * 100f).coerceIn(0f, 100f)
                 ConfigSlider(
                     label = "ALTO",
-                    valueText = "${heightPercent.toInt()}",
+                    valueText = "${heightPercent.roundToInt()}",
                     value = heightPercent,
                     range = 0f..100f,
+                    arrowStep = 3f, // Aumentamos el paso para que el cambio de DP sea >= 1
                     onValueChange = { percent ->
                         val actualHeight = 5 + (percent / 100f * (50 - 5))
-                        onAction(ToolsAction.UpdateFloatingConfig(height = actualHeight.toInt()))
+                        onAction(ToolsAction.UpdateFloatingConfig(height = actualHeight.roundToInt()))
                     }
                 )
 
@@ -212,12 +219,12 @@ fun FloatingConfigSection(
                 val xPercent = (uiState.floatingCenterX / screenWidth * 100f).coerceIn(0f, 100f)
                 ConfigSlider(
                     label = "CENTRO X (HORIZONTAL)",
-                    valueText = "${xPercent.toInt()}",
+                    valueText = "${xPercent.roundToInt()}",
                     value = xPercent,
                     range = 0f..100f,
                     onValueChange = { percent ->
                         val actualX = (percent / 100f * screenWidth)
-                        onAction(ToolsAction.UpdateFloatingConfig(centerX = actualX.toInt()))
+                        onAction(ToolsAction.UpdateFloatingConfig(centerX = actualX.roundToInt()))
                     }
                 )
 
@@ -225,12 +232,14 @@ fun FloatingConfigSection(
                 val yPercent = (uiState.floatingCenterY / screenHeight * 100f).coerceIn(0f, 100f)
                 ConfigSlider(
                     label = "CENTRO Y (VERTICAL)",
-                    valueText = "${yPercent.toInt()}",
+                    valueText = "${yPercent.roundToInt()}",
                     value = yPercent,
                     range = 0f..100f,
+                    decreaseIcon = Icons.Default.KeyboardArrowUp,
+                    increaseIcon = Icons.Default.KeyboardArrowDown,
                     onValueChange = { percent ->
                         val actualY = (percent / 100f * screenHeight)
-                        onAction(ToolsAction.UpdateFloatingConfig(centerY = actualY.toInt()))
+                        onAction(ToolsAction.UpdateFloatingConfig(centerY = actualY.roundToInt()))
                     }
                 )
 
@@ -268,7 +277,7 @@ fun FloatingConfigSection(
                     // --- GROSOR (Rango real 0-10 con puntos discretos) ---
                     ConfigSlider(
                         label = "GROSOR DEL BORDE",
-                        valueText = "${uiState.floatingStrokeWidth.toInt()}",
+                        valueText = "${uiState.floatingStrokeWidth.roundToInt()}",
                         value = uiState.floatingStrokeWidth,
                         range = 0f..8f,
                         steps = 7,
@@ -489,6 +498,7 @@ private class DynamicMorphingShape(private val progress: Float) : Shape {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ConfigSlider(
@@ -497,15 +507,19 @@ fun ConfigSlider(
     value: Float,
     range: ClosedFloatingPointRange<Float>,
     steps: Int = 0,
+    decreaseIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.KeyboardArrowLeft,
+    increaseIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.KeyboardArrowRight,
+    arrowStep: Float = 1f,
     onValueChange: (Float) -> Unit
 ) {
     // Usamos un estado local para que el slider sea instantáneo
-    var sliderValue by remember(value) { mutableStateOf(value) }
+    var sliderValue by remember(value) { mutableFloatStateOf(value) }
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = label,
@@ -520,58 +534,98 @@ fun ConfigSlider(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-        Box(
+        
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Solo mostramos el punto magnético si NO hay pasos predeterminados
-            if (steps == 0) {
-                val isCentered = sliderValue in 48f..52f
-                val dotSize by animateDpAsState(
-                    targetValue = if (isCentered) 10.dp else 6.dp,
-                    animationSpec = spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessLow
-                    )
-                )
-
-                // Punto indicador del medio (Visual + Magnetismo dinámico)
-                Box(
-                    modifier = Modifier
-                        .size(dotSize)
-                        .background(
-                            color = if (isCentered)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                            shape = CircleShape
-                        )
+            // Flecha Izquierda/Arriba (Bajar -step)
+            IconButton(
+                onClick = {
+                    val newValue = (sliderValue - arrowStep).coerceIn(range.start, range.endInclusive)
+                    onValueChange(newValue)
+                },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = decreaseIcon,
+                    contentDescription = "Menos",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
-            Slider(
-                value = sliderValue,
-                onValueChange = { newValue ->
-                    if (steps == 0) {
-                        // Lógica del imán solo para desplazamiento libre
-                        val snappedValue = if (newValue in 47f..53f) 50f else newValue
-                        sliderValue = snappedValue
-                        onValueChange(snappedValue)
-                    } else {
-                        sliderValue = newValue
-                        onValueChange(newValue)
-                    }
-                },
-                valueRange = range,
-                steps = steps,
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    activeTickColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-                    inactiveTickColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                // Solo mostramos el punto magnético si NO hay pasos predeterminados
+                if (steps == 0) {
+                    val isCentered = sliderValue.roundToInt() in 48..52
+                    val dotSize by animateDpAsState(
+                        targetValue = if (isCentered) 10.dp else 6.dp,
+                        animationSpec = spring(
+                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                        ),
+                        label = "DotSize"
+                    )
+
+                    // Punto indicador del medio (Visual + Magnetismo dinámico)
+                    Box(
+                        modifier = Modifier
+                            .size(dotSize)
+                            .background(
+                                color = if (isCentered)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                                shape = CircleShape
+                            )
+                    )
+                }
+
+                Slider(
+                    value = sliderValue,
+                    onValueChange = { newValue ->
+                        if (steps == 0) {
+                            // Lógica del imán solo para desplazamiento libre
+                            val snappedValue = if (newValue in 47.5f..52.5f) 50f else newValue
+                            sliderValue = snappedValue
+                            onValueChange(snappedValue)
+                        } else {
+                            sliderValue = newValue
+                            onValueChange(newValue)
+                        }
+                    },
+                    valueRange = range,
+                    steps = steps,
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        activeTickColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                        inactiveTickColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    )
                 )
-            )
+            }
+
+            // Flecha Derecha/Abajo (Subir +step)
+            IconButton(
+                onClick = {
+                    val newValue = (sliderValue + arrowStep).coerceIn(range.start, range.endInclusive)
+                    onValueChange(newValue)
+                },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = increaseIcon,
+                    contentDescription = "Más",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }

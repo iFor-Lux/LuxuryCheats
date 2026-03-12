@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.luxury.cheats.services.floating.FloatingWidgetManager
 import com.luxury.cheats.services.floating.FloatingControlService
+import com.luxury.cheats.services.floating.IslandAccessibilityService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,9 +73,15 @@ class ToolsViewModel @Inject constructor(
     private fun toggleFloatingWidget() {
         val isActive = !_uiState.value.isFloatingWidgetActive
 
+        if (isActive && !isAccessibilityServiceEnabled()) {
+             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            return
+        }
+
         if (isActive && !Settings.canDrawOverlays(context)) {
-            // Nota: Aquí se podría disparar una notificación si el VM tuviera acceso al servicio de notificaciones
-            // Por simplicidad, abrimos los ajustes directamente
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 android.net.Uri.parse("package:${context.packageName}")
@@ -96,5 +103,11 @@ class ToolsViewModel @Inject constructor(
         } else {
             context.stopService(intent)
         }
+    }
+
+    private fun isAccessibilityServiceEnabled(): Boolean {
+        val expectedComponentName = android.content.ComponentName(context, IslandAccessibilityService::class.java)
+        val enabledServices = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        return enabledServices?.contains(expectedComponentName.flattenToString()) == true
     }
 }

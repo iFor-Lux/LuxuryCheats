@@ -37,6 +37,16 @@ class UserPreferencesService
             private const val KEY_LAST_UPDATE_VERSION = "last_update_version"
             private const val KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp"
             private const val KEY_SEEN_NOTIFICATIONS = "seen_notifications"
+            
+            // Claves para Floating Preview Widget (Tools)
+            private const val KEY_FLOATING_WIDTH = "floating_width"
+            private const val KEY_FLOATING_HEIGHT = "floating_height"
+            private const val KEY_FLOATING_CENTER_X = "floating_center_x"
+            private const val KEY_FLOATING_CENTER_Y = "floating_center_y"
+            private const val KEY_FLOATING_STROKE_WIDTH = "floating_stroke_width"
+            private const val KEY_FLOATING_STROKE_ENABLED = "floating_stroke_enabled"
+            private const val KEY_FLOATING_STROKE_COLOR = "floating_stroke_color"
+
             private const val XOR_SEED = 0x55
         }
 
@@ -177,6 +187,37 @@ class UserPreferencesService
                 return updated
             }
             return currentSeen
+        }
+
+        /** Gestiona la persistencia de las coordenadas y estilos del Widget Flotante de Previsualización. */
+        fun accessFloatingConfig(
+            width: Int? = null,
+            height: Int? = null,
+            centerX: Int? = null,
+            centerY: Int? = null,
+            strokeWidth: Float? = null,
+            isStrokeEnabled: Boolean? = null,
+            strokeColor: Long? = null
+        ): Map<String, Any> {
+            update {
+                width?.let { putInt(KEY_FLOATING_WIDTH, it) }
+                height?.let { putInt(KEY_FLOATING_HEIGHT, it) }
+                centerX?.let { putInt(KEY_FLOATING_CENTER_X, it) }
+                centerY?.let { putInt(KEY_FLOATING_CENTER_Y, it) }
+                strokeWidth?.let { putFloat(KEY_FLOATING_STROKE_WIDTH, it) }
+                isStrokeEnabled?.let { putBoolean(KEY_FLOATING_STROKE_ENABLED, it) }
+                strokeColor?.let { putLong(KEY_FLOATING_STROKE_COLOR, it) }
+            }
+            
+            return mapOf(
+                "width" to prefs.getInt(KEY_FLOATING_WIDTH, 180),
+                "height" to prefs.getInt(KEY_FLOATING_HEIGHT, 35),
+                "centerX" to prefs.getInt(KEY_FLOATING_CENTER_X, 200),
+                "centerY" to prefs.getInt(KEY_FLOATING_CENTER_Y, 400),
+                "strokeWidth" to prefs.getFloat(KEY_FLOATING_STROKE_WIDTH, 0f),
+                "isStrokeEnabled" to prefs.getBoolean(KEY_FLOATING_STROKE_ENABLED, false),
+                "strokeColor" to prefs.getLong(KEY_FLOATING_STROKE_COLOR, 0xFFFFFFFF)
+            )
         }
 
         private object PreferenceHelper {
