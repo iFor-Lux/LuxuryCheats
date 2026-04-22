@@ -8,7 +8,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,127 +29,100 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun FloatingWidgetContent(
-    widthDp: Int,
-    heightDp: Int,
-    strokeWidthDp: Float,
-    isStrokeEnabled: Boolean,
-    strokeColorLong: Long = 0xFFFFFFFF,
-    isMenuVisible: Boolean = false,
+    config: FloatingWidgetConfig,
     onToggleMenu: () -> Unit = {}
 ) {
-    Log.d("FloatingWidget", "Recomponiendo Widget: WidthDp=$widthDp, HeightDp=$heightDp, MenuOpen=$isMenuVisible")
+    val widthDp = config.width
+    val heightDp = config.height
+    val strokeWidthDp = config.strokeWidth
+    val isStrokeEnabled = config.isStrokeEnabled
+    val strokeColorLong = config.strokeColor
+    val isMenuVisible = config.isMenuVisible
+
+    Log.d("FloatingWidget", "Recomponiendo Widget: CenterY=${config.centerY}, MenuOpen=$isMenuVisible")
 
     val strokeWidth = if (isStrokeEnabled) strokeWidthDp else 0f
     val shape = RoundedCornerShape(24.dp)
-
-    // Resolvemos el color: 0 significa "Dinámico" (Primary)
     val strokeColor = if (strokeColorLong == 0L) {
         MaterialTheme.colorScheme.primary
     } else {
         Color(strokeColorLong)
     }
 
+    // El anclaje al top de la ventana es crítico para que crezca hacia abajo
     Box(
         modifier = Modifier
-            .systemGestureExclusion()
-            .fillMaxWidth()
+            .fillMaxSize()
             .pointerInput(isMenuVisible) {
                 if (isMenuVisible) {
                     awaitEachGesture {
-                        val down = awaitFirstDown()
-                        down.consume()
+                        awaitFirstDown().consume()
                         onToggleMenu()
-                        var unconsumed = true
-                        while (unconsumed) {
-                            val event = awaitPointerEvent()
-                            event.changes.forEach { it.consume() }
-                            if (event.changes.none { it.pressed }) {
-                                unconsumed = false
-                            }
-                        }
                     }
                 }
-            }
+            },
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(top = 20.dp), // Búfer superior de 20dp para la ventana
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Barra Visual y Táctil Exacta (Sin buffer oculto)
+            // Contenedor táctil de la isla
             Box(
                 modifier = Modifier
-                    .systemGestureExclusion() // Evita gestos de barra de estado
-                    .size(
-                        width = (widthDp + (strokeWidth * 2)).dp,
-                        height = (heightDp + (strokeWidth * 2)).dp
-                    )
+                    .size(width = (widthDp + 40).dp, height = (heightDp + 40).dp)
+                    .systemGestureExclusion()
                     .pointerInput(Unit) {
                         awaitEachGesture {
-                            val down = awaitFirstDown()
-                            Log.d("FloatingWidget", "ACTION_DOWN registrado en X: ${down.position.x}, Y: ${down.position.y}")
-                            down.consume()
-                            onToggleMenu()
-                            var unconsumed = true
-                            while (unconsumed) {
-                                val event = awaitPointerEvent()
-                                event.changes.forEach { 
-                                    if (it.isConsumed) {
-                                       Log.d("FloatingWidget", "Evento de movimiento consumido por otro componente! X: ${it.position.x}, Y: ${it.position.y}")
-                                    } else {
-                                       it.consume() 
-                                    }
-                                }
-                                if (event.changes.none { it.pressed }) {
-                                    Log.d("FloatingWidget", "ACTION_UP o CANCEL. Fin del gesto.")
-                                    unconsumed = false
-                                }
+                            awaitFirstDown().also { 
+                                Log.d("FloatingWidget", "Click OK en Isla: Y local=${it.position.y}")
+                                it.consume() 
                             }
+                            onToggleMenu()
                         }
-                    }
-                    .then(
-                        if (isStrokeEnabled) {
-                            Modifier.border(
-                                width = strokeWidth.dp,
-                                color = strokeColor,
-                                shape = shape
-                            )
-                        } else Modifier
-                    )
-                    .padding(strokeWidth.dp)
-                    .background(Color.Black, shape),
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                // Contenido interno si fuera necesario
+                // La BARRA VISUAL real
+                Box(
+                    modifier = Modifier
+                        .size(
+                            width = (widthDp + (strokeWidth * 2)).dp,
+                            height = (heightDp + (strokeWidth * 2)).dp
+                        )
+                        .then(
+                            if (isStrokeEnabled) {
+                                Modifier.border(
+                                    width = strokeWidth.dp,
+                                    color = strokeColor,
+                                    shape = shape
+                                )
+                            } else Modifier
+                        )
+                        .padding(strokeWidth.dp)
+                        .background(Color.Black, shape)
+                )
             }
 
-            // Menú (Cuadro que se muestra al dar click)
+            // Menú
             AnimatedVisibility(visible = isMenuVisible) {
                 Box(
                     modifier = Modifier
                         .padding(top = 8.dp)
-                        .size(width = 160.dp, height = 160.dp)
+                        .size(width = 160.dp, height = 280.dp)
                         .background(
-                            Color.Black.copy(alpha = 0.9f),
-                            RoundedCornerShape(16.dp)
+                            Color.Black.copy(alpha = 0.95f),
+                            RoundedCornerShape(24.dp)
                         )
                         .systemGestureExclusion()
                         .border(
                             1.dp,
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                            RoundedCornerShape(16.dp)
+                            RoundedCornerShape(24.dp)
                         )
                         .pointerInput(Unit) {
                             awaitEachGesture {
-                                val down = awaitFirstDown()
-                                down.consume()
-                                var unconsumed = true
-                                while (unconsumed) {
-                                    val event = awaitPointerEvent()
-                                    event.changes.forEach { it.consume() }
-                                    if (event.changes.none { it.pressed }) {
-                                        unconsumed = false
-                                    }
-                                }
+                                awaitFirstDown().consume()
                             }
                         },
                     contentAlignment = Alignment.Center
@@ -157,8 +130,8 @@ fun FloatingWidgetContent(
                     Text(
                         text = "MENU",
                         color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp
                     )
                 }
             }

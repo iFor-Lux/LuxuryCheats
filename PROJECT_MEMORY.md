@@ -698,3 +698,12 @@
   - `app/build.gradle.kts`: Actualización de parámetros de versión.
   - `NOTAS_VERSION_2.0.1.md`: Creación de documento de notas con el fix de login integrado de forma discreta.
 - **Resultado**: Base de código actualizada y lista para distribución con mayor robustez en el login.
+### Corrección de FloatingControlService - Lifecycle y Estabilidad (Marzo 2026)
+- **Contexto**: El `FloatingControlService` presentaba errores de compilación por inconsistencias en el manejo del ciclo de vida y variables no definidas.
+- **Decisión**: Implementar la interfaz `LifecycleOwner` manualmente en el servicio y definir `lifecycleRegistry` y `rootContainer`.
+- **Razonamiento**: 
+  - `LifecycleOwner` es necesario para que los componentes de Compose (que se integrarán luego) puedan observar el ciclo de vida del servicio.
+  - La definición de `rootContainer` permite una limpieza segura de la vista en `onDestroy` mediante `windowManager.removeView()`.
+- **Implementación**:
+  - `FloatingControlService.kt`: Implementa `LifecycleOwner`, maneja `ON_CREATE`, `ON_START` y `ON_DESTROY` en el `lifecycleRegistry`.
+- **Resultado**: Código estable y listo para la implementación de UI flotante, siguiendo los estándares de arquitectura del proyecto.

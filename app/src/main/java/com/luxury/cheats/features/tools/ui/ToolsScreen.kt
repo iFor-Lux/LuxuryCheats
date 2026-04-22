@@ -228,8 +228,10 @@ fun FloatingConfigSection(
                     }
                 )
 
-                // --- POSICIÓN Y (Mapeo 0-100 -> 0-screenHeight) ---
-                val yPercent = (uiState.floatingCenterY / screenHeight * 100f).coerceIn(0f, 100f)
+                // --- POSICIÓN Y (Mapeo 0-100 -> -50 a screenHeight) ---
+                // Permitimos -50 para que el usuario pueda "subir más" el widget hacia la muesca/barra de estado
+                val minY = -50f
+                val yPercent = ((uiState.floatingCenterY - minY) / (screenHeight - minY) * 100f).coerceIn(0f, 100f)
                 ConfigSlider(
                     label = "CENTRO Y (VERTICAL)",
                     valueText = "${yPercent.roundToInt()}",
@@ -238,7 +240,7 @@ fun FloatingConfigSection(
                     decreaseIcon = Icons.Default.KeyboardArrowUp,
                     increaseIcon = Icons.Default.KeyboardArrowDown,
                     onValueChange = { percent ->
-                        val actualY = (percent / 100f * screenHeight)
+                        val actualY = minY + (percent / 100f * (screenHeight - minY))
                         onAction(ToolsAction.UpdateFloatingConfig(centerY = actualY.roundToInt()))
                     }
                 )

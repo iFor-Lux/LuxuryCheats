@@ -1,15 +1,33 @@
 # Estructura de Firebase Realtime Database
 
+**Project ID:** `luxury-counter`
+**Project Number:** `380288570955`
 **URL:** `https://luxury-counter-default-rtdb.firebaseio.com/`
+
+## Aplicaciones Registradas
+- **Android App:** `1:380288570955:android:ddaebbb74c782ffeb19fce` (`com.luxury.cheats`)
+- **Web App:** `1:380288570955:web:d83abaf3665cbcedb19fce`
 
 ## Estructura de Árbol ASCII
 
 ```text
 luxury-counter-default-rtdb (Root)
+├── active_ips
+│   └── {ip_hash}
+│       ├── createdAt (ISO 8601 string)
+│       ├── device (string)
+│       ├── expirationDate (ISO 8601 string)
+│       ├── key (string)
+│       ├── status (string)
+│       └── used (boolean)
+├── app_images
+│   └── {img_id}
+│       ├── title (string)
+│       └── url (string)
 ├── app_update
 │   ├── active (boolean)
-│   ├── descripcion (string)
-│   ├── downloadlink (string)
+│   ├── description (string)
+│   ├── downloadLink (string)
 │   ├── timestamp (ISO 8601 string)
 │   ├── title (string)
 │   └── version (string)
@@ -18,11 +36,19 @@ luxury-counter-default-rtdb (Root)
 │       ├── active (boolean)
 │       ├── plataform (string)
 │       └── timestamp (ISO 8601 string)
+├── licenses
+│   └── {license_key}
+│       ├── createdAt (ISO 8601 string)
+│       ├── device (string)
+│       ├── expirationDate (ISO 8601 string)
+│       ├── key (string)
+│       ├── status (string)
+│       └── used (boolean)
 ├── notifications
 │   └── {notification_id}
 │       ├── active (boolean)
 │       ├── description (string)
-│       ├── frecuency (string)
+│       ├── frequency (string)
 │       ├── id (string)
 │       ├── image (string)
 │       ├── sent (boolean)
@@ -30,24 +56,25 @@ luxury-counter-default-rtdb (Root)
 │       ├── title (string)
 │       └── type (string: "in-app" | "push")
 ├── urls
-│   ├── aimbot
+│   ├── Aimbot
 │   │   ├── path (string)
-│   │   ├── url (string)
-│   │   └── url 1 (string)
-│   ├── aimfov
+│   │   └── url
+│   │       └── url (string)
+│   ├── Aimfov
 │   │   ├── path (string)
-│   │   ├── url (string)
-│   │   └── url 1 (string)
+│   │   └── url
+│   │       └── url (string)
 │   ├── Holograma
 │   │   ├── path (string)
-│   │   ├── url (string)
-│   │   └── url 1 (string)
-│   └── Wall hack
+│   │   └── url
+│   │       └── url (string)
+│   └── WallHack
 │       ├── path (string)
-│       ├── url (string)
-│       └── url 1 (string)
+│       └── url
+│           ├── url (string)
+│           └── url2 (string)
 └── users
-    └── {username}
+    └── {user_id}
         ├── createdAt (ISO 8601 string)
         ├── device (string)
         ├── expirationDate (ISO 8601 string)
@@ -57,38 +84,62 @@ luxury-counter-default-rtdb (Root)
 
 ## Descripción de Nodos
 
+### `active_ips`
+Controla las sesiones activas vinculadas a una dirección IP o hash de dispositivo para prevenir abusos.
+- **createdAt**: Fecha en la que se registró la IP.
+- **device**: ID del dispositivo vinculado a esa IP.
+- **expirationDate**: Cuándo expira la sesión de esa IP.
+- **key**: Licencia vinculada a la IP.
+- **status**: Estado actual de la sesión (ej. `active`).
+- **used**: Indica si la IP ya ha sido utilizada para activar un servicio.
+
+### `app_images`
+Recursos visuales dinámicos cargados desde URLs externas.
+- **title**: Nombre identificador de la imagen (ej. `imagenLogin`).
+- **url**: Enlace directo a la imagen hospedada.
+
 ### `app_update`
 Contiene información sobre las últimas actualizaciones de la aplicación.
 - **active**: Indica si la actualización está activa actualmente.
-- **descripcion**: Un breve resumen de las novedades en la actualización.
-- **downloadlink**: Enlace directo para descargar la actualización.
-- **timestamp**: Fecha y hora en que se publicó la actualización (ej. `2025-12-09T18:49:15.140Z`).
+- **description**: Un breve resumen de las novedades en la actualización.
+- **downloadLink**: Enlace directo para descargar la actualización.
+- **timestamp**: Fecha y hora en que se publicó la actualización.
 - **title**: Título de la notificación o diálogo de actualización.
 - **version**: Número de versión de la actualización más reciente.
 
 ### `device_tokens`
-Almacena tokens de FCM (Firebase Cloud Messaging) de dispositivos registrados para notificaciones push.
+Almacena tokens de FCM para notificaciones push.
 - **active**: Estado del token del dispositivo.
 - **plataform**: La plataforma del sistema operativo (ej. `android`).
 - **timestamp**: Cuándo se registró el token.
+
+### `licenses`
+Almacena las llaves de acceso generadas y su estado de activación.
+- **createdAt**: Fecha de creación de la licencia.
+- **device**: Dispositivo que activó la licencia.
+- **expirationDate**: Cuándo vence el acceso de esta licencia.
+- **key**: El código de la licencia (ej. `LUXURY-XXXX`).
+- **status**: Estado de la licencia.
+- **used**: Si la licencia ya ha sido canjeada.
 
 ### `notifications`
 Define las notificaciones enviadas o programadas para los usuarios.
 - **active**: Si la notificación está activa para ser procesada.
 - **description**: Cuerpo del texto de la notificación.
-- **frecuency**: Alcance de la notificación (a cuántos usuarios llega).
+- **frequency**: Alcance de la notificación (ej. `always`).
 - **id**: Identificador único de la notificación.
-- **image**: URL opcional para una imagen enriquecida en la notificación.
+- **image**: URL opcional para una imagen o GIF enriquecido.
 - **sent**: Bandera que indica si la notificación ya ha sido enviada.
 - **timestamp**: Cuándo se creó/envió la notificación.
 - **title**: Título de la notificación.
 - **type**: Método de entrega (`in-app` o `push`).
 
 ### `urls`
-Configuración para las descargas dinámicas de funciones (cheats/mods). Cada sub-nodo (ej. `aimbot`, `aimfov`, `Holograma`, `Wall hack`) contiene:
-- **path**: Ubicación en el sistema de archivos local donde se debe guardar el archivo descargado.
-- **url**: Enlace de descarga de la fuente principal.
-- **url 1**: Enlace de descarga secundario/espejo.
+Configuración para las descargas dinámicas de funciones (cheats/mods).
+- **path**: Ubicación local donde se debe guardar el archivo descargado.
+- **url**: Nodo que contiene los enlaces de descarga.
+  - **url**: El enlace directo de descarga principal.
+  - **url2**: Enlace de descarga secundario o espejo.
 
 ### `users`
 Credenciales de cuenta de usuario y datos de suscripción.
@@ -96,50 +147,42 @@ Credenciales de cuenta de usuario y datos de suscripción.
 - **device**: Último ID de dispositivo vinculado a la cuenta.
 - **expirationDate**: Cuándo vence el acceso del usuario.
 - **password**: Contraseña de autenticación del usuario.
-- **username**: Identificador único para el inicio de sesión del usuario.
+- **username**: Identificador único para el inicio de sesión.
 
 ---
 
-## Sugerencias Profesionales de Arquitectura (NO USAR)
+## Configuración de Optimización (PRODUCCIÓN)
+1.  **Persistencia Offline**: Habilitada (`setPersistenceEnabled(true)`).
+2.  **Sincronización Crítica**: El nodo `/users` utiliza `keepSynced(true)` para validaciones instantáneas.
 
-Para mantener la base de datos escalable, segura y eficiente, se recomiendan las siguientes prácticas:
+## Reglas de Firebase
 
-1.  **Indexación de Consultas**: 
-    - Configura reglas `.indexOn` en Firebase para `username` y `expirationDate`. Esto evitará que Firebase descargue todos los usuarios para encontrar uno solo, mejorando drásticamente el rendimiento cuando la base de datos crezca.
-
-2.  **Seguridad de Reglas (Filtro por Escritura)**:
-    - Asegúrate de que solo el Dashboard Administrativo tenga permisos de escritura (`.write: true`) en nodos críticos como `app_update`, `notifications` y `urls`.
-    - La App solo debería tener permiso de lectura y, opcionalmente, de escritura en `device_tokens` y su propio nodo de `users`.
-
-3.  **Optimización de Notificaciones**:
-    - Considera mover las notificaciones antiguas a un nodo llamado `notifications_history`. Mantener muchas notificaciones en el nodo activo puede ralentizar la carga inicial de la App.
-
-4.  **Validación de Versiones**:
-    - En `app_update`, asegúrate de usar un formato de versión semántico (ej: `1.0.2`). Esto facilita la lógica en la App para comparar si la versión instalada es menor que la disponible y forzar la actualización si es necesario.
-
-5.  **Protección de Datos Sensibles**:
-    - Aunque el campo `password` es necesario para el login, se recomienda almacenar una versión "hasheada" (cifrada) en lugar del texto plano para proteger la seguridad de los usuarios en caso de una brecha de datos.
-
-6.  **Aplanamiento de Datos**:
-    - Si el nodo `users` llega a miles de registros, evita anidar demasiada información dentro de cada usuario. Si necesitas guardar configuraciones pesadas de la app por usuario, muévelas a un nodo separado llamado `user_settings` mapeado por el mismo ID.
-
-
-## Reglas de firebase : 
-
+```json
 {
   "rules": {
-    ".read": true,
-    ".write": true,
     "users": {
+      ".read": true,
+      "$user_id": {
+        ".write": "data.child('device').val() == '' || !data.exists()"
+      },
       ".indexOn": ["username", "device"]
     },
     "notifications": {
       ".read": true,
-      ".write": true
+      ".write": false
     },
     "app_update": {
+      ".read": true,
+      ".write": false
+    },
+    "licenses": {
+      ".read": true,
+      ".write": true
+    },
+    "active_ips": {
       ".read": true,
       ".write": true
     }
   }
 }
+```
