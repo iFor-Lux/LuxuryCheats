@@ -1,5 +1,6 @@
 package com.luxury.cheats.features.login.pantalla.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -7,6 +8,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
@@ -101,13 +104,16 @@ private fun LoginScreenContent(
                 .fillMaxSize()
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
+                    indication = null
                 ) {
-                    onAction(LoginPantallaAction.OnInteractionStateChange(LoginInteractionState.COMPACT))
-                    clearFocus()
+                    if (state.interactionState == LoginInteractionState.EXPANDED) {
+                        onAction(LoginPantallaAction.OnInteractionStateChange(LoginInteractionState.COMPACT))
+                        clearFocus()
+                    }
                 },
         contentAlignment = Alignment.Center,
     ) {
+
         // Fondo local eliminado para usar el global y evitar parpadeos
 
         LoginMainCard(state, onAction, onLoginSuccess)
@@ -120,9 +126,9 @@ private fun LoginScreenContent(
                     onKeyPress = { onAction(LoginPantallaAction.OnKeyClick(it)) },
                     onDelete = { onAction(LoginPantallaAction.OnKeyDelete) },
                     onToggleCase = { onAction(LoginPantallaAction.OnToggleCase) },
-                    onDone = { 
+                    onDone = {
                         onAction(LoginPantallaAction.OnInteractionStateChange(LoginInteractionState.COMPACT))
-                        onAction(LoginPantallaAction.OnLoginClick) 
+                        onAction(LoginPantallaAction.OnLoginClick)
                     },
                     onTecladoTypeChange = { onAction(LoginPantallaAction.OnTecladoTypeChange(it)) }
                 ),
@@ -148,7 +154,7 @@ private fun LoginMainCard(
 ) {
     val isExpanded = state.interactionState == LoginInteractionState.EXPANDED
     val cardScale by animateFloatAsState(
-        targetValue = if (isExpanded) 1.5f else 1f,
+        targetValue = if (isExpanded) 1.15f else 1f,
         animationSpec =
             spring(
                 dampingRatio = if (isExpanded) Spring.DampingRatioHighBouncy else Spring.DampingRatioMediumBouncy,
@@ -157,56 +163,98 @@ private fun LoginMainCard(
         label = "cardScale",
     )
     val cardAlpha by animateFloatAsState(
-        targetValue = if (isExpanded) 0f else 1f,
+        targetValue = 1f, // Mantenemos la visibilidad siempre
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "cardAlpha",
     )
+
+    val secondaryAlpha by animateFloatAsState(
+        targetValue = if (state.interactionState == LoginInteractionState.EXPANDED) 0f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "secondaryAlpha",
+    )
+
     val contentOffset by animateDpAsState(
-        targetValue = if (isExpanded) (-150).dp else 0.dp,
+        targetValue = if (isExpanded) (-60).dp else 0.dp,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "contentOffset",
     )
 
-    Box(contentAlignment = Alignment.Center) {
-        Box(
-            modifier =
-                Modifier
-                    .width(270.dp).height(412.dp)
-                    .scale(cardScale).alpha(cardAlpha)
-                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(46.dp))
-                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(46.dp)),
-        )
+    Box(
+        modifier =
+            Modifier
+                .width(270.dp)
+                .graphicsLayer { translationY = contentOffset.toPx() }
+                .scale(cardScale)
+                .alpha(cardAlpha)
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = secondaryAlpha),
+                    RoundedCornerShape(46.dp)
+                )
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = secondaryAlpha),
+                    RoundedCornerShape(46.dp)
+                ),
 
-        LoginCardContent(state, cardAlpha, contentOffset, onAction)
+        contentAlignment = Alignment.Center
+    ) {
+        LoginCardContent(state, secondaryAlpha, onAction)
     }
 }
+
+
+
+
+
 
 @Composable
 private fun LoginCardContent(
     state: LoginPantallaState,
-    cardAlpha: Float,
-    contentOffset: androidx.compose.ui.unit.Dp,
+    secondaryAlpha: Float,
     onAction: (LoginPantallaAction) -> Unit,
 ) {
+
+    val context = androidx.compose.ui.platform.LocalContext.current
     Column(
         modifier =
             Modifier
-                .width(270.dp).height(412.dp).padding(16.dp)
-                .graphicsLayer { translationY = contentOffset.toPx() },
+                .width(270.dp).padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
+
+
+        Spacer(modifier = Modifier.height(4.dp))
+        LoginPantallaTextSection(modifier = Modifier.alpha(secondaryAlpha))
         Spacer(modifier = Modifier.height(8.dp))
-        LoginPantallaTextSection(modifier = Modifier.alpha(cardAlpha))
-        Spacer(modifier = Modifier.height(12.dp))
 
         LoginPantallaUserPasswordSection(
             credentials =
                 LoginCredentials(
                     username = state.username,
                     password = state.password,
+                    licenseKey = state.licenseKey,
+                    isLicenseMode = state.isLicenseMode,
+                    focusedField = state.focusedField,
                     debugMessage = state.debugMessage,
+
                     onUsernameChange = { onAction(LoginPantallaAction.OnUsernameChange(it)) },
                     onPasswordChange = { onAction(LoginPantallaAction.OnPasswordChange(it)) },
+                    onLicenseChange = { onAction(LoginPantallaAction.OnLicenseChange(it)) },
+                    onLicenseModeToggle = { onAction(LoginPantallaAction.OnLicenseModeToggle(it)) },
+                    onGetLicenseClick = {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://luxcuentas.shop/"))
+                        context.startActivity(intent)
+                    },
+                    onFocusFieldChange = { onAction(LoginPantallaAction.OnFocusFieldChange(it)) }
+
                 ),
             options =
                 LoginDisplayOptions(
@@ -225,15 +273,20 @@ private fun LoginCardContent(
                 ),
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         LoginPantallaButtonSection(
             onLoginClick = {
                 if (state.interactionState != LoginInteractionState.EXPANDED) {
-                    onAction(LoginPantallaAction.OnLoginClick)
+                    if (state.isLicenseMode) {
+                        onAction(LoginPantallaAction.OnLoginWithLicenseClick)
+                    } else {
+                        onAction(LoginPantallaAction.OnLoginClick)
+                    }
                 }
             },
-            modifier = Modifier.alpha(cardAlpha),
+            modifier = Modifier.alpha(secondaryAlpha),
         )
+
     }
 }
 

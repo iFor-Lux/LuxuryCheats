@@ -29,22 +29,36 @@ class LoginPantallaViewModel(
         val isSaveEnabled = preferencesService.saveUserFeature()
         if (isSaveEnabled) {
             val saved = preferencesService.accessCredentials()
+            val isLicenseMode = preferencesService.accessLicenseMode()
+            
             if (saved != null) {
-                val userTFV = TextFieldValue(text = saved.first, selection = TextRange(saved.first.length))
-                val passTFV = TextFieldValue(text = saved.second, selection = TextRange(saved.second.length))
+                if (isLicenseMode) {
+                    val licenseTFV = TextFieldValue(text = saved.first, selection = TextRange(saved.first.length))
+                    _uiState.update {
+                        it.copy(
+                            saveUser = true,
+                            isLicenseMode = true,
+                            licenseKey = licenseTFV
+                        )
+                    }
+                } else {
+                    val userTFV = TextFieldValue(text = saved.first, selection = TextRange(saved.first.length))
+                    val passTFV = TextFieldValue(text = saved.second, selection = TextRange(saved.second.length))
 
-                _uiState.update {
-                    it.copy(
-                        saveUser = true,
-                        username = userTFV,
-                        password = passTFV,
-                    )
+                    _uiState.update {
+                        it.copy(
+                            saveUser = true,
+                            username = userTFV,
+                            password = passTFV,
+                        )
+                    }
+                    updateDebugMessage(saved.first, saved.second)
                 }
-                updateDebugMessage(saved.first, saved.second)
             } else {
                 _uiState.update { it.copy(saveUser = true) }
             }
         }
+
     }
 
     /**
@@ -63,8 +77,84 @@ class LoginPantallaViewModel(
             is LoginPantallaAction.OnKeyClick -> handleKeyClick(action.key)
             LoginPantallaAction.OnKeyDelete -> handleKeyDelete()
             LoginPantallaAction.OnLoginClick -> performLogin()
+            is LoginPantallaAction.OnLicenseChange -> handleLicenseChange(action.license)
+            is LoginPantallaAction.OnLicenseModeToggle -> handleLicenseModeToggle(action.enabled)
+            LoginPantallaAction.OnLoginWithLicenseClick -> performLicenseLogin()
+            LoginPantallaAction.OnGetLicenseClick -> handleGetLicense()
+            is LoginPantallaAction.OnFocusFieldChange -> handleFocusFieldChange(action.field)
         }
     }
+
+
+    private fun handleLicenseChange(license: TextFieldValue) {
+        _uiState.update { it.copy(licenseKey = license) }
+        triggerDebouncedSave()
+    }
+
+    private fun handleLicenseModeToggle(enabled: Boolean) {
+        _uiState.update {
+            it.copy(
+                isLicenseMode = enabled,
+                focusedField = LoginField.NONE,
+                tecladoType = com.luxury.cheats.features.login.teclado.logic.TecladoType.NONE
+            )
+        }
+        preferencesService.accessLicenseMode(enabled)
+        triggerDebouncedSave()
+    }
+
+
+    private fun handleGetLicense() {
+        // En una app real, aquí dispararíamos un evento para que la UI abra el navegador.
+        // Por ahora lo manejaremos en la UI directamente o via un SideEffect si fuera necesario.
+    }
+
+    private fun performLicenseLogin() {
+        val key = _uiState.value.licenseKey.text.trim()
+
+        if (key.isBlank()) {
+            showNotification("Por favor ingrese su licencia", LoginNotificationType.ERROR)
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            showNotification("Validando licencia...", LoginNotificationType.INFO)
+
+            when (val result = authService.validateLicense(key)) {
+                is AuthService.LoginResult.Success -> {
+                    showNotification("¡Licencia activada!", LoginNotificationType.SUCCESS)
+                    
+                    // Guardar datos en caché del perfil
+                    result.userData?.let { data ->
+                        preferencesService.accessProfileCache(
+                            mapOf(
+                                "id" to data.optString("_key"),
+                                "created" to data.optString("createdAt"),
+                                "expiry" to data.optString("expirationDate"),
+                                "device" to data.optString("device"),
+                            )
+                        )
+                    }
+                    preferencesService.accessLicenseMode(true) // Activar modo licencia
+                    // Guardamos la clave como nombre de usuario para el perfil
+                    preferencesService.accessCredentials(data = key to "LICENSE_MODE")
+
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            isLoginSuccessful = true,
+                        )
+                    }
+                }
+                is AuthService.LoginResult.Error -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    showNotification(result.message, LoginNotificationType.ERROR)
+                }
+            }
+        }
+    }
+
 
     private fun handleUsernameChange(username: TextFieldValue) {
         _uiState.update { it.copy(username = username) }
@@ -91,10 +181,16 @@ class LoginPantallaViewModel(
         updateDebugMessage(_uiState.value.username.text, _uiState.value.password.text)
     }
 
+    private fun handleFocusFieldChange(field: LoginField) {
+        _uiState.update { it.copy(focusedField = field) }
+    }
+
     private fun handleInteractionStateChange(state: LoginInteractionState) {
+
         _uiState.update {
             it.copy(
                 interactionState = state,
+                focusedField = if (state == LoginInteractionState.COMPACT) LoginField.NONE else it.focusedField,
                 tecladoType =
                     if (state == LoginInteractionState.COMPACT) {
                         com.luxury.cheats.features.login.teclado.logic.TecladoType.NONE
@@ -124,8 +220,13 @@ class LoginPantallaViewModel(
 
     private fun handleKeyClick(key: String) {
         _uiState.update { state ->
-            val isUserField = state.focusedField == LoginField.USERNAME
-            val currentFieldValue = if (isUserField) state.username else state.password
+            val currentFieldValue = when (state.focusedField) {
+                LoginField.USERNAME -> state.username
+                LoginField.PASSWORD -> state.password
+                LoginField.LICENSE -> state.licenseKey
+                LoginField.NONE -> TextFieldValue("")
+            }
+
 
             val text = currentFieldValue.text
             val selection = currentFieldValue.selection
@@ -140,16 +241,27 @@ class LoginPantallaViewModel(
             val newSelection = TextRange(selection.min + key.length)
             val newValue = currentFieldValue.copy(text = newText, selection = newSelection)
 
-            val newState = if (isUserField) state.copy(username = newValue) else state.copy(password = newValue)
+            val newState = when (state.focusedField) {
+                LoginField.USERNAME -> state.copy(username = newValue)
+                LoginField.PASSWORD -> state.copy(password = newValue)
+                LoginField.LICENSE -> state.copy(licenseKey = newValue)
+                LoginField.NONE -> state
+            }
             updateDebugMessage(newState.username.text, newState.password.text)
             newState
         }.also { triggerDebouncedSave() }
     }
 
+
     private fun handleKeyDelete() {
         _uiState.update { state ->
-            val isUserField = state.focusedField == LoginField.USERNAME
-            val currentFieldValue = if (isUserField) state.username else state.password
+            val currentFieldValue = when (state.focusedField) {
+                LoginField.USERNAME -> state.username
+                LoginField.PASSWORD -> state.password
+                LoginField.LICENSE -> state.licenseKey
+                LoginField.NONE -> TextFieldValue("")
+            }
+
             val text = currentFieldValue.text
             val selection = currentFieldValue.selection
 
@@ -169,7 +281,12 @@ class LoginPantallaViewModel(
                 }
 
             if (newValue != null) {
-                val newState = if (isUserField) state.copy(username = newValue) else state.copy(password = newValue)
+                val newState = when (state.focusedField) {
+                    LoginField.USERNAME -> state.copy(username = newValue)
+                    LoginField.PASSWORD -> state.copy(password = newValue)
+                    LoginField.LICENSE -> state.copy(licenseKey = newValue)
+                    LoginField.NONE -> state
+                }
                 updateDebugMessage(newState.username.text, newState.password.text)
                 newState
             } else {
@@ -178,6 +295,7 @@ class LoginPantallaViewModel(
         }.also { triggerDebouncedSave() }
     }
 
+
     private fun triggerDebouncedSave() {
         if (!_uiState.value.saveUser) return
 
@@ -185,10 +303,15 @@ class LoginPantallaViewModel(
         saveDebounceJob =
             viewModelScope.launch {
                 kotlinx.coroutines.delay(LoginConstants.SAVE_DEBOUNCE_MILLIS)
-                preferencesService.accessCredentials(
-                    data = _uiState.value.username.text to _uiState.value.password.text,
-                )
+                val state = _uiState.value
+                val dataToSave = if (state.isLicenseMode) {
+                    state.licenseKey.text to "LICENSE_MODE"
+                } else {
+                    state.username.text to state.password.text
+                }
+                preferencesService.accessCredentials(data = dataToSave)
             }
+
     }
 
     private fun updateDebugMessage(
@@ -227,6 +350,19 @@ class LoginPantallaViewModel(
                     } else {
                         preferencesService.accessCredentials(clear = true)
                     }
+
+                    // Guardar datos en caché del perfil
+                    result.userData?.let { data ->
+                        preferencesService.accessProfileCache(
+                            mapOf(
+                                "id" to data.optString("_key"),
+                                "created" to data.optString("createdAt"),
+                                "expiry" to data.optString("expirationDate"),
+                                "device" to data.optString("device"),
+                            )
+                        )
+                    }
+                    preferencesService.accessLicenseMode(false) // Desactivar modo licencia
 
                     showNotification("¡Acceso concedido!", LoginNotificationType.SUCCESS)
                     _uiState.update {

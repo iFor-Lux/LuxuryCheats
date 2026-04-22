@@ -46,7 +46,7 @@ fun LoginPantallaButtonSection(
         modifier =
             modifier
                 .width(240.dp)
-                .height(63.dp),
+                .height(55.dp),
         shape = RoundedCornerShape(radius),
         colors =
             ButtonDefaults.buttonColors(
@@ -57,8 +57,10 @@ fun LoginPantallaButtonSection(
     ) {
         Text(
             text = "Entrar",
-            fontSize = 24.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
         )
     }
+
+
 }

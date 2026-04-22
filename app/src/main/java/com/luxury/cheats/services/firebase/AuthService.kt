@@ -28,7 +28,8 @@ class AuthService {
     /** Resultado de la operación de login. */
     sealed class LoginResult {
         /** Login exitoso. */
-        object Success : LoginResult()
+        data class Success(val userData: JSONObject? = null) : LoginResult()
+
 
         /**
          * Error en el proceso de login.
@@ -182,8 +183,89 @@ class AuthService {
             db.child(userKey).child("device").setValue(deviceName)
         }
 
-        return LoginResult.Success
+        return LoginResult.Success(userData)
     }
+
+    /**
+
+     * Valida una clave de licencia en Firebase.
+     *
+     * @param key Clave de la licencia (ej. LUXURY-XXXX).
+     * @return [LoginResult] indicando el éxito o fallo de la validación.
+     */
+    suspend fun validateLicense(key: String): LoginResult =
+        withContext(Dispatchers.IO) {
+            try {
+                // Consultamos directamente el nodo de la licencia vía REST
+                val baseUrl = "https://luxury-counter-default-rtdb.firebaseio.com/licenses/$key.json"
+                val url = URL(baseUrl)
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "GET"
+                conn.connectTimeout = CONNECT_TIMEOUT_MS
+                conn.readTimeout = READ_TIMEOUT_MS
+
+                val responseCode = conn.responseCode
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    return@withContext LoginResult.Error("Error de servidor: $responseCode")
+                }
+
+                val response = conn.inputStream.bufferedReader().use { it.readText() }
+                if (response == "null" || response == "{}") {
+                    return@withContext LoginResult.Error("Licencia no válida")
+                }
+
+                val licenseData = JSONObject(response)
+                
+                // 1. Verificar estado
+                if (licenseData.optString("status") != "active") {
+                    return@withContext LoginResult.Error("Licencia inactiva o cancelada")
+                }
+
+                // 2. Verificar dispositivo (Vincular si está vacío)
+                val manufacturer = android.os.Build.MANUFACTURER
+                val model = android.os.Build.MODEL
+                val deviceName =
+                    if (model.startsWith(manufacturer, ignoreCase = true)) {
+                        model.replaceFirstChar { it.uppercase() }
+                    } else {
+                        "${manufacturer.replaceFirstChar { it.uppercase() }} $model"
+                    }
+
+                val savedDevice = licenseData.optString("device")
+                if (savedDevice.isNotEmpty() && savedDevice != deviceName) {
+                    return@withContext LoginResult.Error("Llave vinculada en: $savedDevice")
+                }
+
+                // 3. Verificar expiración
+                val exp = licenseData.optString("expirationDate")
+                if (exp.isNotEmpty()) {
+                    try {
+                        val expDate = ZonedDateTime.parse(exp, DateTimeFormatter.ISO_ZONED_DATE_TIME)
+                        if (ZonedDateTime.now().isAfter(expDate)) {
+                            return@withContext LoginResult.Error("Licencia expirada")
+                        }
+                    } catch (ignored: Exception) {}
+                }
+
+                // 4. Actualizar estado en Firebase (vincular dispositivo y marcar como usada)
+                val updateDb = FirebaseDatabase.getInstance().getReference("licenses").child(key)
+                if (savedDevice.isEmpty()) {
+                    updateDb.child("device").setValue(deviceName)
+                }
+                updateDb.child("used").setValue(true)
+                
+                // Agregamos la clave original para que PerfilViewModel sepa qué licencia es
+                licenseData.put("_key", key)
+
+                LoginResult.Success(licenseData)
+            } catch (e: java.net.UnknownHostException) {
+
+                LoginResult.Error("Sin conexión a internet")
+            } catch (e: Exception) {
+                Log.e("AuthService", "License validation failed", e)
+                LoginResult.Error("Error: ${e.localizedMessage}")
+            }
+        }
 
     /**
      * Método legacy con callback (usar fetchUserDataRest para mayor velocidad)
@@ -205,4 +287,26 @@ class AuthService {
                 },
             )
     }
+
+    /**
+     * Obtiene los datos de una licencia específica.
+     */
+    fun getLicenseData(
+        key: String,
+        onComplete: (DataSnapshot) -> Unit,
+    ) {
+        FirebaseDatabase.getInstance().getReference("licenses").child(key)
+            .addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        onComplete(snapshot)
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.w("AuthService", "getLicenseData:onCancelled", error.toException())
+                    }
+                }
+            )
+    }
 }
+

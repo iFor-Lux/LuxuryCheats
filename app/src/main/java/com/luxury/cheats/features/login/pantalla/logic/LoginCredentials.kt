@@ -13,7 +13,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 data class LoginCredentials(
     val username: TextFieldValue,
     val password: TextFieldValue,
+    val licenseKey: TextFieldValue,
+    val isLicenseMode: Boolean,
+    val focusedField: com.luxury.cheats.features.login.pantalla.logic.LoginField,
     val debugMessage: String,
+
     val onUsernameChange: (TextFieldValue) -> Unit,
     val onPasswordChange: (TextFieldValue) -> Unit,
+    val onLicenseChange: (TextFieldValue) -> Unit,
+    val onLicenseModeToggle: (Boolean) -> Unit,
+    val onGetLicenseClick: () -> Unit,
+    val onFocusFieldChange: (LoginField) -> Unit,
 )
+
+

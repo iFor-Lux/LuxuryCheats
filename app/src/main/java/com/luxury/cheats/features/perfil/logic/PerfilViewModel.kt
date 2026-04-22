@@ -48,6 +48,7 @@ class PerfilViewModel(
             val username = credentials?.first ?: return@withContext
 
             val cache = preferencesService.accessProfileCache()
+            val isLicenseMode = preferencesService.accessLicenseMode()
 
             _uiState.update { state ->
                 val images = preferencesService.accessImages()
@@ -61,8 +62,10 @@ class PerfilViewModel(
                     architecture = (android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "").uppercase(),
                     appVersion = com.luxury.cheats.BuildConfig.VERSION_NAME,
                     ram = getRamInfo(),
+                    model = android.os.Build.MODEL.uppercase(),
                 )
             }
+
 
             if (cache != null) {
                 processUserData(
@@ -76,9 +79,14 @@ class PerfilViewModel(
                 )
             }
 
-            fetchRemoteData(username)
+            if (isLicenseMode) {
+                fetchRemoteLicenseData(username)
+            } else {
+                fetchRemoteUserData(username)
+            }
         }
     }
+
 
 
     private fun getRamInfo(): String {
@@ -94,7 +102,7 @@ class PerfilViewModel(
         }
     }
 
-    private fun fetchRemoteData(username: String) {
+    private fun fetchRemoteUserData(username: String) {
         viewModelScope.launch {
             try {
                 authService.getUserData(username) { snapshot ->
@@ -107,12 +115,31 @@ class PerfilViewModel(
                         processUserData(json)
                     }
                 }
-            } catch (error: com.google.firebase.database.DatabaseException) {
-                // Error silencioso en carga remota, se mantiene el estado previo/caché
-                android.util.Log.e("PerfilViewModel", "Error fetching remote data", error)
+            } catch (error: Exception) {
+                android.util.Log.e("PerfilViewModel", "Error fetching remote user data", error)
             }
         }
     }
+
+    private fun fetchRemoteLicenseData(key: String) {
+        viewModelScope.launch {
+            try {
+                authService.getLicenseData(key) { snapshot ->
+                    if (snapshot.exists()) {
+                        val json = JSONObject()
+                        snapshot.children.forEach { child ->
+                            json.put(child.key ?: "", child.value)
+                        }
+                        json.put("_key", snapshot.key)
+                        processUserData(json)
+                    }
+                }
+            } catch (error: Exception) {
+                android.util.Log.e("PerfilViewModel", "Error fetching remote license data", error)
+            }
+        }
+    }
+
 
     private fun processUserData(
         userData: JSONObject,
@@ -141,14 +168,15 @@ class PerfilViewModel(
             it.copy(
                 userId = firebaseId,
                 isVip = isVip,
-                creationDate = creationDate,
-                creationHour = creationHour,
-                expiryDate = expiryDateText,
-                remainingDays = remainingDays,
-                model = deviceFromDb.uppercase(),
+                creationDate = if (creationDate.isNotEmpty()) creationDate else it.creationDate,
+                creationHour = if (creationHour.isNotEmpty()) creationHour else it.creationHour,
+                expiryDate = if (expiryDateText.isNotEmpty()) expiryDateText else it.expiryDate,
+                remainingDays = if (remainingDays.isNotEmpty()) remainingDays else it.remainingDays,
+                model = if (deviceFromDb.isNotEmpty()) deviceFromDb.uppercase() else it.model,
             )
         }
     }
+
 
     private fun parseCreationDate(createdAt: String): Pair<String, String> {
         if (createdAt.isEmpty()) return "" to ""

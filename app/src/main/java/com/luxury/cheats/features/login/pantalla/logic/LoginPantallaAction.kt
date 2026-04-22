@@ -34,4 +34,21 @@ sealed class LoginPantallaAction {
 
     /** Acción para iniciar el proceso de login. */
     object OnLoginClick : LoginPantallaAction()
+
+    /** Acción cuando cambia la clave de licencia. */
+    data class OnLicenseChange(val license: TextFieldValue) : LoginPantallaAction()
+
+    /** Acción para alternar entre login normal y por licencia. */
+    data class OnLicenseModeToggle(val enabled: Boolean) : LoginPantallaAction()
+
+    /** Acción para iniciar sesión con licencia. */
+    object OnLoginWithLicenseClick : LoginPantallaAction()
+
+    /** Acción para abrir la web de generación de licencias. */
+    object OnGetLicenseClick : LoginPantallaAction()
+
+    /** Acción cuando cambia el campo enfocado. */
+    data class OnFocusFieldChange(val field: LoginField) : LoginPantallaAction()
 }
+
+

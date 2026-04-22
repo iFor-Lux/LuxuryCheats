@@ -1,5 +1,6 @@
 package com.luxury.cheats.features.login.pantalla.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -30,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
@@ -45,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -73,12 +76,16 @@ import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.login.pantalla.logic.LoginCredentials
 import com.luxury.cheats.features.login.pantalla.logic.LoginDisplayOptions
+import com.luxury.cheats.features.login.pantalla.logic.LoginField
 import com.luxury.cheats.features.login.pantalla.logic.LoginInteractionState
 import com.luxury.cheats.features.login.teclado.logic.TecladoType
+
+
 
 /**
  * Acciones para los campos de login.
  */
+
 data class LoginFieldActions(
     val onInteractionStateChange: (LoginInteractionState) -> Unit,
     val onTecladoTypeChange: (TecladoType) -> Unit,
@@ -104,6 +111,7 @@ fun LoginPantallaUserPasswordSection(
     actions: LoginFieldActions,
     modifier: Modifier = Modifier,
 ) {
+
     val isExpanded = displayState.interactionState == LoginInteractionState.EXPANDED
     val secondaryAlpha by animateFloatAsState(
         targetValue = if (isExpanded) 0f else 1f,
@@ -123,17 +131,52 @@ fun LoginPantallaUserPasswordSection(
             modifier = Modifier.graphicsLayer { alpha = secondaryAlpha },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = if (credentials.isLicenseMode) "¿Usar Usuario y Contraseña?" else "¿Tienes una Licencia?",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    if (!isExpanded) credentials.onLicenseModeToggle(!credentials.isLicenseMode)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
             LoginRememberMeRow(
                 saveUser = options.saveUser,
                 onSaveUserChange = { if (!isExpanded) options.onSaveUserChange(it) },
                 interactionSource = remember { MutableInteractionSource() },
             )
-            Spacer(modifier = Modifier.height(12.dp))
+
+            if (credentials.isLicenseMode) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Generar licencia GRATIS",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        if (!isExpanded) credentials.onGetLicenseClick()
+                    }
+                )
+            }
+
+
+            
+            Spacer(modifier = Modifier.height(8.dp))
             LoginDebugBox(credentials.debugMessage)
         }
     }
 }
+
 
 @Composable
 private fun LoginInputFields(
@@ -141,36 +184,71 @@ private fun LoginInputFields(
     isExpanded: Boolean,
     actions: LoginFieldActions,
 ) {
-    LoginUserField(
-        value = credentials.username,
-        onValueChange = credentials.onUsernameChange,
-        onFocusChanged = {
-            if (it) {
-                actions.onInteractionStateChange(LoginInteractionState.EXPANDED)
-                actions.onTecladoTypeChange(TecladoType.ALPHABETIC)
-            }
-        },
-    )
+    val focused = credentials.focusedField
+    val isAnyFocused = focused != LoginField.NONE
 
-    val fieldSpacerHeight by animateDpAsState(
-        targetValue = if (isExpanded) 24.dp else 12.dp,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-        label = "fieldSpacerHeight",
-    )
+    if (credentials.isLicenseMode) {
+        val alpha by animateFloatAsState(
+            targetValue = if (!isAnyFocused || focused == LoginField.LICENSE) 1f else 0f,
+            label = "licenseAlpha"
+        )
+        LoginLicenseField(
+            value = credentials.licenseKey,
+            onValueChange = credentials.onLicenseChange,
+            onFocusChanged = {
+                if (it) {
+                    actions.onInteractionStateChange(LoginInteractionState.EXPANDED)
+                    actions.onTecladoTypeChange(TecladoType.ALPHABETIC)
+                    credentials.onFocusFieldChange(LoginField.LICENSE)
+                }
+            },
+            modifier = Modifier.alpha(alpha)
+        )
+    } else {
+        val userAlpha by animateFloatAsState(
+            targetValue = if (!isAnyFocused || focused == LoginField.USERNAME) 1f else 0f,
+            label = "userAlpha"
+        )
+        val passAlpha by animateFloatAsState(
+            targetValue = if (!isAnyFocused || focused == LoginField.PASSWORD) 1f else 0f,
+            label = "passAlpha"
+        )
 
-    Spacer(modifier = Modifier.height(fieldSpacerHeight))
+        LoginUserField(
+            value = credentials.username,
+            onValueChange = credentials.onUsernameChange,
+            onFocusChanged = {
+                if (it) {
+                    actions.onInteractionStateChange(LoginInteractionState.EXPANDED)
+                    actions.onTecladoTypeChange(TecladoType.ALPHABETIC)
+                    credentials.onFocusFieldChange(LoginField.USERNAME)
+                }
+            },
+            modifier = Modifier.alpha(userAlpha)
+        )
 
-    LoginPasswordField(
-        value = credentials.password,
-        onValueChange = credentials.onPasswordChange,
-        onFocusChanged = {
-            if (it) {
-                actions.onInteractionStateChange(LoginInteractionState.EXPANDED)
-                actions.onTecladoTypeChange(TecladoType.NUMERIC)
-            }
-        },
-    )
+        if (!isAnyFocused) {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        LoginPasswordField(
+            value = credentials.password,
+            onValueChange = credentials.onPasswordChange,
+            onFocusChanged = {
+                if (it) {
+                    actions.onInteractionStateChange(LoginInteractionState.EXPANDED)
+                    actions.onTecladoTypeChange(TecladoType.NUMERIC)
+                    credentials.onFocusFieldChange(LoginField.PASSWORD)
+                }
+            },
+            modifier = Modifier.alpha(passAlpha)
+        )
+    }
+
 }
+
+
+
 
 @Composable
 private fun createDummyTextInputService(): TextInputService {
@@ -230,8 +308,115 @@ private fun BlinkingCursor() {
     )
 }
 
+
+@Composable
+private fun LoginLicenseField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    onFocusChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val focusRequester = remember { FocusRequester() }
+    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    var isFocused by remember { mutableStateOf(false) }
+    val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
+
+    Column(modifier = modifier) {
+        Box(modifier = Modifier.width(210.dp)) {
+            Text(
+                text = "Clave de Licencia",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(modifier = Modifier.height(2.dp))
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            onTextLayout = { textLayoutResult = it },
+            modifier =
+                Modifier
+                    .width(210.dp)
+                    .height(35.dp)
+                    .focusRequester(focusRequester)
+                    .onFocusChanged {
+                        isFocused = it.isFocused
+                        if (it.isFocused) onFocusChanged(true)
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures { offset ->
+                            focusRequester.requestFocus()
+                            textLayoutResult?.let { layout ->
+                                val position = layout.getOffsetForPosition(offset)
+                                onValueChange(value.copy(selection = androidx.compose.ui.text.TextRange(position)))
+                            }
+                        }
+                    }
+                    .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp)),
+            readOnly = true,
+            textStyle =
+                TextStyle(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 14.sp,
+                ),
+            cursorBrush = SolidColor(androidx.compose.ui.graphics.Color.Transparent),
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 12.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            innerTextField()
+
+                            if (isFocused) {
+                                textLayoutResult?.let { layout ->
+                                    val offset = value.selection.max.coerceIn(0, layout.layoutInput.text.length)
+                                    val cursorRect = layout.getCursorRect(offset)
+                                    val density = LocalDensity.current
+                                    val xOffset = with(density) { cursorRect.left.toDp() }
+
+                                    Box(modifier = Modifier.offset(x = xOffset)) {
+                                        BlinkingCursor()
+                                    }
+                                }
+                            }
+                        }
+
+                        IconButton(
+                            onClick = {
+                                clipboardManager.getText()?.let { annotatedString ->
+                                    onValueChange(TextFieldValue(text = annotatedString.text))
+                                }
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.ContentPaste,
+                                contentDescription = "Pegar licencia",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+            },
+        )
+    }
+}
+
+
 @Composable
 private fun LoginUserField(
+
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit,
@@ -531,10 +716,18 @@ fun LoginPantallaUserPasswordSectionPreviewLight() {
                     LoginCredentials(
                         username = TextFieldValue("UserDemo"),
                         password = TextFieldValue("Password123"),
+                        licenseKey = TextFieldValue(""),
+                        isLicenseMode = false,
+                        focusedField = LoginField.NONE,
                         debugMessage = "Debug status OK",
                         onUsernameChange = {},
                         onPasswordChange = {},
+                        onLicenseChange = {},
+                        onLicenseModeToggle = {},
+                        onGetLicenseClick = {},
+                        onFocusFieldChange = {},
                     ),
+
                 options =
                     LoginDisplayOptions(
                         saveUser = true,
@@ -562,10 +755,18 @@ fun LoginPantallaUserPasswordSectionPreviewDark() {
                     LoginCredentials(
                         username = TextFieldValue("UserDemo"),
                         password = TextFieldValue("Password123"),
+                        licenseKey = TextFieldValue(""),
+                        isLicenseMode = false,
+                        focusedField = LoginField.NONE,
                         debugMessage = "Debug status OK",
                         onUsernameChange = {},
                         onPasswordChange = {},
+                        onLicenseChange = {},
+                        onLicenseModeToggle = {},
+                        onGetLicenseClick = {},
+                        onFocusFieldChange = {},
                     ),
+
                 options =
                     LoginDisplayOptions(
                         saveUser = true,
@@ -581,3 +782,5 @@ fun LoginPantallaUserPasswordSectionPreviewDark() {
         }
     }
 }
+
+

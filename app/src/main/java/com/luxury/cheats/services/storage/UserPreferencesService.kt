@@ -37,8 +37,10 @@ class UserPreferencesService
             private const val KEY_LAST_UPDATE_VERSION = "last_update_version"
             private const val KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp"
             private const val KEY_SEEN_NOTIFICATIONS = "seen_notifications"
+            private const val KEY_IS_LICENSE_MODE = "is_license_mode"
             
             // Claves para Floating Preview Widget (Tools)
+
             private const val KEY_FLOATING_WIDTH = "floating_width"
             private const val KEY_FLOATING_HEIGHT = "floating_height"
             private const val KEY_FLOATING_CENTER_X = "floating_center_x"
@@ -128,6 +130,14 @@ class UserPreferencesService
                 banner?.let { putString(KEY_BANNER_IMAGE, it) }
             }
             return prefs.getString(KEY_PROFILE_IMAGE, null) to prefs.getString(KEY_BANNER_IMAGE, null)
+        }
+
+        /** Gestiona si se ha iniciado sesión con una licencia. */
+        fun accessLicenseMode(isLicense: Boolean? = null): Boolean {
+            isLicense?.let {
+                update { putBoolean(KEY_IS_LICENSE_MODE, it) }
+            }
+            return prefs.getBoolean(KEY_IS_LICENSE_MODE, false)
         }
 
         /** Gestiona el caché del perfil. */
