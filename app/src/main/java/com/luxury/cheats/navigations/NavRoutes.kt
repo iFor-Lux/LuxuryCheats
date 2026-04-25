@@ -62,3 +62,8 @@ object Tools
 @Serializable
 @Keep
 object Update
+
+/** Ruta para la pantalla de Archivo Plus (Menú extendido/FAB). */
+@Serializable
+@Keep
+object ArchivoPlus

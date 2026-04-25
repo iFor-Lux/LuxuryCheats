@@ -101,6 +101,9 @@ private fun NavigationBarOverlay(
                 onTabSelected = { tab: String ->
                     handleTabSelection(navController, tab, isHome, isPerfil, isTools)
                 },
+                onFabClick = {
+                    navController.navigate(com.luxury.cheats.navigations.ArchivoPlus)
+                }
             )
         }
     }

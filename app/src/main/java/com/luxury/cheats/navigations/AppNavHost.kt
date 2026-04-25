@@ -223,12 +223,29 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
 
     composable<Tools> { entry ->
         val viewModel: com.luxury.cheats.features.tools.logic.ToolsViewModel = hiltViewModel()
-        ToolsScreen(viewModel = viewModel)
+        ToolsScreen(viewModel = viewModel, backdrop = backdrop)
     }
 
     composable<Update> {
         DownloadUpdateScreen(
             onBackClick = { navController.popBackStack() },
+        )
+    }
+
+    composable<ArchivoPlus>(
+        enterTransition = {
+            androidx.compose.animation.fadeIn(
+                animationSpec = androidx.compose.animation.core.tween(400, easing = androidx.compose.animation.core.LinearOutSlowInEasing)
+            )
+        },
+        exitTransition = {
+            androidx.compose.animation.fadeOut(
+                animationSpec = androidx.compose.animation.core.tween(400, easing = androidx.compose.animation.core.FastOutLinearInEasing)
+            )
+        }
+    ) {
+        com.luxury.cheats.features.archivoplus.ui.ArchivoPlusScreen(
+            onBackClick = { navController.popBackStack() }
         )
     }
 }

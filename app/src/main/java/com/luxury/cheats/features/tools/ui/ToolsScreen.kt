@@ -95,23 +95,32 @@ import com.luxury.cheats.features.tools.logic.ToolsViewModel
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.IconButton
+import com.kyant.backdrop.backdrops.layerBackdrop
 import kotlin.math.roundToInt
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ToolsScreen(viewModel: ToolsViewModel) {
+fun ToolsScreen(
+    viewModel: ToolsViewModel,
+    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     MaterialExpressiveTheme(
         motionScheme = MotionScheme.expressive()
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Fondo con patrón de cuadrícula
-            com.luxury.cheats.core.ui.SquarePatternBackground()
-
-            Column(
+            Box(
                 modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
+            ) {
+                // Fondo con patrón de cuadrícula
+                com.luxury.cheats.core.ui.SquarePatternBackground()
+
+                Column(
+                    modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp), // Ajustado a 24dp para consistencia con Perfil
@@ -131,6 +140,7 @@ fun ToolsScreen(viewModel: ToolsViewModel) {
 
             // Efecto de bordes desvanecidos
             com.luxury.cheats.core.ui.FadingEdges()
+            }
         }
     }
 }
