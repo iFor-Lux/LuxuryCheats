@@ -14,7 +14,7 @@ import com.luxury.cheats.features.welcome.splash.logic.WelcomeSplashViewModel
 @Composable
 fun WelcomeSplashScreen(
     modifier: Modifier = Modifier,
-    viewModel: WelcomeSplashViewModel = viewModel(),
+    viewModel: WelcomeSplashViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onNavigateToPage1: () -> Unit = {},
     onLogoReady: () -> Unit = {},
 ) {

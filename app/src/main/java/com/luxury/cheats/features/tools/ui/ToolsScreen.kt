@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -105,23 +106,35 @@ fun ToolsScreen(viewModel: ToolsViewModel) {
     MaterialExpressiveTheme(
         motionScheme = MotionScheme.expressive()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Fondo con patrón de cuadrícula
+            com.luxury.cheats.core.ui.SquarePatternBackground()
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp), // Ajustado a 24dp para consistencia con Perfil
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.statusBarsPadding())
 
-            FloatingConfigSection(
-                uiState = uiState,
-                onAction = { viewModel.onAction(it) }
-            )
+                FloatingConfigSection(
+
+                    uiState = uiState,
+                    onAction = { viewModel.onAction(it) }
+                )
+
+                Spacer(modifier = Modifier.height(130.dp)) // Espacio para el BottomBar
+            }
+
+            // Efecto de bordes desvanecidos
+            com.luxury.cheats.core.ui.FadingEdges()
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -536,7 +549,7 @@ fun ConfigSlider(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

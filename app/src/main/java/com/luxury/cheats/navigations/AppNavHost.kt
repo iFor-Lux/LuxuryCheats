@@ -86,6 +86,7 @@ fun AppNavHost(
     Box(modifier = Modifier.fillMaxSize()) {
         AuthBackgroundLayer(
             isAuthScreen = isAuthScreen,
+            currentDestination = currentDestination,
             backdrop = backdrop,
             animatedGlobalAlpha = animatedGlobalAlpha,
         )
@@ -102,6 +103,7 @@ fun AppNavHost(
 @Composable
 private fun AuthBackgroundLayer(
     isAuthScreen: Boolean,
+    currentDestination: androidx.navigation.NavDestination?,
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop,
     animatedGlobalAlpha: Float,
 ) {
@@ -114,7 +116,10 @@ private fun AuthBackgroundLayer(
                     .alpha(animatedGlobalAlpha),
         ) {
             DotPatternBackground()
-            WelcomeEclipseSection()
+            val isLogin = currentDestination?.route?.contains(Login::class.qualifiedName ?: "Login") == true
+            if (!isLogin) {
+                WelcomeEclipseSection()
+            }
         }
     }
 }

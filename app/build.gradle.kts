@@ -102,6 +102,7 @@ ktlint {
 
 dependencies {
 
+    implementation(libs.androidx.compose.animation)
     // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

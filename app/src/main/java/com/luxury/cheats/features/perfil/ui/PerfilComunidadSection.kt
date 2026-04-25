@@ -38,11 +38,12 @@ fun PerfilComunidadSection(modifier: Modifier = Modifier) {
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(197.dp)
                     .clip(RoundedCornerShape(30.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(20.dp),
+                    .padding(16.dp),
+
             contentAlignment = Alignment.TopCenter,
+
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 ComunidadDescription()
@@ -68,16 +69,23 @@ private fun ComunidadHeader() {
 private fun ComunidadDescription() {
     Text(
         text =
-            "Un agradecimiento especial a los increibles mienbros de nuestra comunidad " +
-                "que han contribuido a mejorar Luxury Cheat’s a traves de pruebas, comentarios, " +
+            "Un agradecimiento especial a los increíbles miembros de nuestra comunidad " +
+                "que han contribuido a mejorar Luxury Cheat’s a través de pruebas, comentarios, " +
                 "sugerencias y colaboraciones.",
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        textAlign = TextAlign.Start,
+        textAlign = TextAlign.Justify,
+        style = MaterialTheme.typography.bodyMedium.copy(
+            lineBreak = androidx.compose.ui.text.style.LineBreak.Paragraph,
+            hyphens = androidx.compose.ui.text.style.Hyphens.None
+        ),
         modifier = Modifier.fillMaxWidth(),
     )
 }
+
+
+
 
 @Composable
 private fun ComunidadBanner() {
@@ -86,8 +94,10 @@ private fun ComunidadBanner() {
             Modifier
                 .fillMaxWidth()
                 .height(86.dp)
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(14.dp))
+
                 .background(MaterialTheme.colorScheme.secondaryContainer),
+
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

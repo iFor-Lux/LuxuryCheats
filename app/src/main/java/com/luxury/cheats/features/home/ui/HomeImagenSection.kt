@@ -9,18 +9,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+
 /**
  * Sección de Imagen del Home
- * - W: 412, H: 115
+ * - W: 412, H: 140
  */
 @Composable
-fun HomeImagenSection(modifier: Modifier = Modifier) {
+fun HomeImagenSection(
+    imageUrl: String?,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier =
             modifier
                 .fillMaxWidth()
-                .height(115.dp)
-                // Se asume que es para una imagen superior
+                .height(140.dp)
                 .background(Color.Transparent),
-    )
+        contentAlignment = androidx.compose.ui.Alignment.Center
+    ) {
+        if (imageUrl != null) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Banner Home",
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.FillWidth,
+            )
+        }
+    }
 }

@@ -707,3 +707,41 @@
 - **Implementación**:
   - `FloatingControlService.kt`: Implementa `LifecycleOwner`, maneja `ON_CREATE`, `ON_START` y `ON_DESTROY` en el `lifecycleRegistry`.
 - **Resultado**: Código estable y listo para la implementación de UI flotante, siguiendo los estándares de arquitectura del proyecto.
+
+### Corrección de Visibilidad en Login (Abril 2026)
+**Fecha**: Abril 2026
+
+- **Contexto**: Se detectó que al enfocar un campo de texto (Usuario o Contraseña), el otro campo se ocultaba automáticamente.
+- **Decisión**: Eliminar la ocultación basada en el foco y mantener ambos campos visibles simultáneamente.
+- **Razón**: 
+  - Mejorar la experiencia de usuario (UX) al permitir el cambio rápido entre campos.
+  - El usuario reportó la desaparición del campo de contraseña como un error de visualización.
+  - La arquitectura actual de la pantalla (que desplaza el contenido hacia arriba al expandirse) permite espacio suficiente para ambos campos.
+- **Implementación**: 
+  - `LoginPantallaUserPasswordSection.kt`: Se eliminaron los envoltorios `AnimatedVisibility` dentro de `LoginInputFields` que dependían de `isAnyFocused`.
+  - Se simplificó la estructura a una `Column` que contiene siempre los dos campos con un espaciador intermedio.
+- **Resultado**: Interfaz de login más intuitiva y funcional, eliminando la confusión visual reportada.
+
+### Corrección de Sonido Redundante en Toasts (Abril 2026)
+**Fecha**: Abril 2026
+
+- **Contexto**: El sonido de notificación `notify.mp3` se reproducía tanto al aparecer como al desaparecer un Toast si había otros mensajes visibles.
+- **Decisión**: Implementar un sistema de rastreo de IDs para reproducir el sonido únicamente ante nuevas adiciones.
+- **Razón**: 
+  - Eliminar el feedback auditivo confuso al desaparecer un elemento.
+  - Asegurar que el sonido sea un indicador exclusivo de "Nueva Notificación".
+- **Implementación**: 
+  - `AppToast.kt`: Se añadió un `mutableSetOf` (persistido con `remember`) para almacenar los IDs de notificaciones ya procesadas.
+  - El `LaunchedEffect` ahora valida la existencia de IDs nuevos en la lista antes de ejecutar `soundPool.play`.
+- **Resultado**: Comportamiento sonoro limpio y profesional, disparándose solo cuando el usuario recibe información nueva.
+
+### Imagen de Fondo Dinámica en Login (Abril 2026)
+**Fecha**: Abril 2026
+
+- **Contexto**: El login tenía un efecto rosado (Eclipse) en el fondo que el usuario deseaba eliminar y sustituir por un banner dinámico.
+- **Decisión**: Eliminar `WelcomeEclipseSection` durante el Login e implementar un sistema de carga de imágenes dinámicas desde Firebase RTDB.
+- **Implementación**:
+  - **Firebase**: Se habilitó el nodo `app_images` en `FirebaseService` para obtener URLs por título (`imagenLogin`).
+  - **Navegación**: Modificación en `AppNavHost.kt` para ocultar el eclipse rosado condicionalmente.
+  - **UI**: Uso de **Coil** (`AsyncImage`) en `LoginPantallaImagenSection` para renderizar el banner en la parte inferior de la pantalla.
+- **Resultado**: Fondo de login limpio y personalizable remotamente desde el Dashboard/Firebase sin necesidad de actualizaciones de APK.

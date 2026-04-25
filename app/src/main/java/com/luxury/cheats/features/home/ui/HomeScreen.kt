@@ -190,7 +190,8 @@ private fun HomeSectionsList(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        HomeImagenSection()
+        Spacer(modifier = Modifier.height(30.dp))
+        HomeImagenSection(imageUrl = uiState.homeImageUrl)
         HomeSaludoSection(
             userName = uiState.userName,
             greeting = uiState.greeting,

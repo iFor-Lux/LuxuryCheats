@@ -33,6 +33,8 @@ fun AlphabeticTeclado(
     onDone: () -> Unit,
 ) {
     val rows =
+
+
         listOf(
             listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"),
             listOf("A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"),

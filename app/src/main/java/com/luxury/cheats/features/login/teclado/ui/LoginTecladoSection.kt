@@ -65,13 +65,20 @@ fun LoginTecladoSection(
         enter =
             slideInVertically(
                 initialOffsetY = { it },
-                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-            ) + fadeIn(),
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+            ) + fadeIn(animationSpec = tween(TecladoConstants.TRANSITION_DURATION)),
         exit =
             slideOutVertically(
                 targetOffsetY = { it },
-                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-            ) + fadeOut(),
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+            ) + fadeOut(animationSpec = tween(TecladoConstants.TRANSITION_DURATION)),
+
         modifier = modifier,
     ) {
         Surface(
@@ -93,8 +100,11 @@ fun LoginTecladoSection(
                         .navigationBarsPadding(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                KeyboardTransitionContent(type, isUpperCase, actions)
+                TecladoSoundProvider {
+                    KeyboardTransitionContent(type, isUpperCase, actions)
+                }
             }
+
         }
     }
 }

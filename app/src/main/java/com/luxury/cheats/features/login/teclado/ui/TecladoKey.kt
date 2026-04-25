@@ -1,5 +1,7 @@
 package com.luxury.cheats.features.login.teclado.ui
 
+import android.media.AudioAttributes
+import android.media.SoundPool
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -10,16 +12,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.luxury.cheats.R
 import kotlinx.coroutines.delay
 
 private object KeyConstants {
@@ -31,21 +37,49 @@ private object KeyConstants {
 }
 
 /**
- * Configuración visual y de comportamiento para teclas de icono.
+ * Proveedor local para el sonido del teclado, compartido entre todas las teclas.
  */
+val LocalTecladoSound = staticCompositionLocalOf<(() -> Unit)?> { null }
+
+/**
+ * Componente raíz que inicializa el sonido para el teclado.
+ * Debe envolver a NumericTeclado, SymbolsTeclado, etc.
+ */
+@Composable
+fun TecladoSoundProvider(content: @Composable () -> Unit) {
+    val context = LocalContext.current
+    val soundPool = remember {
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        SoundPool.Builder().setMaxStreams(5).setAudioAttributes(attributes).build()
+    }
+    val soundId = remember { soundPool.load(context, R.raw.key, 1) }
+    
+    val play = remember { 
+        { 
+            soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1.0f)
+            Unit
+        }
+    }
+
+
+    DisposableEffect(Unit) {
+        onDispose { soundPool.release() }
+    }
+
+    androidx.compose.runtime.CompositionLocalProvider(LocalTecladoSound provides play) {
+        content()
+    }
+}
+
 data class TecladoKeyStyle(
     val itemColor: Color,
     val contentColor: Color,
     val enableRepeat: Boolean = false,
 )
 
-/**
- * Tecla estándar que muestra texto.
- *
- * @param text Texto a mostrar en la tecla.
- * @param onClick Callback al presionar la tecla.
- * @param modifier Modificador de Compose.
- */
 @Composable
 fun TecladoKey(
     text: String,
@@ -54,11 +88,15 @@ fun TecladoKey(
     color: Color? = null,
     contentColor: Color? = null,
 ) {
+    val playSound = LocalTecladoSound.current
     val defaultColor = if (text == " ") MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceVariant
     val defaultContentColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Surface(
-        onClick = onClick,
+        onClick = {
+            playSound?.invoke()
+            onClick()
+        },
         modifier = modifier.height(KeyConstants.KEY_HEIGHT.dp),
         shape = RoundedCornerShape(KeyConstants.ROUNDED_CORNER.dp),
         color = color ?: defaultColor,
@@ -75,42 +113,40 @@ fun TecladoKey(
     }
 }
 
-/**
- * Tecla que muestra un icono y soporta repetición opcional.
- *
- * @param icon Icono a mostrar.
- * @param onClick Callback al presionar la tecla.
- * @param modifier Modificador de Compose.
- * @param style Estilo y comportamiento de la tecla.
- */
 @Composable
 fun TecladoIconKey(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    style: TecladoKeyStyle =
-        TecladoKeyStyle(
-            itemColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        ),
+    style: TecladoKeyStyle = TecladoKeyStyle(
+        itemColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    ),
 ) {
+    val playSound = LocalTecladoSound.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // Lógica de repetición cuando está presionado
     if (style.enableRepeat && isPressed) {
         LaunchedEffect(Unit) {
-            onClick() // Borrado inicial (1 caracter)
-            delay(KeyConstants.INITIAL_REPEAT_DELAY) // Delay inicial antes de ráfaga
+            playSound?.invoke()
+            onClick()
+            delay(KeyConstants.INITIAL_REPEAT_DELAY)
             while (true) {
+                playSound?.invoke()
                 onClick()
-                delay(KeyConstants.REPEAT_TICK_DELAY) // Ráfaga rápida
+                delay(KeyConstants.REPEAT_TICK_DELAY)
             }
         }
     }
 
     Surface(
-        onClick = { if (!style.enableRepeat) onClick() },
+        onClick = {
+            if (!style.enableRepeat) {
+                playSound?.invoke()
+                onClick()
+            }
+        },
         modifier = modifier.height(48.dp),
         interactionSource = interactionSource,
         shape = RoundedCornerShape(12.dp),

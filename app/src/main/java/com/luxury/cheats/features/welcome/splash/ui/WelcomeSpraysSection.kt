@@ -38,6 +38,8 @@ fun WelcomeSpraysSection(modifier: Modifier = Modifier) {
         val heightDp = with(density) { containerSize.height.toDp() }
         val spriteSize = 200.dp
 
+
+
         // Sprite 1: Superior izquierda
         SpraySprite(
             drawableRes = R.drawable.sprit1,
@@ -75,12 +77,8 @@ private fun SpraySprite(
     offsetY: Dp,
     animationOffset: Pair<Dp, Dp>,
 ) {
-    AsyncImage(
-        model =
-            ImageRequest.Builder(LocalContext.current)
-                .data(drawableRes)
-                .crossfade(true)
-                .build(),
+    androidx.compose.foundation.Image(
+        painter = androidx.compose.ui.res.painterResource(id = drawableRes),
         contentDescription = null,
         modifier =
             Modifier
@@ -91,4 +89,5 @@ private fun SpraySprite(
                 ),
         contentScale = ContentScale.Fit,
     )
+
 }

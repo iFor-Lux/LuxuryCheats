@@ -29,5 +29,6 @@ data class HomeState(
     // Caché de pesos pre-cargados
     val fileWeightsCache: Map<String, String> = emptyMap(),
     val isPanelControlFloatingVisible: Boolean = false,
-    val isFloatingWidgetActive: Boolean = false
+    val isFloatingWidgetActive: Boolean = false,
+    val homeImageUrl: String? = null
 )

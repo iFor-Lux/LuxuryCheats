@@ -63,5 +63,6 @@ data class LoginPantallaState(
     val isUpperCase: Boolean = false,
     val isLoading: Boolean = false,
     val isLoginSuccessful: Boolean = false,
+    val loginImageUrl: String? = null,
 )
 

@@ -133,6 +133,8 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
         type: NotificationType,
     ) {
         val notification = AppNotification(message = message, type = type)
+
+
         _uiState.update { it.copy(notifications = it.notifications + notification) }
 
         viewModelScope.launch {

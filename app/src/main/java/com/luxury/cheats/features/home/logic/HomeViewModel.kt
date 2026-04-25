@@ -30,6 +30,7 @@ class HomeViewModel
         private val updateService: com.luxury.cheats.features.update.service.UpdateService,
         private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService,
         private val floatingWidgetManager: com.luxury.cheats.services.floating.FloatingWidgetManager,
+        private val firebaseService: com.luxury.cheats.services.firebase.FirebaseService,
         @ApplicationContext private val context: android.content.Context,
     ) : ViewModel() {
         private val adminComponent =
@@ -64,7 +65,13 @@ class HomeViewModel
             viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 checkUpdates()
                 loadInAppNotifications()
+                fetchHomeImage()
             }
+        }
+
+        private suspend fun fetchHomeImage() {
+            val url = firebaseService.fetchImageUrl("Home")
+            _uiState.update { it.copy(homeImageUrl = url) }
         }
 
         @Suppress("TooGenericExceptionCaught")
@@ -398,6 +405,8 @@ class HomeViewModel
             type: NotificationType,
         ) {
             val notification = AppNotification(message = message, type = type)
+
+
 
             _uiState.update {
                 it.copy(notifications = it.notifications + notification)

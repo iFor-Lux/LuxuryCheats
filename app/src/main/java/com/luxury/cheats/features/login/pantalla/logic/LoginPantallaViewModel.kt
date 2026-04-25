@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.luxury.cheats.services.firebase.AuthService
 import com.luxury.cheats.services.storage.UserPreferencesService
+import com.luxury.cheats.services.firebase.FirebaseService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 class LoginPantallaViewModel(
     private val authService: AuthService,
     private val preferencesService: UserPreferencesService,
+    private val firebaseService: FirebaseService,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginPantallaState())
     val uiState: StateFlow<LoginPantallaState> = _uiState.asStateFlow()
@@ -58,7 +60,15 @@ class LoginPantallaViewModel(
                 _uiState.update { it.copy(saveUser = true) }
             }
         }
+        
+        fetchLoginImage()
+    }
 
+    private fun fetchLoginImage() {
+        viewModelScope.launch {
+            val url = firebaseService.fetchImageUrl("Login")
+            _uiState.update { it.copy(loginImageUrl = url) }
+        }
     }
 
     /**
@@ -390,6 +400,8 @@ class LoginPantallaViewModel(
         type: LoginNotificationType,
     ) {
         val newNotification = LoginNotification(message = message, type = type)
+
+
         _uiState.update { it.copy(notifications = it.notifications + newNotification) }
 
         viewModelScope.launch {

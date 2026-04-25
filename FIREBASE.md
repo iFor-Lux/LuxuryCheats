@@ -163,9 +163,18 @@ Credenciales de cuenta de usuario y datos de suscripción.
     "users": {
       ".read": true,
       "$user_id": {
-        ".write": "data.child('device').val() == '' || !data.exists()"
+        ".write": "data.child('device').val() == '' || !data.exists() || !newData.exists()"
       },
       ".indexOn": ["username", "device"]
+    },
+    "app_images": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["title"]
+    },
+    "device_tokens": {
+      ".read": true,
+      ".write": true
     },
     "notifications": {
       ".read": true,
@@ -182,6 +191,10 @@ Credenciales de cuenta de usuario y datos de suscripción.
     "active_ips": {
       ".read": true,
       ".write": true
+    },
+    "urls": {
+      ".read": true,
+      ".write": false
     }
   }
 }

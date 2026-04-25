@@ -2,20 +2,59 @@ package com.luxury.cheats.features.welcome.splash.logic
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import coil.imageLoader
 
 /**
  * ViewModel para Welcome Splash Screen
  * - Maneja la lógica y estado del splash
  * - Separación de lógica de UI (cumple AGENTS.md)
  */
-class WelcomeSplashViewModel : ViewModel() {
+@HiltViewModel
+class WelcomeSplashViewModel @Inject constructor(
+    private val firebaseService: com.luxury.cheats.services.firebase.FirebaseService,
+    @ApplicationContext private val context: android.content.Context
+) : ViewModel() {
     private val _state = MutableStateFlow(WelcomeSplashState())
     val state: StateFlow<WelcomeSplashState> = _state.asStateFlow()
+
+    init {
+        // Pre-cargar imágenes esenciales en background
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            preloadImages()
+        }
+    }
+
+    private suspend fun preloadImages() {
+        try {
+            val loginUrl = firebaseService.fetchImageUrl("Banner Login")
+            val homeUrl = firebaseService.fetchImageUrl("Home")
+            
+            val imageLoader = context.imageLoader
+            
+            if (loginUrl != null) {
+                val request = coil.request.ImageRequest.Builder(context)
+                    .data(loginUrl)
+                    .build()
+                imageLoader.enqueue(request)
+            }
+            if (homeUrl != null) {
+                val request = coil.request.ImageRequest.Builder(context)
+                    .data(homeUrl)
+                    .build()
+                imageLoader.enqueue(request)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("WelcomeSplashViewModel", "Error preloading images", e)
+        }
+    }
 
     /**
      * Procesa acciones del usuario

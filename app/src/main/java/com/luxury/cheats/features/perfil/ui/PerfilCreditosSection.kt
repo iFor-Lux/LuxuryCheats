@@ -48,13 +48,15 @@ fun PerfilCreditosSection(modifier: Modifier = Modifier) {
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(124.dp)
                     .clip(RoundedCornerShape(30.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .padding(16.dp),
+
             contentAlignment = Alignment.Center,
         ) {
             CreditosCard()
         }
+
     }
 }
 
@@ -74,10 +76,13 @@ private fun CreditosCard() {
     Box(
         modifier =
             Modifier
-                .width(333.dp)
+                .fillMaxWidth()
                 .height(96.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(14.dp))
+
+
                 .background(MaterialTheme.colorScheme.surfaceVariant),
+
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
