@@ -163,7 +163,7 @@ Credenciales de cuenta de usuario y datos de suscripción.
     "users": {
       ".read": true,
       "$user_id": {
-        ".write": "data.child('device').val() == '' || !data.exists() || !newData.exists()"
+        ".write": "!data.exists() || !newData.exists() || data.child('device').val() == '' || newData.child('device').val() == '' || newData.child('expirationDate').val() != data.child('expirationDate').val()"
       },
       ".indexOn": ["username", "device"]
     },
