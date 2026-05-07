@@ -143,6 +143,7 @@ class LoginPantallaViewModel(
                                 "created" to data.optString("createdAt"),
                                 "expiry" to data.optString("expirationDate"),
                                 "device" to data.optString("device"),
+                                "tier" to data.optString("tier"),
                             )
                         )
                     }
@@ -150,11 +151,17 @@ class LoginPantallaViewModel(
                     // Guardamos la clave como nombre de usuario para el perfil
                     preferencesService.accessCredentials(data = key to "LICENSE_MODE")
 
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isLoginSuccessful = true,
-                        )
+                    val tier = result.userData?.optString("tier", "free") ?: "free"
+                    if (tier == "free") {
+                        _uiState.update { it.copy(isLoading = false) }
+                        startFreeTierWaitSimulation()
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                isLoginSuccessful = true,
+                            )
+                        }
                     }
                 }
                 is AuthService.LoginResult.Error -> {
@@ -369,17 +376,25 @@ class LoginPantallaViewModel(
                                 "created" to data.optString("createdAt"),
                                 "expiry" to data.optString("expirationDate"),
                                 "device" to data.optString("device"),
+                                "tier" to data.optString("tier"),
                             )
                         )
                     }
                     preferencesService.accessLicenseMode(false) // Desactivar modo licencia
 
+                    val tier = result.userData?.optString("tier", "vip") ?: "vip"
+
                     showNotification("¡Acceso concedido!", LoginNotificationType.SUCCESS)
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isLoginSuccessful = true,
-                        )
+                    if (tier == "free") {
+                        _uiState.update { it.copy(isLoading = false) }
+                        startFreeTierWaitSimulation()
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                isLoginSuccessful = true,
+                            )
+                        }
                     }
                 }
                 is AuthService.LoginResult.Error -> {
@@ -408,6 +423,45 @@ class LoginPantallaViewModel(
             kotlinx.coroutines.delay(LoginConstants.NOTIFICATION_DISMISS_DELAY)
             _uiState.update { state ->
                 state.copy(notifications = state.notifications.filter { it.id != newNotification.id })
+            }
+        }
+    }
+
+    private fun startFreeTierWaitSimulation() {
+        viewModelScope.launch {
+            val waitDuration = (30..45).random()
+            var timeRemaining = waitDuration
+            var position = (10..25).random()
+
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    isWaitingFreeQueue = true,
+                    queuePosition = position,
+                    queueTimeRemaining = timeRemaining
+                )
+            }
+
+            while (timeRemaining > 0) {
+                kotlinx.coroutines.delay(1000L)
+                timeRemaining--
+                if (timeRemaining % 3 == 0 && position > 1) {
+                    position -= (1..2).random()
+                    if (position < 1) position = 1
+                }
+                _uiState.update {
+                    it.copy(
+                        queueTimeRemaining = timeRemaining,
+                        queuePosition = position
+                    )
+                }
+            }
+
+            _uiState.update {
+                it.copy(
+                    isWaitingFreeQueue = false,
+                    isLoginSuccessful = true
+                )
             }
         }
     }

@@ -45,17 +45,20 @@ class HomeViewModel
         init {
             initializeData()
             val (_, searchResults) = preferencesService.accessSearchData()
+            val cache = preferencesService.accessProfileCache()
+            val isLicenseMode = preferencesService.accessLicenseMode()
+            val computedTier = cache?.get("tier") ?: if (isLicenseMode) "free" else "vip"
 
             _uiState.update {
                 it.copy(
                     isSeguridadUnlocked = false,
-                    // Protocolo: Siempre cerrado al iniciar app
                     isIdAndConsoleVisible = false,
                     isOpcionesVisible = false,
                     consoleOutput = searchResults.first,
                     isSearchSuccessful = searchResults.second,
                     cheatOptions = emptyMap(),
                     idValue = preferencesService.accessSearchData().first.ifEmpty { it.idValue },
+                    tier = computedTier
                 )
             }
         }
@@ -160,10 +163,32 @@ class HomeViewModel
          */
         fun onAction(action: HomeAction) {
             when (action) {
-                HomeAction.ToggleSeguridad -> uiStateManager.handleToggle("seguridad")
+                HomeAction.ToggleSeguridad -> {
+                    if (_uiState.value.tier.equals("free", ignoreCase = true) && !_uiState.value.isSeguridadUnlocked) {
+                        _uiState.update { it.copy(showFreeSecurityDialog = true) }
+                    } else {
+                        uiStateManager.handleToggle("seguridad")
+                    }
+                }
+                HomeAction.DismissFreeSecurityDialog -> {
+                    _uiState.update { it.copy(showFreeSecurityDialog = false) }
+                }
+                HomeAction.ConfirmFreeSecurityDialog -> {
+                    _uiState.update { it.copy(showFreeSecurityDialog = false) }
+                    uiStateManager.handleToggle("seguridad")
+                }
+                HomeAction.BuyVip -> {
+                    _uiState.update { it.copy(showFreeSecurityDialog = false, showLotteryInfoDialog = false) }
+                    openVipPurchasePortal()
+                }
+                HomeAction.ShowLotteryInfoDialog -> {
+                    _uiState.update { it.copy(showLotteryInfoDialog = true) }
+                }
+                HomeAction.DismissLotteryInfoDialog -> {
+                    _uiState.update { it.copy(showLotteryInfoDialog = false) }
+                }
                 HomeAction.ToggleIdAndConsole -> uiStateManager.handleToggle("id_console")
                 HomeAction.ToggleOpciones -> uiStateManager.handleToggle("opciones")
-
                 HomeAction.ToggleConsoleExpansion -> uiStateManager.handleToggle("console_expansion")
                 is HomeAction.OnIdValueChange ->
                     _uiState.update {
@@ -474,6 +499,20 @@ class HomeViewModel
                 context.startForegroundService(intent)
             } else {
                 context.startService(intent)
+            }
+        }
+
+        private fun openVipPurchasePortal() {
+            try {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://luxury-cheats.com/buy-vip")
+                ).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                android.util.Log.e("HomeViewModel", "No se pudo abrir el portal VIP", e)
             }
         }
 

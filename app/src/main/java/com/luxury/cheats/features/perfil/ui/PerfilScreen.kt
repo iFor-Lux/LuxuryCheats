@@ -119,7 +119,7 @@ private fun PerfilContent(
                     ProfileInfoData(
                         userName = uiState.username,
                         userId = uiState.userId,
-                        isVip = uiState.isVip,
+                        tier = uiState.tier,
                         remainingDays = uiState.remainingDays,
                         androidVersion = uiState.androidVersion,
                         appVersion = uiState.appVersion,

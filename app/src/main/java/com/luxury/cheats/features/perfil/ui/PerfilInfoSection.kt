@@ -18,7 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -68,7 +69,7 @@ fun PerfilInfoSection(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             InfoHeaderSection(
-                isVip = data.isVip,
+                tier = data.tier,
                 profileImageUri = data.profileImageUri,
                 bannerImageUri = data.bannerImageUri,
                 onAction = onAction,
@@ -91,7 +92,7 @@ fun PerfilInfoSection(
 data class ProfileInfoData(
     val userName: String = "",
     val userId: String = "",
-    val isVip: Boolean = false,
+    val tier: String = "free",
     val remainingDays: String = "",
     val androidVersion: String = "",
     val appVersion: String = "",
@@ -101,7 +102,7 @@ data class ProfileInfoData(
 
 @Composable
 private fun InfoHeaderSection(
-    isVip: Boolean,
+    tier: String,
     profileImageUri: String?,
     bannerImageUri: String?,
     onAction: (PerfilAction) -> Unit,
@@ -133,12 +134,11 @@ private fun InfoHeaderSection(
             )
         }
 
-        if (isVip) {
-            InfoVipTag(
-                backdrop = backdrop,
-                modifier = Modifier.align(Alignment.BottomEnd),
-            )
-        }
+        InfoTierTag(
+            tier = tier,
+            backdrop = backdrop,
+            modifier = Modifier.align(Alignment.BottomEnd),
+        )
     }
 }
 
@@ -199,11 +199,14 @@ private fun InfoAvatar(
 }
 
 @Composable
-private fun InfoVipTag(
+private fun InfoTierTag(
+    tier: String,
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(30.dp)
+    val isVip = tier.equals("vip", ignoreCase = true)
+    
     Box(
         modifier =
             modifier
@@ -232,14 +235,14 @@ private fun InfoVipTag(
             horizontalArrangement = Arrangement.Center,
         ) {
             Icon(
-                imageVector = Icons.Filled.Bookmark,
-                contentDescription = "VIP Icon",
+                imageVector = if (isVip) Icons.Filled.Star else Icons.Filled.Person,
+                contentDescription = if (isVip) "VIP Icon" else "Free Icon",
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "VIP",
+                text = if (isVip) "Vip" else "Free",
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.ExtraBold,

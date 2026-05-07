@@ -30,5 +30,8 @@ data class HomeState(
     val fileWeightsCache: Map<String, String> = emptyMap(),
     val isPanelControlFloatingVisible: Boolean = false,
     val isFloatingWidgetActive: Boolean = false,
-    val homeImageUrl: String? = null
+    val homeImageUrl: String? = null,
+    val tier: String = "free",
+    val showFreeSecurityDialog: Boolean = false,
+    val showLotteryInfoDialog: Boolean = false
 )

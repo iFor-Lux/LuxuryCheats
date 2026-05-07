@@ -179,6 +179,10 @@ class AuthService {
             }
         }
 
+        // Asignar tier por defecto para usuarios convencionales
+        val tier = userData.optString("tier", "vip")
+        userData.put("tier", tier)
+
         if (savedDevice.isEmpty()) {
             db.child(userKey).child("device").setValue(deviceName)
         }
@@ -254,6 +258,10 @@ class AuthService {
                 }
                 updateDb.child("used").setValue(true)
                 
+                // Asignar tier por defecto para accesos mediante licencias web
+                val tier = licenseData.optString("tier", "free")
+                licenseData.put("tier", tier)
+
                 // Agregamos la clave original para que PerfilViewModel sepa qué licencia es
                 licenseData.put("_key", key)
 

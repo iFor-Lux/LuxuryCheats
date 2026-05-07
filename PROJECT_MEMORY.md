@@ -745,3 +745,28 @@
   - **Navegación**: Modificación en `AppNavHost.kt` para ocultar el eclipse rosado condicionalmente.
   - **UI**: Uso de **Coil** (`AsyncImage`) en `LoginPantallaImagenSection` para renderizar el banner en la parte inferior de la pantalla.
 - **Resultado**: Fondo de login limpio y personalizable remotamente desde el Dashboard/Firebase sin necesidad de actualizaciones de APK.
+
+### Implementación de Tiers de Acceso (VIP y FREE)
+**Fecha**: Abril 2026
+
+- **Contexto**: Necesidad de diferenciar a los usuarios registrados de la base de datos principal de aquellos que acceden mediante claves de licencias generadas en el portal web.
+- **Decisión**: Introducir un atributo `tier` ("vip" o "free") mapeado desde Firebase a las preferencias locales y propagado a través de los estados de la UI.
+- **Implementación**:
+  - `AuthService.kt`: Los usuarios autenticados vía Firebase asumen el tier `"vip"`. Las validaciones de licencias imponen el tier `"free"`.
+  - `LoginPantallaViewModel.kt`: Inyecta la propiedad tier al caché de perfiles (`preferencesService.accessProfileCache`) al finalizar con éxito.
+  - `PerfilState.kt` y `PerfilViewModel.kt`: Incorporan la propiedad al ciclo de carga nativo y refrescos concurrentes.
+  - `Simulación de Espera`: Para usuarios `"free"`, se implementó un bloqueo de tiempo artificial de 30-45s con visualización de cola mediante el componente `CircularWavyProgressIndicator` de Material 3 Expressive.
+  - `PerfilInfoSection.kt` y `PerfilScreen.kt`: Adaptación del badge de rango para mostrar `"VIP"` o `"FREE"` dinámicamente.
+- **Resultado**: La aplicación identifica y asocia el rango de privilegios de manera fluida.
+
+### Dashboard Luxury: Optimización Responsiva de Tabla de Usuarios (Mayo 2026)
+**Fecha**: Mayo 2026
+
+- **Contexto**: La tabla de gestión de usuarios en el Dashboard no era usable en dispositivos móviles debido al scroll horizontal y exceso de datos.
+- **Decisión**: Implementar una vista de tabla unificada (lista continua) para móviles que oculte campos secundarios y priorice información crítica, evitando el uso de tarjetas separadas para mantener la cohesión visual.
+- **Implementación**:
+  - `TableUsuarios.astro`: Se añadió un media query `@media (max-width: 1024px)` que transforma la tabla en una lista vertical sin espacios entre filas.
+  - **Estructura**: El contenedor `.table-card` actúa como la base de la tabla con borde y fondo, mientras que las filas (`tr`) se apilan sin márgenes, separadas por bordes inferiores.
+  - **Campos Visibles**: Nombre de Usuario, ID, Días Restantes y Menú de Acciones.
+  - **UX**: Eliminación de `-webkit-tap-highlight-color` y aplicación de hover sutil en filas móviles.
+- **Resultado**: Interfaz móvil 100% funcional y estéticamente superior, optimizada para la gestión rápida de licencias desde smartphones.

@@ -28,6 +28,9 @@ import com.luxury.cheats.features.download.logic.DownloadParams
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.features.home.logic.HomeAction
 import com.luxury.cheats.features.home.ui.seguridad.HomeSeguridadSection
+import com.luxury.cheats.features.home.ui.seguridad.FreeSeguridadWarningDialog
+import com.luxury.cheats.features.home.ui.VipLotteryUpsellSection
+import com.luxury.cheats.features.home.ui.VipLotteryInfoDialog
 import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
 import com.luxury.cheats.features.widgets.InfoMessageDialog
 import com.luxury.cheats.navigations.Update
@@ -121,6 +124,21 @@ private fun HomeOverlays(
                 .padding(top = 50.dp),
     )
 
+    if (uiState.showFreeSecurityDialog) {
+        FreeSeguridadWarningDialog(
+            onDismissRequest = { onAction(HomeAction.DismissFreeSecurityDialog) },
+            onContinueClick = { onAction(HomeAction.ConfirmFreeSecurityDialog) },
+            onBuyVipClick = { onAction(HomeAction.BuyVip) }
+        )
+    }
+
+    if (uiState.showLotteryInfoDialog) {
+        VipLotteryInfoDialog(
+            onDismissRequest = { onAction(HomeAction.DismissLotteryInfoDialog) },
+            onBuyVipClick = { onAction(HomeAction.BuyVip) }
+        )
+    }
+
     uiState.appUpdate?.let { update ->
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { onAction(HomeAction.DismissUpdateAnuncio) },
@@ -197,6 +215,12 @@ private fun HomeSectionsList(
             greeting = uiState.greeting,
             subtitle = uiState.greetingSubtitle,
         )
+
+        if (uiState.tier.equals("free", ignoreCase = true)) {
+            VipLotteryUpsellSection(
+                onInfoClick = { onAction(HomeAction.ShowLotteryInfoDialog) }
+            )
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
 

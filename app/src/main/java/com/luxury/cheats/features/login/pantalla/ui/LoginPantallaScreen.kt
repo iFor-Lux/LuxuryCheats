@@ -1,8 +1,11 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 package com.luxury.cheats.features.login.pantalla.ui
+
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -128,6 +131,71 @@ private fun LoginScreenContent(
             notifications = state.notifications,
             modifier = Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 16.dp),
         )
+
+        AnimatedVisibility(
+            visible = state.isWaitingFreeQueue,
+            enter = fadeIn() + scaleIn(initialScale = 0.9f),
+            exit = fadeOut() + scaleOut(targetScale = 0.9f)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.7f))
+                    .clickable(enabled = true, onClick = {}),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .width(300.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f), RoundedCornerShape(28.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f), RoundedCornerShape(28.dp))
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    androidx.compose.material3.CircularWavyProgressIndicator()
+                    Spacer(modifier = Modifier.height(24.dp))
+                    androidx.compose.material3.Text(
+                        text = "SERVIDORES SATURADOS...",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.material3.Text(
+                        text = "Los servidores gratuitos están saturados. Los usuarios VIP tienen acceso prioritario. Por favor, espera tu turno.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    androidx.compose.material3.Text(
+                        text = "Posición en cola: ${state.queuePosition}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    androidx.compose.material3.Text(
+                        text = "Tiempo estimado: ${state.queueTimeRemaining}s",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    androidx.compose.material3.Button(
+                        onClick = {
+                            // Abre canal de pago o similar
+                        },
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.width(200.dp)
+                    ) {
+                        androidx.compose.material3.Text("ADQUIRIR VIP")
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -154,7 +222,7 @@ private fun LoginMainCard(state: LoginPantallaState, onAction: (LoginPantallaAct
 @Composable
 private fun LoginCardContent(state: LoginPantallaState, isExpanded: Boolean, onAction: (LoginPantallaAction) -> Unit) {
     val premiumBounce = spring<Float>(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
-    
+
     Column(modifier = Modifier.width(270.dp).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         AnimatedVisibility(
             visible = !isExpanded,

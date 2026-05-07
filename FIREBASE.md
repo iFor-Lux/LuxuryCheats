@@ -17,8 +17,11 @@ luxury-counter-default-rtdb (Root)
 │       ├── createdAt (ISO 8601 string)
 │       ├── device (string)
 │       ├── expirationDate (ISO 8601 string)
+│       ├── ip (string)
+│       ├── country (string)
 │       ├── key (string)
 │       ├── status (string)
+│       ├── tier (string)
 │       └── used (boolean)
 ├── app_images
 │   └── {img_id}
@@ -41,8 +44,11 @@ luxury-counter-default-rtdb (Root)
 │       ├── createdAt (ISO 8601 string)
 │       ├── device (string)
 │       ├── expirationDate (ISO 8601 string)
+│       ├── ip (string)
+│       ├── country (string)
 │       ├── key (string)
 │       ├── status (string)
+│       ├── tier (string)
 │       └── used (boolean)
 ├── notifications
 │   └── {notification_id}
@@ -79,6 +85,7 @@ luxury-counter-default-rtdb (Root)
         ├── device (string)
         ├── expirationDate (ISO 8601 string)
         ├── password (string)
+        ├── tier (string)
         └── username (string)
 ```
 
@@ -89,8 +96,11 @@ Controla las sesiones activas vinculadas a una dirección IP o hash de dispositi
 - **createdAt**: Fecha en la que se registró la IP.
 - **device**: ID del dispositivo vinculado a esa IP.
 - **expirationDate**: Cuándo expira la sesión de esa IP.
+- **ip**: Dirección IP real del usuario sin hashear.
+- **country**: País de origen detectado por la IP.
 - **key**: Licencia vinculada a la IP.
 - **status**: Estado actual de la sesión (ej. `active`).
+- **tier**: Nivel de acceso (`free` por defecto).
 - **used**: Indica si la IP ya ha sido utilizada para activar un servicio.
 
 ### `app_images`
@@ -118,8 +128,11 @@ Almacena las llaves de acceso generadas y su estado de activación.
 - **createdAt**: Fecha de creación de la licencia.
 - **device**: Dispositivo que activó la licencia.
 - **expirationDate**: Cuándo vence el acceso de esta licencia.
+- **ip**: Dirección IP real desde la que se generó/activó.
+- **country**: País de origen asociado a la IP.
 - **key**: El código de la licencia (ej. `LUXURY-XXXX`).
 - **status**: Estado de la licencia.
+- **tier**: Nivel de acceso (`free` por defecto para licencias generadas por la web).
 - **used**: Si la licencia ya ha sido canjeada.
 
 ### `notifications`
@@ -147,6 +160,7 @@ Credenciales de cuenta de usuario y datos de suscripción.
 - **device**: Último ID de dispositivo vinculado a la cuenta.
 - **expirationDate**: Cuándo vence el acceso del usuario.
 - **password**: Contraseña de autenticación del usuario.
+- **tier**: Nivel de acceso (`vip` para usuarios registrados convencionales).
 - **username**: Identificador único para el inicio de sesión.
 
 ---

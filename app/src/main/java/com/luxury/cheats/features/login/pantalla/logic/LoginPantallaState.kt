@@ -64,5 +64,8 @@ data class LoginPantallaState(
     val isLoading: Boolean = false,
     val isLoginSuccessful: Boolean = false,
     val loginImageUrl: String? = null,
+    val isWaitingFreeQueue: Boolean = false,
+    val queuePosition: Int = 0,
+    val queueTimeRemaining: Int = 0,
 )
 

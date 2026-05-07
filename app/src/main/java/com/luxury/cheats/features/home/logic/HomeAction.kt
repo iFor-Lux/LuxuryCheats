@@ -52,4 +52,18 @@ sealed class HomeAction {
     /** Acción para alternar el widget flotante. */
     object ToggleFloatingWidget : HomeAction()
 
+    /** Acción para cerrar el diálogo persuasivo de seguridad. */
+    object DismissFreeSecurityDialog : HomeAction()
+
+    /** Acción para aceptar la seguridad limitada y continuar. */
+    object ConfirmFreeSecurityDialog : HomeAction()
+
+    /** Acción para comprar la versión VIP. */
+    object BuyVip : HomeAction()
+
+    /** Acción para mostrar la información del sorteo falso. */
+    object ShowLotteryInfoDialog : HomeAction()
+
+    /** Acción para ocultar la información del sorteo falso. */
+    object DismissLotteryInfoDialog : HomeAction()
 }

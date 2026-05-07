@@ -7,6 +7,7 @@ package com.luxury.cheats.features.perfil.logic
 data class PerfilState(
     val username: String = "",
     val isVip: Boolean = false,
+    val tier: String = "free",
     val userId: String = "",
     val model: String = "",
     val ram: String = "",

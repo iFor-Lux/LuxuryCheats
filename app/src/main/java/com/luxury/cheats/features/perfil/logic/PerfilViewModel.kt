@@ -55,6 +55,7 @@ class PerfilViewModel(
                 state.copy(
                     username = username,
                     userId = cache?.get("id") ?: username,
+                    tier = cache?.get("tier") ?: if (isLicenseMode) "free" else "vip",
                     profileImageUri = images.first,
                     bannerImageUri = images.second,
                     androidVersion = android.os.Build.VERSION.RELEASE,
@@ -74,6 +75,7 @@ class PerfilViewModel(
                         put("createdAt", cache["created"])
                         put("expirationDate", cache["expiry"])
                         put("device", cache["device"])
+                        put("tier", cache["tier"] ?: if (isLicenseMode) "free" else "vip")
                     },
                     persistInCache = false,
                 )
@@ -112,6 +114,7 @@ class PerfilViewModel(
                             json.put(child.key ?: "", child.value)
                         }
                         json.put("_key", snapshot.key)
+                        json.put("tier", json.optString("tier", "vip"))
                         processUserData(json)
                     }
                 }
@@ -131,6 +134,7 @@ class PerfilViewModel(
                             json.put(child.key ?: "", child.value)
                         }
                         json.put("_key", snapshot.key)
+                        json.put("tier", json.optString("tier", "free"))
                         processUserData(json)
                     }
                 }
@@ -149,6 +153,7 @@ class PerfilViewModel(
         val expirationDate = userData.optString("expirationDate")
         val firebaseId = userData.optString("_key")
         val deviceFromDb = userData.optString("device")
+        val tier = userData.optString("tier", "free")
 
         val (creationDate, creationHour) = parseCreationDate(createdAt)
         val (expiryDateText, remainingDays, isVip) = parseExpirationDate(expirationDate)
@@ -160,6 +165,7 @@ class PerfilViewModel(
                     "created" to createdAt,
                     "expiry" to expirationDate,
                     "device" to deviceFromDb,
+                    "tier" to tier,
                 ),
             )
         }
@@ -168,6 +174,7 @@ class PerfilViewModel(
             it.copy(
                 userId = firebaseId,
                 isVip = isVip,
+                tier = tier,
                 creationDate = if (creationDate.isNotEmpty()) creationDate else it.creationDate,
                 creationHour = if (creationHour.isNotEmpty()) creationHour else it.creationHour,
                 expiryDate = if (expiryDateText.isNotEmpty()) expiryDateText else it.expiryDate,
