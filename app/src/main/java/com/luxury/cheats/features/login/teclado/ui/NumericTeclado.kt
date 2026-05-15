@@ -27,7 +27,6 @@ fun NumericTeclado(
 ) {
     val numbers =
 
-
         listOf(
             listOf("1", "2", "3"),
             listOf("4", "5", "6"),
@@ -52,7 +51,7 @@ fun NumericTeclado(
                         onClick = { onKeyPress(num) },
                         modifier = Modifier.width(KEY_WIDTH.dp),
                         color = if (isDot) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = if (isDot) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        contentColor = if (isDot) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 if (index == LAST_ROW_INDEX) {

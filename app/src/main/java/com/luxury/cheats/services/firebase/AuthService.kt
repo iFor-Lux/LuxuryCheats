@@ -30,7 +30,6 @@ class AuthService {
         /** Login exitoso. */
         data class Success(val userData: JSONObject? = null) : LoginResult()
 
-
         /**
          * Error en el proceso de login.
          * @property message Descripción del error.
@@ -89,7 +88,9 @@ class AuthService {
         } catch (e: org.json.JSONException) {
             Log.e("AuthService", "Login failed due to JSON parsing", e)
             LoginResult.Error("Error de datos: ${e.localizedMessage}")
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             Log.e("AuthService", "Unexpected login error", e)
             LoginResult.Error("Error inesperado: ${e.localizedMessage}")
         }
@@ -98,8 +99,11 @@ class AuthService {
     /** Resultado interno de la búsqueda de usuario. */
     private sealed class FetchResult {
         data class Success(val data: JSONObject) : FetchResult()
+
         object NoInternet : FetchResult()
+
         object NotFound : FetchResult()
+
         data class Error(val message: String) : FetchResult()
     }
 
@@ -143,7 +147,9 @@ class AuthService {
             } catch (e: java.net.SocketTimeoutException) {
                 Log.e("AuthService", "Timeout: ${e.message}")
                 FetchResult.NoInternet
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception,
+            ) {
                 Log.e("AuthService", "REST Query Failed: ${e.message}")
                 FetchResult.Error(e.message ?: "Unknown error")
             }
@@ -167,7 +173,7 @@ class AuthService {
 
         val savedDevice = userData.optString("device")
         if (savedDevice.isNotEmpty() && savedDevice != deviceName) {
-            return LoginResult.Error("Vincular en: $savedDevice")
+            return LoginResult.Error("Usuario usado en otro dispositivo")
         }
 
         val exp = userData.optString("expirationDate")
@@ -179,7 +185,8 @@ class AuthService {
             }
         }
 
-        // Asignar tier por defecto para usuarios convencionales
+        // Asignar nivel (tier) - Soporta: free, vip, plus.
+        // Por defecto para login convencional se asume "vip" si no está definido en BD.
         val tier = userData.optString("tier", "vip")
         userData.put("tier", tier)
 
@@ -219,7 +226,7 @@ class AuthService {
                 }
 
                 val licenseData = JSONObject(response)
-                
+
                 // 1. Verificar estado
                 if (licenseData.optString("status") != "active") {
                     return@withContext LoginResult.Error("Licencia inactiva o cancelada")
@@ -237,7 +244,7 @@ class AuthService {
 
                 val savedDevice = licenseData.optString("device")
                 if (savedDevice.isNotEmpty() && savedDevice != deviceName) {
-                    return@withContext LoginResult.Error("Llave vinculada en: $savedDevice")
+                    return@withContext LoginResult.Error("Llave vinculada en otro dispositivo")
                 }
 
                 // 3. Verificar expiración
@@ -248,7 +255,8 @@ class AuthService {
                         if (ZonedDateTime.now().isAfter(expDate)) {
                             return@withContext LoginResult.Error("Licencia expirada")
                         }
-                    } catch (ignored: Exception) {}
+                    } catch (ignored: Exception) {
+                    }
                 }
 
                 // 4. Actualizar estado en Firebase (vincular dispositivo y marcar como usada)
@@ -257,7 +265,7 @@ class AuthService {
                     updateDb.child("device").setValue(deviceName)
                 }
                 updateDb.child("used").setValue(true)
-                
+
                 // Asignar tier por defecto para accesos mediante licencias web
                 val tier = licenseData.optString("tier", "free")
                 licenseData.put("tier", tier)
@@ -267,9 +275,9 @@ class AuthService {
 
                 LoginResult.Success(licenseData)
             } catch (e: java.net.UnknownHostException) {
-
+                Log.w("AuthService", "Validation failed: No internet", e)
                 LoginResult.Error("Sin conexión a internet")
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 Log.e("AuthService", "License validation failed", e)
                 LoginResult.Error("Error: ${e.localizedMessage}")
             }
@@ -313,8 +321,7 @@ class AuthService {
                     override fun onCancelled(error: DatabaseError) {
                         Log.w("AuthService", "getLicenseData:onCancelled", error.toException())
                     }
-                }
+                },
             )
     }
 }
-

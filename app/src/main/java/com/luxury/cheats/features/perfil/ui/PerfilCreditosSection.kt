@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
-
 private object SkillsConstants {
     const val SKILLS_WEIGHT = 1.3f
 }
@@ -38,7 +37,10 @@ private object SkillsConstants {
  * Contiene el título "Creditos" y una tarjeta con información del creador.
  */
 @Composable
-fun PerfilCreditosSection(modifier: Modifier = Modifier) {
+fun PerfilCreditosSection(
+    modifier: Modifier = Modifier,
+    creatorUrl: String? = null,
+) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
@@ -51,12 +53,10 @@ fun PerfilCreditosSection(modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(30.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(16.dp),
-
             contentAlignment = Alignment.Center,
         ) {
-            CreditosCard()
+            CreditosCard(creatorUrl)
         }
-
     }
 }
 
@@ -72,17 +72,14 @@ private fun CreditosHeader() {
 }
 
 @Composable
-private fun CreditosCard() {
+private fun CreditosCard(creatorUrl: String?) {
     Box(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .height(96.dp)
                 .clip(RoundedCornerShape(14.dp))
-
-
                 .background(MaterialTheme.colorScheme.surfaceVariant),
-
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
@@ -93,7 +90,7 @@ private fun CreditosCard() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            CreatorAvatar()
+            CreatorAvatar(creatorUrl)
 
             // Columna 1: Identidad (más espacio para evitar cortes feos)
             CreatorInfo(Modifier.weight(1f))
@@ -105,20 +102,31 @@ private fun CreditosCard() {
 }
 
 @Composable
-private fun CreatorAvatar() {
+private fun CreatorAvatar(uri: String?) {
     Box(
         modifier =
             Modifier
                 .size(60.dp)
                 .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f), CircleShape),
     ) {
-        // Placeholder Box (Removed local resource)
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+        val context = androidx.compose.ui.platform.LocalContext.current
+        val request =
+            androidx.compose.runtime.remember(uri) {
+                coil.request.ImageRequest.Builder(context)
+                    .data(uri)
+                    .crossfade(true)
+                    .diskCachePolicy(coil.request.CachePolicy.ENABLED)
+                    .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
+                    .build()
+            }
+
+        coil.compose.AsyncImage(
+            model = request,
+            contentDescription = "Creator Avatar",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
         )
     }
 }

@@ -203,9 +203,10 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
     backdrop: com.kyant.backdrop.backdrops.LayerBackdrop? = null,
 ) {
     composable<Home> { entry ->
-        val parentEntry = remember(entry) {
-            navController.getBackStackEntry<MainGraph>()
-        }
+        val parentEntry =
+            remember(entry) {
+                navController.getBackStackEntry<MainGraph>()
+            }
         val viewModel: HomeViewModel = hiltViewModel(parentEntry)
         val uiState by viewModel.uiState.collectAsState()
 
@@ -235,17 +236,25 @@ private fun androidx.navigation.NavGraphBuilder.mainGraph(
     composable<ArchivoPlus>(
         enterTransition = {
             androidx.compose.animation.fadeIn(
-                animationSpec = androidx.compose.animation.core.tween(400, easing = androidx.compose.animation.core.LinearOutSlowInEasing)
+                animationSpec =
+                    androidx.compose.animation.core.tween(
+                        400,
+                        easing = androidx.compose.animation.core.LinearOutSlowInEasing,
+                    ),
             )
         },
         exitTransition = {
             androidx.compose.animation.fadeOut(
-                animationSpec = androidx.compose.animation.core.tween(400, easing = androidx.compose.animation.core.FastOutLinearInEasing)
+                animationSpec =
+                    androidx.compose.animation.core.tween(
+                        400,
+                        easing = androidx.compose.animation.core.FastOutLinearInEasing,
+                    ),
             )
-        }
+        },
     ) {
         com.luxury.cheats.features.archivoplus.ui.ArchivoPlusScreen(
-            onBackClick = { navController.popBackStack() }
+            onBackClick = { navController.popBackStack() },
         )
     }
 }

@@ -12,7 +12,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,7 +30,7 @@ class HomeViewModel
         private val playerRepository: com.luxury.cheats.services.freefireapi.PlayerRepository,
         private val updateService: com.luxury.cheats.features.update.service.UpdateService,
         private val notificationService: com.luxury.cheats.features.home.service.InAppNotificationService,
-        private val floatingWidgetManager: com.luxury.cheats.services.floating.FloatingWidgetManager,
+        private val floatingWidgetManager: com.luxury.cheats.services.floating.logic.FloatingWidgetManager,
         private val firebaseService: com.luxury.cheats.services.firebase.FirebaseService,
         @ApplicationContext private val context: android.content.Context,
     ) : ViewModel() {
@@ -47,6 +48,7 @@ class HomeViewModel
             val (_, searchResults) = preferencesService.accessSearchData()
             val cache = preferencesService.accessProfileCache()
             val isLicenseMode = preferencesService.accessLicenseMode()
+            // Determinación de nivel (free, vip, plus) con fallbacks por tipo de inicio
             val computedTier = cache?.get("tier") ?: if (isLicenseMode) "free" else "vip"
 
             _uiState.update {
@@ -58,7 +60,7 @@ class HomeViewModel
                     isSearchSuccessful = searchResults.second,
                     cheatOptions = emptyMap(),
                     idValue = preferencesService.accessSearchData().first.ifEmpty { it.idValue },
-                    tier = computedTier
+                    tier = computedTier,
                 )
             }
         }
@@ -66,54 +68,53 @@ class HomeViewModel
         private fun initializeData() {
             updateGreeting()
             viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                checkUpdates()
-                loadInAppNotifications()
                 fetchHomeImage()
             }
+            observeRealtimeUpdates()
+            observeRealtimeNotifications()
         }
 
         private suspend fun fetchHomeImage() {
-            val url = firebaseService.fetchImageUrl("Home")
-            _uiState.update { it.copy(homeImageUrl = url) }
+            val homeUrl =
+                firebaseService.fetchImageUrl("Home")
+                    ?: firebaseService.fetchImageUrl("home")
+
+            val diamantesUrl =
+                firebaseService.fetchImageUrl("Diamantes")
+                    ?: firebaseService.fetchImageUrl("diamantes")
+
+            _uiState.update { it.copy(homeImageUrl = homeUrl, diamantesImageUrl = diamantesUrl) }
         }
 
         @Suppress("TooGenericExceptionCaught")
-        private suspend fun checkUpdates() {
-            try {
-                val update = updateService.getAppUpdate()
-                val localVersion = BuildConfig.VERSION_NAME
+        private fun observeRealtimeUpdates() {
+            updateService.observeAppUpdate()
+                .onEach { update ->
+                    val localVersion = BuildConfig.VERSION_NAME
+                    android.util.Log.d(
+                        "HomeViewModel",
+                        "Realtime Update -> Remote: ${update.version}, Local: $localVersion, Active: ${update.active}",
+                    )
 
-                android.util.Log.d(
-                    "HomeViewModel",
-                    "Update Check -> Remote: ${update.version}, " +
-                        "Local: $localVersion, Active: ${update.active}",
-                )
-
-                if (update.active && VersionUtils.isVersionNewer(update.version, localVersion)) {
-                    android.util.Log.d("HomeViewModel", "Showing update announcement dialog")
-                    _uiState.update { it.copy(appUpdate = update) }
-                } else {
-                    android.util.Log.d("HomeViewModel", "No update needed or remote inactive")
+                    if (update.active && VersionUtils.isVersionNewer(update.version, localVersion)) {
+                        _uiState.update { it.copy(appUpdate = update) }
+                    } else {
+                        _uiState.update { it.copy(appUpdate = null) }
+                    }
                 }
-            } catch (e: com.google.firebase.database.DatabaseException) {
-                android.util.Log.w("HomeViewModel", "Firebase error checking updates", e)
-            } catch (e: Exception) {
-                // Catch genérico al final con log específico para Detekt
-                android.util.Log.w("HomeViewModel", "Unexpected error checking updates", e)
-            }
+                .launchIn(viewModelScope)
         }
 
-        private suspend fun loadInAppNotifications() {
-            try {
-                val all = notificationService.getActiveNotifications()
-                val seen = preferencesService.accessSeenNotifications()
-                val toShow = all.firstOrNull { it.frequency != "once" || !seen.contains(it.id) }
-                if (toShow != null) {
+        private fun observeRealtimeNotifications() {
+            notificationService.observeInAppNotifications()
+                .onEach { all ->
+                    val seen = preferencesService.accessSeenNotifications()
+                    val toShow = all.firstOrNull { it.frequency != "always" && !seen.contains(it.id) }
+                        ?: all.firstOrNull { it.frequency == "always" }
+
                     _uiState.update { it.copy(currentInAppNotification = toShow) }
                 }
-            } catch (e: java.io.IOException) {
-                android.util.Log.w("HomeViewModel", "Failed to load notifications", e)
-            }
+                .launchIn(viewModelScope)
         }
 
         /**
@@ -132,7 +133,7 @@ class HomeViewModel
                         for (name in cheatNames) {
                             try {
                                 val info = downloadService.getDownloadInfo(name)
-                                if (info.url.isNotEmpty()) {
+                                if (info.active && info.url.isNotEmpty()) {
                                     map[name] = downloadService.getFileSize(info.url)
                                 }
                             } catch (e: java.io.IOException) {
@@ -203,27 +204,36 @@ class HomeViewModel
                 is HomeAction.ToggleCheat -> uiStateManager.toggleCheat(action.cheatName, action.enable)
                 HomeAction.DismissDownloadArchivo -> _uiState.update { it.copy(isDownloadArchivoVisible = false) }
                 HomeAction.TogglePanelControlFloating -> uiStateManager.handleToggle("panel_floating")
-                HomeAction.DismissPanelControlFloating -> _uiState.update { it.copy(isPanelControlFloatingVisible = false) }
+                HomeAction.DismissPanelControlFloating ->
+                    _uiState.update {
+                        it.copy(
+                            isPanelControlFloatingVisible = false,
+                        )
+                    }
                 HomeAction.ToggleFloatingWidget -> toggleFloatingWidget()
+                HomeAction.ShowPremiumSurprise -> {
+                    // Manejado localmente en HomeOpcionesSection
+                }
             }
         }
 
         private fun toggleFloatingWidget() {
             val isActive = !_uiState.value.isFloatingWidgetActive
-            
+
             if (isActive && !android.provider.Settings.canDrawOverlays(context)) {
-                val intent = Intent(
-                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    android.net.Uri.parse("package:${context.packageName}")
-                ).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
+                val intent =
+                    Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        android.net.Uri.parse("package:${context.packageName}"),
+                    ).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
                 context.startActivity(intent)
                 return
             }
 
             _uiState.update { it.copy(isFloatingWidgetActive = isActive) }
-            val intent = Intent(context, com.luxury.cheats.services.floating.FloatingControlService::class.java)
+            val intent = Intent(context, com.luxury.cheats.services.floating.logic.FloatingControlService::class.java)
             if (isActive) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     context.startForegroundService(intent)
@@ -234,7 +244,6 @@ class HomeViewModel
                 context.stopService(intent)
             }
         }
-
 
         private fun handleSaveId() {
             val currentId = _uiState.value.idValue
@@ -294,7 +303,10 @@ class HomeViewModel
                             state.copy(isOpcionesVisible = !state.isOpcionesVisible)
                         }
                         "console_expansion" -> state.copy(isConsoleExpanded = !state.isConsoleExpanded)
-                        "panel_floating" -> state.copy(isPanelControlFloatingVisible = !state.isPanelControlFloatingVisible)
+                        "panel_floating" ->
+                            state.copy(
+                                isPanelControlFloatingVisible = !state.isPanelControlFloatingVisible,
+                            )
                         else -> state
                     }
                 }
@@ -431,8 +443,6 @@ class HomeViewModel
         ) {
             val notification = AppNotification(message = message, type = type)
 
-
-
             _uiState.update {
                 it.copy(notifications = it.notifications + notification)
             }
@@ -503,17 +513,7 @@ class HomeViewModel
         }
 
         private fun openVipPurchasePortal() {
-            try {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    android.net.Uri.parse("https://luxury-cheats.com/buy-vip")
-                ).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(intent)
-            } catch (e: Exception) {
-                android.util.Log.e("HomeViewModel", "No se pudo abrir el portal VIP", e)
-            }
+            addNotification("PORTAL VIP EN MANTENIMIENTO", NotificationType.WARNING)
         }
 
         /**

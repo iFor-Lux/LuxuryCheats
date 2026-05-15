@@ -37,13 +37,15 @@ fun LoginPantallaButtonSection(
     val pressed by interactionSource.collectIsPressedAsState()
 
     // Gestión de sonido local
-    val soundPool = remember {
-        val attributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-        SoundPool.Builder().setMaxStreams(1).setAudioAttributes(attributes).build()
-    }
+    val soundPool =
+        remember {
+            val attributes =
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            SoundPool.Builder().setMaxStreams(1).setAudioAttributes(attributes).build()
+        }
     val soundId = remember { soundPool.load(context, R.raw.loading, 1) }
 
     DisposableEffect(Unit) {
@@ -63,10 +65,11 @@ fun LoginPantallaButtonSection(
         interactionSource = interactionSource,
         modifier = modifier.width(240.dp).height(55.dp),
         shape = RoundedCornerShape(radius),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
     ) {
         Text(

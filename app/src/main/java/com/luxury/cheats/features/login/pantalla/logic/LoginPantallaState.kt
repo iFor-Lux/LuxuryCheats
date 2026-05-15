@@ -21,7 +21,6 @@ enum class LoginField {
     LICENSE,
 }
 
-
 /**
  * Tipos de notificaciones disponibles en la pantalla de login.
  */
@@ -59,7 +58,6 @@ data class LoginPantallaState(
     val interactionState: LoginInteractionState = LoginInteractionState.COMPACT,
     val tecladoType: TecladoType = TecladoType.NONE,
     val focusedField: LoginField = LoginField.NONE,
-
     val isUpperCase: Boolean = false,
     val isLoading: Boolean = false,
     val isLoginSuccessful: Boolean = false,
@@ -68,4 +66,3 @@ data class LoginPantallaState(
     val queuePosition: Int = 0,
     val queueTimeRemaining: Int = 0,
 )
-

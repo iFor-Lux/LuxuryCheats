@@ -94,12 +94,13 @@ private fun HomeIdInputField(
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
-    val textFieldValue = remember(idValue) {
-        androidx.compose.ui.text.input.TextFieldValue(
-            text = idValue,
-            selection = androidx.compose.ui.text.TextRange(idValue.length)
-        )
-    }
+    val textFieldValue =
+        remember(idValue) {
+            androidx.compose.ui.text.input.TextFieldValue(
+                text = idValue,
+                selection = androidx.compose.ui.text.TextRange(idValue.length),
+            )
+        }
 
     Box(
         modifier =

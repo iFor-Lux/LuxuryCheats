@@ -23,6 +23,7 @@ data class DownloadItem(
     val title: String = "",
     val path: String = "",
     val url: String = "",
+    val active: Boolean = true,
 )
 
 /**
@@ -58,6 +59,7 @@ class DownloadService
                                             title = cheatName,
                                             path = snapshot.child("path").getValue(String::class.java) ?: "",
                                             url = snapshot.child("url").child("url").getValue(String::class.java) ?: "",
+                                            active = snapshot.child("active").getValue(Boolean::class.java) ?: true,
                                         )
                                     } catch (e: com.google.firebase.database.DatabaseException) {
                                         android.util.Log.e("DownloadService", "Error mapping DownloadItem", e)

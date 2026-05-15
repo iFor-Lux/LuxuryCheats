@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 
-
 /**
  * Sección de comunidad de perfil
  * Contiene el título "Comunidad" y un Box contenedor con una descripción y banner de acción.
@@ -41,9 +40,7 @@ fun PerfilComunidadSection(modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(30.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(16.dp),
-
             contentAlignment = Alignment.TopCenter,
-
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 ComunidadDescription()
@@ -76,16 +73,14 @@ private fun ComunidadDescription() {
         fontSize = 12.sp,
         lineHeight = 16.sp,
         textAlign = TextAlign.Justify,
-        style = MaterialTheme.typography.bodyMedium.copy(
-            lineBreak = androidx.compose.ui.text.style.LineBreak.Paragraph,
-            hyphens = androidx.compose.ui.text.style.Hyphens.None
-        ),
+        style =
+            MaterialTheme.typography.bodyMedium.copy(
+                lineBreak = androidx.compose.ui.text.style.LineBreak.Paragraph,
+                hyphens = androidx.compose.ui.text.style.Hyphens.None,
+            ),
         modifier = Modifier.fillMaxWidth(),
     )
 }
-
-
-
 
 @Composable
 private fun ComunidadBanner() {
@@ -95,9 +90,7 @@ private fun ComunidadBanner() {
                 .fillMaxWidth()
                 .height(86.dp)
                 .clip(RoundedCornerShape(14.dp))
-
                 .background(MaterialTheme.colorScheme.secondaryContainer),
-
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

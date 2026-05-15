@@ -8,6 +8,9 @@ import com.luxury.cheats.features.update.logic.AppUpdate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -61,16 +64,17 @@ class UpdateService
                                                     ?: snapshot.child("downloadlink").getValue(String::class.java)
                                                     ?: "",
                                             timestamp = snapshot.child("timestamp").getValue(String::class.java) ?: "",
+                                            imageUrl = snapshot.child("imageUrl").getValue(String::class.java) ?: "",
                                         )
                                     } catch (e: com.google.firebase.database.DatabaseException) {
                                         android.util.Log.e("UpdateService", "Error parsing AppUpdate snapshot", e)
                                         AppUpdate()
                                     }
-                                
+
                                 // Actualizamos el caché de sesión
                                 lastFetchedUpdate = update
                                 lastFetchTime = System.currentTimeMillis()
-                                
+
                                 cont.resume(update)
                             }
 
@@ -80,5 +84,47 @@ class UpdateService
                         },
                     )
                 }
+            }
+
+        /**
+         * Observa la información de actualización en tiempo real desde Firebase.
+         * @return [Flow] que emite [AppUpdate] cada vez que cambian los datos en el servidor.
+         */
+        fun observeAppUpdate(): Flow<AppUpdate> =
+            callbackFlow {
+                val listener =
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val update =
+                                try {
+                                    AppUpdate(
+                                        active = snapshot.child("active").getValue(Boolean::class.java) ?: false,
+                                        title = snapshot.child("title").getValue(String::class.java) ?: "",
+                                        description =
+                                            snapshot.child("description").getValue(String::class.java)
+                                                ?: snapshot.child("descripcion").getValue(String::class.java)
+                                                ?: "",
+                                        version = snapshot.child("version").getValue(String::class.java) ?: "",
+                                        downloadLink =
+                                            snapshot.child("downloadLink").getValue(String::class.java)
+                                                ?: snapshot.child("downloadlink").getValue(String::class.java)
+                                                ?: "",
+                                        timestamp = snapshot.child("timestamp").getValue(String::class.java) ?: "",
+                                        imageUrl = snapshot.child("imageUrl").getValue(String::class.java) ?: "",
+                                    )
+                                } catch (e: com.google.firebase.database.DatabaseException) {
+                                    android.util.Log.e("UpdateService", "Error parsing AppUpdate real-time", e)
+                                    AppUpdate()
+                                }
+                            trySend(update)
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            // Se ignora el error para no romper el flujo de la app
+                        }
+                    }
+
+                db.addValueEventListener(listener)
+                awaitClose { db.removeEventListener(listener) }
             }
     }

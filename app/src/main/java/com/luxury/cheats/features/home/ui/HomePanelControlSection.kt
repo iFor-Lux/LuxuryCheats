@@ -36,20 +36,20 @@ private const val WIDE_CARD_HEIGHT = 80
 @Composable
 fun HomePanelControlSection(
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier =
             modifier
                 .width(SECTION_WIDTH.dp)
                 .padding(horizontal = 0.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
             WideOptionCard(
                 title = "PANEL DE CONTROL",
                 description = "Ajustes avanzados y configuración",
-                onClick = { onAction(HomeAction.ToggleFloatingWidget) }
+                onClick = { onAction(HomeAction.ToggleFloatingWidget) },
             )
         }
     }

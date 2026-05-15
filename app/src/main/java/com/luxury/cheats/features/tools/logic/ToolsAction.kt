@@ -11,8 +11,14 @@ sealed class ToolsAction {
         val centerY: Int? = null,
         val strokeWidth: Float? = null,
         val isStrokeEnabled: Boolean? = null,
-        val strokeColor: Long? = null
+        val strokeColor: Long? = null,
     ) : ToolsAction()
 
     object ToggleFloatingWidget : ToolsAction()
+
+    data class ToggleAntiRecording(val enabled: Boolean) : ToolsAction()
+
+    data class UpdateAimbotStrength(val strength: Int) : ToolsAction()
+
+    object DismissVipDialog : ToolsAction()
 }

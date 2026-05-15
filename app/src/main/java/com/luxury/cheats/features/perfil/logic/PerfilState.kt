@@ -21,4 +21,5 @@ data class PerfilState(
     val remainingDays: String = "",
     val profileImageUri: String? = null,
     val bannerImageUri: String? = null,
+    val creatorProfileUrl: String? = null,
 )

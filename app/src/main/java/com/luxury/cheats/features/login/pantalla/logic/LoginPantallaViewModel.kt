@@ -5,13 +5,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.luxury.cheats.services.firebase.AuthService
-import com.luxury.cheats.services.storage.UserPreferencesService
 import com.luxury.cheats.services.firebase.FirebaseService
+import com.luxury.cheats.services.storage.UserPreferencesService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.messaging.FirebaseMessaging
 
 /**
  * ViewModel para gestionar la lógica y el estado de la pantalla de login.
@@ -32,7 +34,7 @@ class LoginPantallaViewModel(
         if (isSaveEnabled) {
             val saved = preferencesService.accessCredentials()
             val isLicenseMode = preferencesService.accessLicenseMode()
-            
+
             if (saved != null) {
                 if (isLicenseMode) {
                     val licenseTFV = TextFieldValue(text = saved.first, selection = TextRange(saved.first.length))
@@ -40,7 +42,7 @@ class LoginPantallaViewModel(
                         it.copy(
                             saveUser = true,
                             isLicenseMode = true,
-                            licenseKey = licenseTFV
+                            licenseKey = licenseTFV,
                         )
                     }
                 } else {
@@ -60,7 +62,7 @@ class LoginPantallaViewModel(
                 _uiState.update { it.copy(saveUser = true) }
             }
         }
-        
+
         fetchLoginImage()
     }
 
@@ -95,7 +97,6 @@ class LoginPantallaViewModel(
         }
     }
 
-
     private fun handleLicenseChange(license: TextFieldValue) {
         _uiState.update { it.copy(licenseKey = license) }
         triggerDebouncedSave()
@@ -106,13 +107,12 @@ class LoginPantallaViewModel(
             it.copy(
                 isLicenseMode = enabled,
                 focusedField = LoginField.NONE,
-                tecladoType = com.luxury.cheats.features.login.teclado.logic.TecladoType.NONE
+                tecladoType = com.luxury.cheats.features.login.teclado.logic.TecladoType.NONE,
             )
         }
         preferencesService.accessLicenseMode(enabled)
         triggerDebouncedSave()
     }
-
 
     private fun handleGetLicense() {
         // En una app real, aquí dispararíamos un evento para que la UI abra el navegador.
@@ -134,7 +134,7 @@ class LoginPantallaViewModel(
             when (val result = authService.validateLicense(key)) {
                 is AuthService.LoginResult.Success -> {
                     showNotification("¡Licencia activada!", LoginNotificationType.SUCCESS)
-                    
+
                     // Guardar datos en caché del perfil
                     result.userData?.let { data ->
                         preferencesService.accessProfileCache(
@@ -144,12 +144,15 @@ class LoginPantallaViewModel(
                                 "expiry" to data.optString("expirationDate"),
                                 "device" to data.optString("device"),
                                 "tier" to data.optString("tier"),
-                            )
+                            ),
                         )
                     }
                     preferencesService.accessLicenseMode(true) // Activar modo licencia
                     // Guardamos la clave como nombre de usuario para el perfil
                     preferencesService.accessCredentials(data = key to "LICENSE_MODE")
+
+                    // Registrar token de dispositivo para notificaciones push
+                    registerDeviceToken()
 
                     val tier = result.userData?.optString("tier", "free") ?: "free"
                     if (tier == "free") {
@@ -171,7 +174,6 @@ class LoginPantallaViewModel(
             }
         }
     }
-
 
     private fun handleUsernameChange(username: TextFieldValue) {
         _uiState.update { it.copy(username = username) }
@@ -203,7 +205,6 @@ class LoginPantallaViewModel(
     }
 
     private fun handleInteractionStateChange(state: LoginInteractionState) {
-
         _uiState.update {
             it.copy(
                 interactionState = state,
@@ -222,11 +223,12 @@ class LoginPantallaViewModel(
         _uiState.update {
             it.copy(
                 tecladoType = type,
-                focusedField = when (type) {
-                    com.luxury.cheats.features.login.teclado.logic.TecladoType.ALPHABETIC -> LoginField.USERNAME
-                    com.luxury.cheats.features.login.teclado.logic.TecladoType.NUMERIC -> LoginField.PASSWORD
-                    else -> it.focusedField
-                }
+                focusedField =
+                    when (type) {
+                        com.luxury.cheats.features.login.teclado.logic.TecladoType.ALPHABETIC -> LoginField.USERNAME
+                        com.luxury.cheats.features.login.teclado.logic.TecladoType.NUMERIC -> LoginField.PASSWORD
+                        else -> it.focusedField
+                    },
             )
         }
     }
@@ -237,47 +239,49 @@ class LoginPantallaViewModel(
 
     private fun handleKeyClick(key: String) {
         _uiState.update { state ->
-            val currentFieldValue = when (state.focusedField) {
-                LoginField.USERNAME -> state.username
-                LoginField.PASSWORD -> state.password
-                LoginField.LICENSE -> state.licenseKey
-                LoginField.NONE -> TextFieldValue("")
-            }
-
+            val currentFieldValue =
+                when (state.focusedField) {
+                    LoginField.USERNAME -> state.username
+                    LoginField.PASSWORD -> state.password
+                    LoginField.LICENSE -> state.licenseKey
+                    LoginField.NONE -> TextFieldValue("")
+                }
 
             val text = currentFieldValue.text
             val selection = currentFieldValue.selection
 
             // Si hay selección, la reemplazamos. Si no, insertamos en la posición del cursor.
-            val newText = if (selection.collapsed) {
-                StringBuilder(text).insert(selection.min, key).toString()
-            } else {
-                StringBuilder(text).replace(selection.min, selection.max, key).toString()
-            }
-            
+            val newText =
+                if (selection.collapsed) {
+                    StringBuilder(text).insert(selection.min, key).toString()
+                } else {
+                    StringBuilder(text).replace(selection.min, selection.max, key).toString()
+                }
+
             val newSelection = TextRange(selection.min + key.length)
             val newValue = currentFieldValue.copy(text = newText, selection = newSelection)
 
-            val newState = when (state.focusedField) {
-                LoginField.USERNAME -> state.copy(username = newValue)
-                LoginField.PASSWORD -> state.copy(password = newValue)
-                LoginField.LICENSE -> state.copy(licenseKey = newValue)
-                LoginField.NONE -> state
-            }
+            val newState =
+                when (state.focusedField) {
+                    LoginField.USERNAME -> state.copy(username = newValue)
+                    LoginField.PASSWORD -> state.copy(password = newValue)
+                    LoginField.LICENSE -> state.copy(licenseKey = newValue)
+                    LoginField.NONE -> state
+                }
             updateDebugMessage(newState.username.text, newState.password.text)
             newState
         }.also { triggerDebouncedSave() }
     }
 
-
     private fun handleKeyDelete() {
         _uiState.update { state ->
-            val currentFieldValue = when (state.focusedField) {
-                LoginField.USERNAME -> state.username
-                LoginField.PASSWORD -> state.password
-                LoginField.LICENSE -> state.licenseKey
-                LoginField.NONE -> TextFieldValue("")
-            }
+            val currentFieldValue =
+                when (state.focusedField) {
+                    LoginField.USERNAME -> state.username
+                    LoginField.PASSWORD -> state.password
+                    LoginField.LICENSE -> state.licenseKey
+                    LoginField.NONE -> TextFieldValue("")
+                }
 
             val text = currentFieldValue.text
             val selection = currentFieldValue.selection
@@ -298,12 +302,13 @@ class LoginPantallaViewModel(
                 }
 
             if (newValue != null) {
-                val newState = when (state.focusedField) {
-                    LoginField.USERNAME -> state.copy(username = newValue)
-                    LoginField.PASSWORD -> state.copy(password = newValue)
-                    LoginField.LICENSE -> state.copy(licenseKey = newValue)
-                    LoginField.NONE -> state
-                }
+                val newState =
+                    when (state.focusedField) {
+                        LoginField.USERNAME -> state.copy(username = newValue)
+                        LoginField.PASSWORD -> state.copy(password = newValue)
+                        LoginField.LICENSE -> state.copy(licenseKey = newValue)
+                        LoginField.NONE -> state
+                    }
                 updateDebugMessage(newState.username.text, newState.password.text)
                 newState
             } else {
@@ -311,7 +316,6 @@ class LoginPantallaViewModel(
             }
         }.also { triggerDebouncedSave() }
     }
-
 
     private fun triggerDebouncedSave() {
         if (!_uiState.value.saveUser) return
@@ -321,14 +325,14 @@ class LoginPantallaViewModel(
             viewModelScope.launch {
                 kotlinx.coroutines.delay(LoginConstants.SAVE_DEBOUNCE_MILLIS)
                 val state = _uiState.value
-                val dataToSave = if (state.isLicenseMode) {
-                    state.licenseKey.text to "LICENSE_MODE"
-                } else {
-                    state.username.text to state.password.text
-                }
+                val dataToSave =
+                    if (state.isLicenseMode) {
+                        state.licenseKey.text to "LICENSE_MODE"
+                    } else {
+                        state.username.text to state.password.text
+                    }
                 preferencesService.accessCredentials(data = dataToSave)
             }
-
     }
 
     private fun updateDebugMessage(
@@ -377,15 +381,20 @@ class LoginPantallaViewModel(
                                 "expiry" to data.optString("expirationDate"),
                                 "device" to data.optString("device"),
                                 "tier" to data.optString("tier"),
-                            )
+                            ),
                         )
                     }
                     preferencesService.accessLicenseMode(false) // Desactivar modo licencia
 
-                    val tier = result.userData?.optString("tier", "vip") ?: "vip"
+                    // Registrar token de dispositivo para notificaciones push
+                    registerDeviceToken()
 
+                    // Determinar nivel de acceso para lógica de espera (free, vip, plus)
+                    val tier = result.userData?.optString("tier", "vip") ?: "vip"
+ 
                     showNotification("¡Acceso concedido!", LoginNotificationType.SUCCESS)
                     if (tier == "free") {
+                        // Solo los usuarios gratuitos pasan por el protocolo de espera artificial
                         _uiState.update { it.copy(isLoading = false) }
                         startFreeTierWaitSimulation()
                     } else {
@@ -410,12 +419,20 @@ class LoginPantallaViewModel(
         }
     }
 
+    private suspend fun registerDeviceToken() {
+        try {
+            val token = FirebaseMessaging.getInstance().token.await()
+            firebaseService.registerDeviceToken(token)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            android.util.Log.e("LoginViewModel", "Error fetching FCM token", e)
+        }
+    }
+
     private fun showNotification(
         message: String,
         type: LoginNotificationType,
     ) {
         val newNotification = LoginNotification(message = message, type = type)
-
 
         _uiState.update { it.copy(notifications = it.notifications + newNotification) }
 
@@ -429,30 +446,30 @@ class LoginPantallaViewModel(
 
     private fun startFreeTierWaitSimulation() {
         viewModelScope.launch {
-            val waitDuration = (30..45).random()
+            val waitDuration = (LoginConstants.QUEUE_MIN_WAIT_SEC..LoginConstants.QUEUE_MAX_WAIT_SEC).random()
             var timeRemaining = waitDuration
-            var position = (10..25).random()
+            var position = (LoginConstants.QUEUE_MIN_POS..LoginConstants.QUEUE_MAX_POS).random()
 
             _uiState.update {
                 it.copy(
                     isLoading = false,
                     isWaitingFreeQueue = true,
                     queuePosition = position,
-                    queueTimeRemaining = timeRemaining
+                    queueTimeRemaining = timeRemaining,
                 )
             }
 
             while (timeRemaining > 0) {
                 kotlinx.coroutines.delay(1000L)
                 timeRemaining--
-                if (timeRemaining % 3 == 0 && position > 1) {
-                    position -= (1..2).random()
+                if (timeRemaining % LoginConstants.QUEUE_TICK_INTERVAL == 0 && position > 1) {
+                    position -= (LoginConstants.QUEUE_POS_DECREMENT_MIN..LoginConstants.QUEUE_POS_DECREMENT_MAX).random()
                     if (position < 1) position = 1
                 }
                 _uiState.update {
                     it.copy(
                         queueTimeRemaining = timeRemaining,
-                        queuePosition = position
+                        queuePosition = position,
                     )
                 }
             }
@@ -460,7 +477,7 @@ class LoginPantallaViewModel(
             _uiState.update {
                 it.copy(
                     isWaitingFreeQueue = false,
-                    isLoginSuccessful = true
+                    isLoginSuccessful = true,
                 )
             }
         }
@@ -470,4 +487,11 @@ class LoginPantallaViewModel(
 private object LoginConstants {
     const val NOTIFICATION_DISMISS_DELAY = 4000L
     const val SAVE_DEBOUNCE_MILLIS = 1000L
+    const val QUEUE_MIN_WAIT_SEC = 30
+    const val QUEUE_MAX_WAIT_SEC = 45
+    const val QUEUE_MIN_POS = 10
+    const val QUEUE_MAX_POS = 25
+    const val QUEUE_TICK_INTERVAL = 3
+    const val QUEUE_POS_DECREMENT_MIN = 1
+    const val QUEUE_POS_DECREMENT_MAX = 2
 }

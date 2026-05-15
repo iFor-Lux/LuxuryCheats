@@ -65,7 +65,17 @@ class DownloadViewModel
 
             viewModelScope.launch {
                 try {
-                    val (url, path) = resolveDownloadParams(cheatName, directUrl, directPath)
+                    val (url, path, active) = resolveDownloadParams(cheatName, directUrl, directPath)
+
+                    if (!active) {
+                        _uiState.update {
+                            it.copy(
+                                fileWeight = "Opción deshabilitada temporalmente",
+                                status = DownloadStatus.ERROR,
+                            )
+                        }
+                        return@launch
+                    }
 
                     if (url.isNotEmpty()) {
                         _uiState.update { it.copy(downloadUrl = url, downloadPath = path) }
@@ -88,12 +98,12 @@ class DownloadViewModel
             cheatName: String,
             directUrl: String?,
             directPath: String?,
-        ): Pair<String, String> {
+        ): Triple<String, String, Boolean> {
             return if (directUrl != null) {
-                directUrl to (directPath ?: "")
+                Triple(directUrl, directPath ?: "", true)
             } else {
                 val info = downloadService.getDownloadInfo(cheatName)
-                info.url to info.path
+                Triple(info.url, info.path, info.active)
             }
         }
 

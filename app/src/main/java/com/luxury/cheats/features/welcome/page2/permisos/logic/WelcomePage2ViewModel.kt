@@ -12,10 +12,10 @@ import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.luxury.cheats.core.ui.AppNotification
-import com.luxury.cheats.core.ui.NotificationType
 import com.luxury.cheats.core.activity.DeviceAdminRequestActivity
 import com.luxury.cheats.core.receiver.LuxuryDeviceAdminReceiver
+import com.luxury.cheats.core.ui.AppNotification
+import com.luxury.cheats.core.ui.NotificationType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -133,7 +133,6 @@ class WelcomePage2ViewModel(application: Application) : AndroidViewModel(applica
         type: NotificationType,
     ) {
         val notification = AppNotification(message = message, type = type)
-
 
         _uiState.update { it.copy(notifications = it.notifications + notification) }
 

@@ -46,12 +46,13 @@ fun WelcomePage3TextSection() {
                 buildAnnotatedString {
                     append("Antes de utilizar la aplicación por favor asegurece de tener instalado y activado ")
                     withStyle(
-                        style = SpanStyle(
-                            color = highlightColor,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = newsreaderItalicFamily,
-                            fontSize = 14.sp
-                        )
+                        style =
+                            SpanStyle(
+                                color = highlightColor,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = newsreaderItalicFamily,
+                                fontSize = 14.sp,
+                            ),
                     ) {
                         append("Shizuku")
                     }

@@ -16,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.luxury.cheats.core.ui.SquarePatternBackground
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -24,13 +23,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.kyant.backdrop.backdrops.layerBackdrop
+import com.luxury.cheats.core.ui.SquarePatternBackground
 import com.luxury.cheats.features.download.logic.DownloadParams
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.features.home.logic.HomeAction
 import com.luxury.cheats.features.home.ui.seguridad.HomeSeguridadSection
-import com.luxury.cheats.features.home.ui.seguridad.FreeSeguridadWarningDialog
-import com.luxury.cheats.features.home.ui.VipLotteryUpsellSection
-import com.luxury.cheats.features.home.ui.VipLotteryInfoDialog
 import com.luxury.cheats.features.update.ui.UpdateAnuncioSection
 import com.luxury.cheats.features.widgets.InfoMessageDialog
 import com.luxury.cheats.navigations.Update
@@ -124,21 +121,6 @@ private fun HomeOverlays(
                 .padding(top = 50.dp),
     )
 
-    if (uiState.showFreeSecurityDialog) {
-        FreeSeguridadWarningDialog(
-            onDismissRequest = { onAction(HomeAction.DismissFreeSecurityDialog) },
-            onContinueClick = { onAction(HomeAction.ConfirmFreeSecurityDialog) },
-            onBuyVipClick = { onAction(HomeAction.BuyVip) }
-        )
-    }
-
-    if (uiState.showLotteryInfoDialog) {
-        VipLotteryInfoDialog(
-            onDismissRequest = { onAction(HomeAction.DismissLotteryInfoDialog) },
-            onBuyVipClick = { onAction(HomeAction.BuyVip) }
-        )
-    }
-
     uiState.appUpdate?.let { update ->
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { onAction(HomeAction.DismissUpdateAnuncio) },
@@ -146,6 +128,7 @@ private fun HomeOverlays(
             UpdateAnuncioSection(
                 title = update.title,
                 description = update.description,
+                imageUrl = update.imageUrl,
                 onUpdateClick = {
                     onAction(HomeAction.DismissUpdateAnuncio)
                     navController.navigate(Update)
@@ -218,7 +201,8 @@ private fun HomeSectionsList(
 
         if (uiState.tier.equals("free", ignoreCase = true)) {
             VipLotteryUpsellSection(
-                onInfoClick = { onAction(HomeAction.ShowLotteryInfoDialog) }
+                diamantesImageUrl = uiState.diamantesImageUrl,
+                onBuyVipClick = { onAction(HomeAction.BuyVip) },
             )
         }
 
@@ -227,6 +211,10 @@ private fun HomeSectionsList(
         HomeSeguridadSection(
             modifier = Modifier.size(200.dp),
             isActivated = uiState.isSeguridadUnlocked,
+            showWarningDialog = uiState.showFreeSecurityDialog,
+            onWarningDismiss = { onAction(HomeAction.DismissFreeSecurityDialog) },
+            onWarningConfirm = { onAction(HomeAction.ConfirmFreeSecurityDialog) },
+            onBuyVipClick = { onAction(HomeAction.BuyVip) },
             onClick = { onAction(HomeAction.ToggleSeguridad) },
         )
 
@@ -244,7 +232,7 @@ private fun HomeSectionsList(
             )
             Spacer(modifier = Modifier.height(20.dp))
             HomePanelControlSection(
-                onAction = onAction
+                onAction = onAction,
             )
         }
 

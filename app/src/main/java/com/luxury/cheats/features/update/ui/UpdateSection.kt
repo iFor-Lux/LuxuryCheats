@@ -42,10 +42,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.core.util.VersionUtils
 import com.luxury.cheats.features.download.ui.DownloadArchivoBottomSheet
 import com.luxury.cheats.features.update.logic.UpdateAction
 import com.luxury.cheats.features.update.logic.UpdateViewModel
-import com.luxury.cheats.core.util.VersionUtils
 
 private const val DATE_LENGTH = 10
 
@@ -367,4 +367,3 @@ fun DownloadUpdateScreenPreviewLight() {
         DownloadUpdateScreen()
     }
 }
-

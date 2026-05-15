@@ -8,6 +8,9 @@ import com.luxury.cheats.features.home.logic.InAppNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -59,5 +62,47 @@ class InAppNotificationService
                         },
                     )
                 }
+            }
+
+        /**
+         * Observa las notificaciones in-app en tiempo real.
+         * @return [Flow] que emite la lista de notificaciones activas cada vez que cambian en Firebase.
+         */
+        fun observeInAppNotifications(): Flow<List<InAppNotification>> =
+            callbackFlow {
+                val listener =
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val notifications = mutableListOf<InAppNotification>()
+                            snapshot.children.forEach { child ->
+                                val active = child.child("active").getValue(Boolean::class.java) ?: false
+                                if (active) {
+                                    val notification =
+                                        InAppNotification(
+                                            id = child.key ?: "",
+                                            active = active,
+                                            title = child.child("title").getValue(String::class.java) ?: "",
+                                            description =
+                                                child.child("description").getValue(String::class.java) ?: "",
+                                            frequency =
+                                                child.child("frequency").getValue(String::class.java) ?: "always",
+                                            image = child.child("image").getValue(String::class.java) ?: "",
+                                            type = child.child("type").getValue(String::class.java) ?: "in-app",
+                                            timestamp = child.child("timestamp").getValue(String::class.java) ?: "",
+                                            sent = child.child("sent").getValue(Boolean::class.java) ?: false,
+                                        )
+                                    notifications.add(notification)
+                                }
+                            }
+                            trySend(notifications)
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            // Se ignora para no interrumpir el flujo
+                        }
+                    }
+
+                db.addValueEventListener(listener)
+                awaitClose { db.removeEventListener(listener) }
             }
     }

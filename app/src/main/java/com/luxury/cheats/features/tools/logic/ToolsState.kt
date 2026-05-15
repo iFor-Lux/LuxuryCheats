@@ -11,5 +11,10 @@ data class ToolsState(
     val floatingStrokeWidth: Float = 0f,
     val isFloatingStrokeEnabled: Boolean = false,
     val floatingStrokeColor: Long = 0xFFFFFFFF,
-    val isFloatingWidgetActive: Boolean = false
+    val isFloatingWidgetActive: Boolean = false,
+    val isAntiRecordingEnabled: Boolean = false,
+    val aimbotStrength: Int = 50,
+    val userTier: String = "free",
+    val showVipDialog: Boolean = false,
+    val vipMessage: String? = null,
 )

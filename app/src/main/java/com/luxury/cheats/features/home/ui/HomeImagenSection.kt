@@ -7,9 +7,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 /**
@@ -19,7 +18,7 @@ import coil.compose.AsyncImage
 @Composable
 fun HomeImagenSection(
     imageUrl: String?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier =
@@ -27,7 +26,7 @@ fun HomeImagenSection(
                 .fillMaxWidth()
                 .height(140.dp)
                 .background(Color.Transparent),
-        contentAlignment = androidx.compose.ui.Alignment.Center
+        contentAlignment = androidx.compose.ui.Alignment.Center,
     ) {
         if (imageUrl != null) {
             AsyncImage(

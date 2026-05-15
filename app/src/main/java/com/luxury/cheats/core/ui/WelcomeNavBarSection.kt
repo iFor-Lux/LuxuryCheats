@@ -110,33 +110,37 @@ private fun WelcomeNavBarContent(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         WelcomeNavBarButton(
-            params = WelcomeButtonParams(
-                text = "Back",
-                onClick = backAction.onClick,
-                interactionSource = backAction.interactionSource,
-                style = WelcomeNavBarButtonStyle(
-                    containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
-                    borderColor = MaterialTheme.colorScheme.outline,
-                    contentColor = theme.textColor,
+            params =
+                WelcomeButtonParams(
+                    text = "Back",
+                    onClick = backAction.onClick,
+                    interactionSource = backAction.interactionSource,
+                    style =
+                        WelcomeNavBarButtonStyle(
+                            containerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
+                            borderColor = MaterialTheme.colorScheme.outline,
+                            contentColor = theme.textColor,
+                        ),
                 ),
-            ),
             modifier = Modifier.width(106.dp),
         )
 
         WelcomePageTicker(currentPage, theme.textOffset, theme.textColor)
 
         WelcomeNavBarButton(
-            params = WelcomeButtonParams(
-                text = "Siguiente",
-                onClick = nextAction.onClick,
-                interactionSource = nextAction.interactionSource,
-                enabled = nextAction.enabled,
-                style = WelcomeNavBarButtonStyle(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    borderColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = theme.textColor,
+            params =
+                WelcomeButtonParams(
+                    text = "Siguiente",
+                    onClick = nextAction.onClick,
+                    interactionSource = nextAction.interactionSource,
+                    enabled = nextAction.enabled,
+                    style =
+                        WelcomeNavBarButtonStyle(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            borderColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = theme.textColor,
+                        ),
                 ),
-            ),
             modifier = Modifier.width(125.dp),
         )
     }

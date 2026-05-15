@@ -2,6 +2,7 @@ package com.luxury.cheats.features.welcome.splash.logic
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.imageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import coil.imageLoader
 
 /**
  * ViewModel para Welcome Splash Screen
@@ -18,86 +18,114 @@ import coil.imageLoader
  * - Separación de lógica de UI (cumple AGENTS.md)
  */
 @HiltViewModel
-class WelcomeSplashViewModel @Inject constructor(
-    private val firebaseService: com.luxury.cheats.services.firebase.FirebaseService,
-    @ApplicationContext private val context: android.content.Context
-) : ViewModel() {
-    private val _state = MutableStateFlow(WelcomeSplashState())
-    val state: StateFlow<WelcomeSplashState> = _state.asStateFlow()
+class WelcomeSplashViewModel
+    @Inject
+    constructor(
+        private val firebaseService: com.luxury.cheats.services.firebase.FirebaseService,
+        private val updateService: com.luxury.cheats.features.update.service.UpdateService,
+        private val preferencesService: com.luxury.cheats.services.storage.UserPreferencesService,
+        @ApplicationContext private val context: android.content.Context,
+    ) : ViewModel() {
+        private val _state = MutableStateFlow(WelcomeSplashState())
+        val state: StateFlow<WelcomeSplashState> = _state.asStateFlow()
 
-    init {
-        // Pre-cargar imágenes esenciales en background
-        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            preloadImages()
-        }
-    }
-
-    private suspend fun preloadImages() {
-        try {
-            val loginUrl = firebaseService.fetchImageUrl("Banner Login")
-            val homeUrl = firebaseService.fetchImageUrl("Home")
-            
-            val imageLoader = context.imageLoader
-            
-            if (loginUrl != null) {
-                val request = coil.request.ImageRequest.Builder(context)
-                    .data(loginUrl)
-                    .build()
-                imageLoader.enqueue(request)
+        init {
+            // Pre-cargar imágenes esenciales en background
+            viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                preloadImages()
             }
-            if (homeUrl != null) {
-                val request = coil.request.ImageRequest.Builder(context)
-                    .data(homeUrl)
-                    .build()
-                imageLoader.enqueue(request)
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("WelcomeSplashViewModel", "Error preloading images", e)
         }
-    }
 
-    /**
-     * Procesa acciones del usuario
-     */
-    fun handleAction(action: WelcomeSplashAction) {
-        when (action) {
-            is WelcomeSplashAction.NavigateToNext -> {
-                viewModelScope.launch {
-                    _state.value = _state.value.copy(isReadyToNavigate = true)
+        private suspend fun preloadImages() {
+            try {
+                val loginUrl = firebaseService.fetchImageUrl("Banner Login") ?: firebaseService.fetchImageUrl("banner login")
+                val homeUrl = firebaseService.fetchImageUrl("Home") ?: firebaseService.fetchImageUrl("home")
+                val diamantesUrl = firebaseService.fetchImageUrl("Diamantes") ?: firebaseService.fetchImageUrl("diamantes")
+                val shizukuUrl = firebaseService.fetchImageUrl("Shizuku") ?: firebaseService.fetchImageUrl("shizuku")
+                val profileIconUrl = firebaseService.fetchImageUrl("IconoPerfil")
+                val profileBannerUrl = firebaseService.fetchImageUrl("FondoPerfil")
+                val creatorUrl = firebaseService.fetchImageUrl("Perfil")
+                val update = updateService.getAppUpdate()
+                val updateImageUrl = update.imageUrl
+
+                val imageLoader = context.imageLoader
+
+                // Lista de URLs a pre-cargar
+                val urls =
+                    listOfNotNull(
+                        loginUrl,
+                        homeUrl,
+                        diamantesUrl,
+                        shizukuUrl,
+                        profileIconUrl,
+                        profileBannerUrl,
+                        creatorUrl,
+                        updateImageUrl.takeIf { it.isNotEmpty() },
+                    )
+
+                if (!profileIconUrl.isNullOrEmpty() || !profileBannerUrl.isNullOrEmpty()) {
+                    preferencesService.accessRemoteUrls(profile = profileIconUrl, banner = profileBannerUrl)
+                }
+                if (!creatorUrl.isNullOrEmpty()) {
+                    preferencesService.accessCreatorUrl(creatorUrl)
+                }
+
+                urls.forEach { url ->
+                    val request =
+                        coil.request.ImageRequest.Builder(context)
+                            .data(url)
+                            .diskCachePolicy(coil.request.CachePolicy.ENABLED)
+                            .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
+                            .build()
+                    imageLoader.enqueue(request)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("WelcomeSplashViewModel", "Error preloading images", e)
+            }
+        }
+
+        /**
+         * Procesa acciones del usuario
+         */
+        fun handleAction(action: WelcomeSplashAction) {
+            when (action) {
+                is WelcomeSplashAction.NavigateToNext -> {
+                    viewModelScope.launch {
+                        _state.value = _state.value.copy(isReadyToNavigate = true)
+                    }
                 }
             }
         }
+
+        /**
+         * Inicia la secuencia de splash:
+         * 1. Espera a que el logo esté listo (SharedFlow/StateFlow)
+         * 2. Notifica a la UI que muestre el logo
+         * 3. Espera el tiempo de apreciación
+         * 4. Navega a la siguiente pantalla
+         */
+        suspend fun startSplashSequence(
+            isLogoReadyFlow: StateFlow<Boolean>,
+            onLogoReady: () -> Unit,
+            onReadyToNavigate: () -> Unit,
+        ) {
+            // 1. Esperar señal de WebView/Logo listo
+            isLogoReadyFlow.first { it }
+
+            // 2. Notificar UI (animaciones de entrada, etc)
+            onLogoReady()
+
+            // 3. Delay de apreciación
+            kotlinx.coroutines.delay(SPLASH_DISPLAY_DURATION)
+
+            // 4. Navegar
+            onReadyToNavigate()
+        }
+
+        /**
+         * Constantes de configuración para la pantalla de bienvenida.
+         */
+        companion object {
+            private const val SPLASH_DISPLAY_DURATION = 1500L
+        }
     }
-
-    /**
-     * Inicia la secuencia de splash:
-     * 1. Espera a que el logo esté listo (SharedFlow/StateFlow)
-     * 2. Notifica a la UI que muestre el logo
-     * 3. Espera el tiempo de apreciación
-     * 4. Navega a la siguiente pantalla
-     */
-    suspend fun startSplashSequence(
-        isLogoReadyFlow: StateFlow<Boolean>,
-        onLogoReady: () -> Unit,
-        onReadyToNavigate: () -> Unit,
-    ) {
-        // 1. Esperar señal de WebView/Logo listo
-        isLogoReadyFlow.first { it }
-
-        // 2. Notificar UI (animaciones de entrada, etc)
-        onLogoReady()
-
-        // 3. Delay de apreciación
-        kotlinx.coroutines.delay(SPLASH_DISPLAY_DURATION)
-
-        // 4. Navegar
-        onReadyToNavigate()
-    }
-
-    /**
-     * Constantes de configuración para la pantalla de bienvenida.
-     */
-    companion object {
-        private const val SPLASH_DISPLAY_DURATION = 1500L
-    }
-}

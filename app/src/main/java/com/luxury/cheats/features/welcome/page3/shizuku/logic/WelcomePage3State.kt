@@ -11,4 +11,5 @@ data class WelcomePage3State(
     val isShizukuInstalled: Boolean = false,
     val isShizukuRunning: Boolean = false,
     val statusMessage: String = "Pendiente de verificación",
+    val imageUrl: String? = null,
 )

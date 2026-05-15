@@ -17,7 +17,6 @@ data class LoginCredentials(
     val isLicenseMode: Boolean,
     val focusedField: com.luxury.cheats.features.login.pantalla.logic.LoginField,
     val debugMessage: String,
-
     val onUsernameChange: (TextFieldValue) -> Unit,
     val onPasswordChange: (TextFieldValue) -> Unit,
     val onLicenseChange: (TextFieldValue) -> Unit,
@@ -25,5 +24,3 @@ data class LoginCredentials(
     val onGetLicenseClick: () -> Unit,
     val onFocusFieldChange: (LoginField) -> Unit,
 )
-
-

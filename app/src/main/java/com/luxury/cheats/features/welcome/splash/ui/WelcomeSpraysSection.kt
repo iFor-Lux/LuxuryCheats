@@ -7,14 +7,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.luxury.cheats.R
 import com.luxury.cheats.features.welcome.splash.logic.sprays.WelcomeSpraysAnimations
 
@@ -37,8 +34,6 @@ fun WelcomeSpraysSection(modifier: Modifier = Modifier) {
         val widthDp = with(density) { containerSize.width.toDp() }
         val heightDp = with(density) { containerSize.height.toDp() }
         val spriteSize = 200.dp
-
-
 
         // Sprite 1: Superior izquierda
         SpraySprite(
@@ -89,5 +84,4 @@ private fun SpraySprite(
                 ),
         contentScale = ContentScale.Fit,
     )
-
 }

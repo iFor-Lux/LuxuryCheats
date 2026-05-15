@@ -34,7 +34,6 @@ fun AlphabeticTeclado(
 ) {
     val rows =
 
-
         listOf(
             listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"),
             listOf("A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"),
@@ -68,7 +67,7 @@ fun AlphabeticTeclado(
                 onClick = { onTecladoTypeChange(TecladoType.SYMBOLS) },
                 modifier = Modifier.weight(SPECIAL_KEY_WEIGHT),
                 color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             )
 
             // Barra Espaciadora
@@ -83,10 +82,11 @@ fun AlphabeticTeclado(
                 icon = Icons.Default.Check,
                 onClick = onDone,
                 modifier = Modifier.weight(SPECIAL_KEY_WEIGHT),
-                style = TecladoKeyStyle(
-                    itemColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ),
+                style =
+                    TecladoKeyStyle(
+                        itemColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
             )
         }
     }

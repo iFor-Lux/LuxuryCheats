@@ -66,4 +66,7 @@ sealed class HomeAction {
 
     /** Acción para ocultar la información del sorteo falso. */
     object DismissLotteryInfoDialog : HomeAction()
+
+    /** Acción para mostrar el diálogo de sorpresa premium para usuarios Free. */
+    object ShowPremiumSurprise : HomeAction()
 }

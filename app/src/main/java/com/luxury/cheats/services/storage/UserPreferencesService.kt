@@ -4,17 +4,25 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.luxury.cheats.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Servicio para persistir datos locales del usuario (Credenciales, Configuración).
  */
+@Singleton
 class UserPreferencesService
     @Inject
     constructor(
         @ApplicationContext context: Context,
     ) {
         private val prefs: SharedPreferences = context.getSharedPreferences("luxury_prefs", Context.MODE_PRIVATE)
+
+        private val _antiRecordingFlow = MutableStateFlow(prefs.getBoolean(KEY_ANTI_RECORDING, false))
+        val antiRecordingFlow: StateFlow<Boolean> = _antiRecordingFlow.asStateFlow()
 
         /** Claves de almacenamiento y semillas de ofuscación. */
         companion object {
@@ -34,10 +42,14 @@ class UserPreferencesService
             private const val KEY_PROFILE_CREATED = "profile_created"
             private const val KEY_PROFILE_EXPIRY = "profile_expiry"
             private const val KEY_PROFILE_DEVICE = "profile_device"
+            private const val KEY_PROFILE_TIER = "profile_tier"
             private const val KEY_LAST_UPDATE_VERSION = "last_update_version"
             private const val KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp"
             private const val KEY_SEEN_NOTIFICATIONS = "seen_notifications"
             private const val KEY_IS_LICENSE_MODE = "is_license_mode"
+            private const val KEY_REMOTE_PROFILE_URL = "remote_profile_url"
+            private const val KEY_REMOTE_BANNER_URL = "remote_banner_url"
+            private const val KEY_CREATOR_PROFILE_URL = "creator_profile_url"
             
             // Claves para Floating Preview Widget (Tools)
 
@@ -48,6 +60,15 @@ class UserPreferencesService
             private const val KEY_FLOATING_STROKE_WIDTH = "floating_stroke_width"
             private const val KEY_FLOATING_STROKE_ENABLED = "floating_stroke_enabled"
             private const val KEY_FLOATING_STROKE_COLOR = "floating_stroke_color"
+            private const val KEY_ANTI_RECORDING = "anti_recording_enabled"
+            private const val KEY_AIMBOT_STRENGTH = "aimbot_strength"
+
+            private const val DEFAULT_FLOATING_WIDTH = 180
+            private const val DEFAULT_FLOATING_HEIGHT = 35
+            private const val DEFAULT_FLOATING_X = 200
+            private const val DEFAULT_FLOATING_Y = 400
+            private const val DEFAULT_STROKE_COLOR = 0xFFFFFFFF
+            private const val DEFAULT_AIMBOT_STRENGTH = 50
 
             private const val XOR_SEED = 0x55
         }
@@ -120,7 +141,7 @@ class UserPreferencesService
             )
         }
 
-        /** Gestiona las imágenes de perfil y banner. */
+        /** Gestiona las imágenes de perfil y banner locales. */
         fun accessImages(
             profile: String? = null,
             banner: String? = null,
@@ -130,6 +151,26 @@ class UserPreferencesService
                 banner?.let { putString(KEY_BANNER_IMAGE, it) }
             }
             return prefs.getString(KEY_PROFILE_IMAGE, null) to prefs.getString(KEY_BANNER_IMAGE, null)
+        }
+
+        /** Gestiona las URLs remotas de perfil y banner (Firebase). */
+        fun accessRemoteUrls(
+            profile: String? = null,
+            banner: String? = null,
+        ): Pair<String?, String?> {
+            update {
+                profile?.let { putString(KEY_REMOTE_PROFILE_URL, it) }
+                banner?.let { putString(KEY_REMOTE_BANNER_URL, it) }
+            }
+            return prefs.getString(KEY_REMOTE_PROFILE_URL, null) to prefs.getString(KEY_REMOTE_BANNER_URL, null)
+        }
+
+        /** Gestiona la URL del perfil del creador (Firebase). */
+        fun accessCreatorUrl(url: String? = null): String? {
+            url?.let {
+                update { putString(KEY_CREATOR_PROFILE_URL, it) }
+            }
+            return prefs.getString(KEY_CREATOR_PROFILE_URL, null)
         }
 
         /** Gestiona si se ha iniciado sesión con una licencia. */
@@ -148,6 +189,7 @@ class UserPreferencesService
                     .putString(KEY_PROFILE_CREATED, data["created"])
                     .putString(KEY_PROFILE_EXPIRY, data["expiry"])
                     .putString(KEY_PROFILE_DEVICE, data["device"])
+                    .putString(KEY_PROFILE_TIER, data["tier"])
                     .apply()
             }
             val id = prefs.getString(KEY_PROFILE_ID, null) ?: return null
@@ -156,6 +198,7 @@ class UserPreferencesService
                 "created" to (prefs.getString(KEY_PROFILE_CREATED, "") ?: ""),
                 "expiry" to (prefs.getString(KEY_PROFILE_EXPIRY, "") ?: ""),
                 "device" to (prefs.getString(KEY_PROFILE_DEVICE, "") ?: ""),
+                "tier" to (prefs.getString(KEY_PROFILE_TIER, "free") ?: "free"),
             )
         }
 
@@ -220,14 +263,29 @@ class UserPreferencesService
             }
             
             return mapOf(
-                "width" to prefs.getInt(KEY_FLOATING_WIDTH, 180),
-                "height" to prefs.getInt(KEY_FLOATING_HEIGHT, 35),
-                "centerX" to prefs.getInt(KEY_FLOATING_CENTER_X, 200),
-                "centerY" to prefs.getInt(KEY_FLOATING_CENTER_Y, 400),
+                "width" to prefs.getInt(KEY_FLOATING_WIDTH, DEFAULT_FLOATING_WIDTH),
+                "height" to prefs.getInt(KEY_FLOATING_HEIGHT, DEFAULT_FLOATING_HEIGHT),
+                "centerX" to prefs.getInt(KEY_FLOATING_CENTER_X, DEFAULT_FLOATING_X),
+                "centerY" to prefs.getInt(KEY_FLOATING_CENTER_Y, DEFAULT_FLOATING_Y),
                 "strokeWidth" to prefs.getFloat(KEY_FLOATING_STROKE_WIDTH, 0f),
                 "isStrokeEnabled" to prefs.getBoolean(KEY_FLOATING_STROKE_ENABLED, false),
-                "strokeColor" to prefs.getLong(KEY_FLOATING_STROKE_COLOR, 0xFFFFFFFF)
+                "strokeColor" to prefs.getLong(KEY_FLOATING_STROKE_COLOR, DEFAULT_STROKE_COLOR)
             )
+        }
+
+        fun accessAntiRecording(enabled: Boolean? = null): Boolean {
+            enabled?.let {
+                update { putBoolean(KEY_ANTI_RECORDING, it) }
+                _antiRecordingFlow.value = it
+            }
+            return prefs.getBoolean(KEY_ANTI_RECORDING, false)
+        }
+
+        fun accessAimbotConfig(strength: Int? = null): Int {
+            strength?.let {
+                update { putInt(KEY_AIMBOT_STRENGTH, it) }
+            }
+            return prefs.getInt(KEY_AIMBOT_STRENGTH, DEFAULT_AIMBOT_STRENGTH) // 50% por defecto
         }
 
         private object PreferenceHelper {

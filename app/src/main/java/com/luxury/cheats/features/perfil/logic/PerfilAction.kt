@@ -24,4 +24,7 @@ sealed class PerfilAction {
 
     /** Nuevo banner seleccionado. */
     data class BannerImageSelected(val uri: String) : PerfilAction()
+
+    /** Guardar captura de la sección de info en el dispositivo. */
+    data class SaveProfileClicked(val bitmap: android.graphics.Bitmap) : PerfilAction()
 }

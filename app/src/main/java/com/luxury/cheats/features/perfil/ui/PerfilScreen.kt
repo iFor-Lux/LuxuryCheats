@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import com.luxury.cheats.core.ui.SquarePatternBackground
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.luxury.cheats.core.theme.LuxuryCheatsTheme
+import com.luxury.cheats.core.ui.SquarePatternBackground
 import com.luxury.cheats.features.perfil.logic.PerfilAction
 import com.luxury.cheats.features.perfil.logic.PerfilState
 import com.luxury.cheats.features.perfil.logic.PerfilViewModel
@@ -46,7 +46,8 @@ fun PerfilScreen(
                         val prefsService = com.luxury.cheats.services.storage.UserPreferencesService(appContext)
                         val authService = com.luxury.cheats.services.firebase.AuthService()
                         val fileService = com.luxury.cheats.services.storage.FileService(appContext)
-                        return PerfilViewModel(prefsService, authService, appContext, fileService) as T
+                        val firebaseService = com.luxury.cheats.services.firebase.FirebaseService()
+                        return PerfilViewModel(prefsService, authService, appContext, fileService, firebaseService) as T
                     }
                 },
         )
@@ -131,7 +132,7 @@ private fun PerfilContent(
         }
 
         item { PerfilDetallesSection(state = uiState) }
-        item { PerfilCreditosSection() }
+        item { PerfilCreditosSection(creatorUrl = uiState.creatorProfileUrl) }
         item { PerfilComunidadSection() }
     }
 }

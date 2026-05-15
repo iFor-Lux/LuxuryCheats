@@ -37,12 +37,15 @@ fun WelcomePage1TextSection(modifier: Modifier = Modifier) {
     ) {
         @Suppress("MagicNumber")
         Text(
-            text = buildAnnotatedString {
-                append("Bienvenido a\n")
-                withStyle(style = SpanStyle(fontFamily = newsreaderItalicFamily, fontWeight = FontWeight.SemiBold)) {
-                    append("Luxury.Reg !!!")
-                }
-            },
+            text =
+                buildAnnotatedString {
+                    append("Bienvenido a\n")
+                    withStyle(
+                        style = SpanStyle(fontFamily = newsreaderItalicFamily, fontWeight = FontWeight.SemiBold),
+                    ) {
+                        append("Luxury.Reg !!!")
+                    }
+                },
             fontSize = 44.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.tertiary,

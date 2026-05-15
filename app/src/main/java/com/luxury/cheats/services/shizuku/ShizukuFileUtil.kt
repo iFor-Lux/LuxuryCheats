@@ -13,18 +13,13 @@ class ShizukuFileUtil
     constructor(
         private val shizukuService: ShizukuService,
     ) {
-        /**
-         * Lista los archivos y directorios en la ruta especificada.
-         * @param path Ruta del directorio a listar.
-         * @return Lista de nombres de archivos/directorios.
-         */
-        suspend fun listFiles(path: String): List<String> {
-            return when (val result = shizukuService.executeCommand("ls \"$path\"")) {
+        suspend fun listFiles(path: String): Result<List<String>> {
+            return when (val result = shizukuService.executeCommand("ls -1p \"$path\"")) {
                 is ShizukuService.StringResult.Success -> {
-                    result.output.split("\n").filter { it.isNotEmpty() }
+                    Result.success(result.output.split("\n").filter { it.isNotEmpty() })
                 }
                 is ShizukuService.StringResult.Error -> {
-                    emptyList()
+                    Result.failure(Exception(result.message))
                 }
             }
         }

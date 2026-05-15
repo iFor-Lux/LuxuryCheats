@@ -1,6 +1,5 @@
 package com.luxury.cheats.features.login.pantalla.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
-private val BORDER_GRAY_HEX = Color(0xFF303030)
 private val TEXT_GRAY_HEX = Color(0xFF777777)
 
 /**

@@ -3,8 +3,8 @@ package com.luxury.cheats.features.login.pantalla.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.luxury.cheats.core.ui.AppNotification
-import com.luxury.cheats.core.ui.NotificationType
 import com.luxury.cheats.core.ui.AppToast
+import com.luxury.cheats.core.ui.NotificationType
 import com.luxury.cheats.features.login.pantalla.logic.LoginNotification
 import com.luxury.cheats.features.login.pantalla.logic.LoginNotificationType
 

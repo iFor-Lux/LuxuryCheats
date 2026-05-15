@@ -10,6 +10,7 @@ data class AppUpdate(
     val version: String = "",
     val downloadLink: String = "",
     val timestamp: String = "",
+    val imageUrl: String = "",
 )
 
 /**

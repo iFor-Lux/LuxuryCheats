@@ -22,10 +22,10 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.luxury.cheats.core.ui.LogoViewModel
 import com.luxury.cheats.core.ui.LuxuryNavigationBar
 import com.luxury.cheats.core.ui.PersistentLogo
+import com.luxury.cheats.navigations.AppNavHost
 import com.luxury.cheats.navigations.Home
 import com.luxury.cheats.navigations.Perfil
 import com.luxury.cheats.navigations.Tools
-import com.luxury.cheats.navigations.AppNavHost
 
 /**
  * Componente raíz de la aplicación.
@@ -92,18 +92,19 @@ private fun NavigationBarOverlay(
             contentAlignment = Alignment.BottomCenter,
         ) {
             LuxuryNavigationBar(
-                activeTab = when {
-                    isHome -> "Inicio"
-                    isTools -> "Tools"
-                    else -> "Perfil"
-                },
+                activeTab =
+                    when {
+                        isHome -> "Inicio"
+                        isTools -> "Tools"
+                        else -> "Perfil"
+                    },
                 backdrop = backdrop,
                 onTabSelected = { tab: String ->
                     handleTabSelection(navController, tab, isHome, isPerfil, isTools)
                 },
                 onFabClick = {
                     navController.navigate(com.luxury.cheats.navigations.ArchivoPlus)
-                }
+                },
             )
         }
     }
@@ -127,7 +128,7 @@ private fun handleTabSelection(
         }
     } else if (tab == "Tools" && !isTools) {
         navController.navigate(Tools) {
-            popUpTo<Home>() { saveState = true }
+            popUpTo<Home> { saveState = true }
             launchSingleTop = true
             restoreState = true
         }

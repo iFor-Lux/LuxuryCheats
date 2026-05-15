@@ -3,6 +3,7 @@ package com.luxury.cheats.features.home.ui.seguridad
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,10 @@ import com.luxury.cheats.features.home.ui.seguridad.desactivado.ui.HomeSeguridad
 fun HomeSeguridadSection(
     modifier: Modifier = Modifier,
     isActivated: Boolean = false,
+    showWarningDialog: Boolean = false,
+    onWarningDismiss: () -> Unit = {},
+    onWarningConfirm: () -> Unit = {},
+    onBuyVipClick: () -> Unit = {},
     onClick: () -> Unit = {},
 ) {
     val containerSize = 280.dp
@@ -67,6 +72,55 @@ fun HomeSeguridadSection(
                 }
             }
         }
+    }
+
+    if (showWarningDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = onWarningDismiss,
+            title = {
+                androidx.compose.material3.Text(
+                    text = "ADVERTENCIA",
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            text = {
+                androidx.compose.material3.Text(
+                    text = "Solo cubrimos el 30% de seguridad en usuarios FREE. " +
+                        "Solo los usuarios VIP disfrutan del 100% ANTIBAN & ANTIBLACKLIST.",
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.Button(
+                    onClick = onBuyVipClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    androidx.compose.material3.Text(
+                        "COMPRAR VIP",
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    )
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = onWarningConfirm,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    androidx.compose.material3.Text(
+                        text = "Continuar Free",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp,
+        )
     }
 }
 

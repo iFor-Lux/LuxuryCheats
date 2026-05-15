@@ -48,22 +48,24 @@ val LocalTecladoSound = staticCompositionLocalOf<(() -> Unit)?> { null }
 @Composable
 fun TecladoSoundProvider(content: @Composable () -> Unit) {
     val context = LocalContext.current
-    val soundPool = remember {
-        val attributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-        SoundPool.Builder().setMaxStreams(5).setAudioAttributes(attributes).build()
-    }
-    val soundId = remember { soundPool.load(context, R.raw.key, 1) }
-    
-    val play = remember { 
-        { 
-            soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1.0f)
-            Unit
+    val soundPool =
+        remember {
+            val attributes =
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            SoundPool.Builder().setMaxStreams(5).setAudioAttributes(attributes).build()
         }
-    }
+    val soundId = remember { soundPool.load(context, R.raw.key, 1) }
 
+    val play =
+        remember {
+            {
+                soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1.0f)
+                Unit
+            }
+        }
 
     DisposableEffect(Unit) {
         onDispose { soundPool.release() }
@@ -118,10 +120,11 @@ fun TecladoIconKey(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    style: TecladoKeyStyle = TecladoKeyStyle(
-        itemColor = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-    ),
+    style: TecladoKeyStyle =
+        TecladoKeyStyle(
+            itemColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
 ) {
     val playSound = LocalTecladoSound.current
     val interactionSource = remember { MutableInteractionSource() }

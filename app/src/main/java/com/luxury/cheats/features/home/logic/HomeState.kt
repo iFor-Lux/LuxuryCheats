@@ -31,7 +31,8 @@ data class HomeState(
     val isPanelControlFloatingVisible: Boolean = false,
     val isFloatingWidgetActive: Boolean = false,
     val homeImageUrl: String? = null,
+    val diamantesImageUrl: String? = null,
     val tier: String = "free",
     val showFreeSecurityDialog: Boolean = false,
-    val showLotteryInfoDialog: Boolean = false
+    val showLotteryInfoDialog: Boolean = false,
 )

@@ -26,13 +26,12 @@ fun SymbolsTeclado(
     onTecladoTypeChange: (TecladoType) -> Unit,
     onDone: () -> Unit,
 ) {
-    val rows = listOf(
-
-
-        listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
-        listOf("@", "#", "$", "_", "&", "-", "+", "(", ")", "/"),
-        listOf("*", "\"", "'", ":", ";", "!", "?","\\")
-    )
+    val rows =
+        listOf(
+            listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
+            listOf("@", "#", "$", "_", "&", "-", "+", "(", ")", "/"),
+            listOf("*", "\"", "'", ":", ";", "!", "?", "\\"),
+        )
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -67,17 +66,18 @@ fun SymbolsTeclado(
                     modifier = Modifier.weight(1f),
                 )
             }
-            
+
             // Borrar movido aquí
             TecladoIconKey(
                 icon = Icons.AutoMirrored.Filled.Backspace,
                 onClick = onDelete,
                 modifier = Modifier.weight(SPECIAL_KEY_WEIGHT),
-                style = TecladoKeyStyle(
-                    itemColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    enableRepeat = true
-                )
+                style =
+                    TecladoKeyStyle(
+                        itemColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        enableRepeat = true,
+                    ),
             )
         }
 
@@ -92,14 +92,14 @@ fun SymbolsTeclado(
                 onClick = { onTecladoTypeChange(TecladoType.ALPHABETIC) },
                 modifier = Modifier.weight(SPECIAL_KEY_WEIGHT),
                 color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             )
 
             // Espacio
             TecladoKey(
                 text = " ",
                 onClick = { onKeyPress(" ") },
-                modifier = Modifier.weight(4f)
+                modifier = Modifier.weight(4f),
             )
 
             // Enter
@@ -107,10 +107,11 @@ fun SymbolsTeclado(
                 icon = Icons.Default.Check,
                 onClick = onDone,
                 modifier = Modifier.weight(SPECIAL_KEY_WEIGHT),
-                style = TecladoKeyStyle(
-                    itemColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                style =
+                    TecladoKeyStyle(
+                        itemColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.luxury.cheats.features.perfil.ui
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,15 +19,28 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,8 +53,12 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.luxury.cheats.R
 import com.luxury.cheats.features.perfil.logic.PerfilAction
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+private const val CAPTURE_DELAY_MS = 100L
+private const val BLINK_ANIMATION_DURATION_MS = 1500
 
 /**
  * Sección de información principal del perfil.
@@ -57,30 +75,76 @@ fun PerfilInfoSection(
     data: ProfileInfoData = ProfileInfoData(),
     onAction: (PerfilAction) -> Unit = {},
 ) {
-    Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(400.dp)
-                .clip(RoundedCornerShape(49.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(20.dp),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            InfoHeaderSection(
-                tier = data.tier,
-                profileImageUri = data.profileImageUri,
-                bannerImageUri = data.bannerImageUri,
-                onAction = onAction,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            InfoUserDetails(data.userName, data.userId)
-            Spacer(modifier = Modifier.height(20.dp))
-            InfoStatusButtons(
-                remainingDays = data.remainingDays,
-                androidVersion = data.androidVersion,
-                appVersion = data.appVersion,
+    val graphicsLayer = rememberGraphicsLayer()
+    val scope = rememberCoroutineScope()
+    var showOverlay by remember { mutableStateOf(true) }
+
+    Box(modifier = modifier, contentAlignment = Alignment.TopCenter) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .clip(RoundedCornerShape(49.dp))
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+                        drawLayer(graphicsLayer)
+                    }
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .padding(20.dp),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                InfoHeaderSection(
+                    tier = data.tier,
+                    profileImageUri = data.profileImageUri,
+                    bannerImageUri = data.bannerImageUri,
+                    onAction = onAction,
+                    showOverlay = showOverlay,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                InfoUserDetails(data.userName, data.userId)
+                Spacer(modifier = Modifier.height(20.dp))
+                InfoStatusButtons(
+                    remainingDays = data.remainingDays,
+                    androidVersion = data.androidVersion,
+                    appVersion = data.appVersion,
+                )
+            }
+        }
+
+        // Botón de descarga fuera del Box capturado por graphicsLayer
+        Box(
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(36.dp) // Ajustado para que no tape el banner demasiado
+                    .size(40.dp)
+                    .background(Color.Black.copy(alpha = 0.35f), CircleShape)
+                    .clip(CircleShape)
+                    .clickable {
+                        scope.launch {
+                            try {
+                                showOverlay = false
+                                delay(CAPTURE_DELAY_MS)
+                                val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
+                                onAction(PerfilAction.SaveProfileClicked(bitmap))
+                            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                                android.util.Log.e("PerfilInfoSection", "Error capturing bitmap", e)
+                            } finally {
+                                showOverlay = true
+                            }
+                        }
+                    },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Share,
+                contentDescription = "Compartir Perfil",
+                tint = Color.White,
+                modifier = Modifier.size(20.dp),
             )
         }
     }
@@ -106,6 +170,7 @@ private fun InfoHeaderSection(
     profileImageUri: String?,
     bannerImageUri: String?,
     onAction: (PerfilAction) -> Unit,
+    showOverlay: Boolean = true,
 ) {
     Box(
         modifier =
@@ -126,6 +191,7 @@ private fun InfoHeaderSection(
                 uri = bannerImageUri,
                 modifier = Modifier.align(Alignment.TopCenter),
                 onClick = { onAction(PerfilAction.BannerImageClicked) },
+                showOverlay = showOverlay,
             )
             InfoAvatar(
                 uri = profileImageUri,
@@ -147,6 +213,7 @@ private fun InfoBanner(
     uri: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    showOverlay: Boolean = true,
 ) {
     Box(
         modifier =
@@ -160,12 +227,42 @@ private fun InfoBanner(
                 )
                 .clickable { onClick() },
     ) {
+        val infiniteTransition = rememberInfiniteTransition(label = "Blink")
+        val alpha by infiniteTransition.animateFloat(
+            initialValue = 0.4f,
+            targetValue = 1f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(BLINK_ANIMATION_DURATION_MS, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "Alpha",
+        )
+
         AsyncImage(
-            model = uri ?: R.drawable.sprit1,
+            model = uri,
             contentDescription = "Cover Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
         )
+
+        if (showOverlay) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "CLICK PARA CAMBIAR",
+                    color = Color.White.copy(alpha = alpha),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.graphicsLayer(alpha = alpha),
+                )
+            }
+        }
     }
 }
 
@@ -190,7 +287,7 @@ private fun InfoAvatar(
                 .clickable { onClick() },
     ) {
         AsyncImage(
-            model = uri ?: R.drawable.sprit2,
+            model = uri,
             contentDescription = "Profile Avatar",
             modifier = Modifier.fillMaxSize().padding(1.dp).clip(CircleShape),
             contentScale = ContentScale.Crop,
@@ -205,8 +302,7 @@ private fun InfoTierTag(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(30.dp)
-    val isVip = tier.equals("vip", ignoreCase = true)
-    
+
     Box(
         modifier =
             modifier
@@ -234,15 +330,21 @@ private fun InfoTierTag(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
+            val (icon, label) = when (tier.lowercase()) {
+                "plus" -> Pair(Icons.Filled.AutoAwesome, "Plus")
+                "vip" -> Pair(Icons.Filled.Star, "Vip")
+                else -> Pair(Icons.Filled.Person, "Free")
+            }
+
             Icon(
-                imageVector = if (isVip) Icons.Filled.Star else Icons.Filled.Person,
-                contentDescription = if (isVip) "VIP Icon" else "Free Icon",
+                imageVector = icon,
+                contentDescription = "$label Icon",
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = if (isVip) "Vip" else "Free",
+                text = label,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.ExtraBold,

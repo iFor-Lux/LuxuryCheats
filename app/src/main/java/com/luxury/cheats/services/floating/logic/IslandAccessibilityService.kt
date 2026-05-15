@@ -1,4 +1,4 @@
-package com.luxury.cheats.services.floating
+package com.luxury.cheats.services.floating.logic
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
@@ -10,8 +10,6 @@ import android.view.MotionEvent
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.FrameLayout
-import androidx.compose.ui.graphics.toArgb
-import com.luxury.cheats.services.floating.FloatingWidgetContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
@@ -26,20 +24,31 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.luxury.cheats.services.floating.ui.FloatingWidgetContent
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class IslandAccessibilityService : AccessibilityService(), LifecycleOwner, ViewModelStoreOwner,
+class IslandAccessibilityService :
+    AccessibilityService(),
+    LifecycleOwner,
+    ViewModelStoreOwner,
     SavedStateRegistryOwner {
-
     @Inject lateinit var floatingWidgetManager: FloatingWidgetManager
+
+    companion object {
+        private const val LAYOUT_BUFFER_DP = 40
+        private const val MENU_PADDING_DP = 32
+        private const val WIDGET_OFFSET_Y_DP = 20
+        private const val MENU_BASE_HEIGHT_DP = 64
+        private const val MAX_EXPANDED_HEIGHT_DP = 280
+    }
 
     private lateinit var windowManager: WindowManager
     private var rootContainer: FrameLayout? = null
@@ -83,15 +92,29 @@ class IslandAccessibilityService : AccessibilityService(), LifecycleOwner, ViewM
         params?.let {
             var changed = false
             val density = resources.displayMetrics.density
-            
+
             // Calculamos dimensiones con búfer incluido
             val widgetWidthPx = (config.width * density).toInt()
             val widgetHeightPx = (config.height * density).toInt()
-            val bufferPx = (40 * density).toInt()
-            
-            val menuExpandedHeight = (280 + 20) * density // Menu + pequeño gap
-            val targetContainerHeightPx = if (config.isMenuVisible) menuExpandedHeight.toInt() else (widgetHeightPx + bufferPx)
-            val targetContainerWidthPx = if (config.isMenuVisible) (160 * density).toInt() else (widgetWidthPx + bufferPx)
+            val bufferPx = (LAYOUT_BUFFER_DP * density).toInt()
+
+            // ANCHURA ESTABLE: Adaptada para expansión a ancho de pantalla
+            val screenWidthPx = resources.displayMetrics.widthPixels
+            val menuPaddingPx = (MENU_PADDING_DP * density).toInt()
+            val targetContainerWidthPx = maxOf(widgetWidthPx + bufferPx, screenWidthPx - menuPaddingPx + bufferPx)
+
+            // Altura dinámica: 64dp para barra, 280dp para sección abierta
+            val menuExpandedHeight = if (config.selectedCategory.isNotEmpty()) {
+                (MAX_EXPANDED_HEIGHT_DP + WIDGET_OFFSET_Y_DP) * density
+            } else {
+                (MENU_BASE_HEIGHT_DP + WIDGET_OFFSET_Y_DP) * density
+            }
+
+            val targetContainerHeightPx = if (config.isMenuVisible) {
+                (widgetHeightPx + bufferPx + menuExpandedHeight).toInt()
+            } else {
+                widgetHeightPx + bufferPx
+            }
 
             if (it.width != targetContainerWidthPx || it.height != targetContainerHeightPx) {
                 it.width = targetContainerWidthPx
@@ -99,10 +122,9 @@ class IslandAccessibilityService : AccessibilityService(), LifecycleOwner, ViewM
                 changed = true
             }
 
-            // POSICIÓN DINÁMICA: La ventana se mueve con el widget
-            // y = centerY - (widgetHeight/2) - (20dp de padding superior)
+            // POSICIÓN DINÁMICA ESTABLE: Basada en el centro invariante
             val newXPx = (config.centerX * density - it.width / 2).toInt()
-            val newYPx = (config.centerY * density - (config.height * density) / 2 - (20 * density)).toInt()
+            val newYPx = (config.centerY * density - config.height * density / 2 - WIDGET_OFFSET_Y_DP * density).toInt()
 
             if (it.x != newXPx || it.y != newYPx) {
                 it.x = newXPx
@@ -126,54 +148,74 @@ class IslandAccessibilityService : AccessibilityService(), LifecycleOwner, ViewM
     private fun showFloatingIsland() {
         val config = floatingWidgetManager.config.value
         val density = resources.displayMetrics.density
-        val totalWidthPx = ((config.width + 40) * density).toInt()
-        val totalHeightPx = ((config.height + 40) * density).toInt()
 
-        val params = WindowManager.LayoutParams(
-            totalWidthPx,
-            totalHeightPx,
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = (config.centerX * density - totalWidthPx / 2).toInt()
-            y = (config.centerY * density - (config.height * density) / 2 - (20 * density)).toInt()
-            
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-            }
-        }
+        val widgetWidthPx = (config.width * density).toInt()
+        val bufferPx = (LAYOUT_BUFFER_DP * density).toInt()
+        val screenWidthPx = resources.displayMetrics.widthPixels
+        val menuPaddingPx = (MENU_PADDING_DP * density).toInt()
 
-        composeView = ComposeView(this).apply {
-            setContent {
-                val currentConfig by floatingWidgetManager.config.collectAsState()
-                FloatingWidgetContent(
-                    config = currentConfig,
-                    onToggleMenu = { floatingWidgetManager.toggleMenu() }
-                )
-            }
-        }
+        // Anchura estable desde la creación (Full Width Support)
+        val totalWidthPx = maxOf(widgetWidthPx + bufferPx, screenWidthPx - menuPaddingPx + bufferPx)
+        val totalHeightPx = ((config.height + LAYOUT_BUFFER_DP) * density).toInt()
 
-        rootContainer = object : FrameLayout(this) {
-            override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-                if (ev.action == MotionEvent.ACTION_DOWN) {
-                    Log.d("IslandAccessibility", "TOUCH en Isla! X: ${ev.rawX}, Y: ${ev.rawY}")
+        val params =
+            WindowManager.LayoutParams(
+                totalWidthPx,
+                totalHeightPx,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                PixelFormat.TRANSLUCENT,
+            ).apply {
+                gravity = Gravity.TOP or Gravity.START
+                x = (config.centerX * density - totalWidthPx / 2).toInt()
+                y = (config.centerY * density - config.height * density / 2 - WIDGET_OFFSET_Y_DP * density).toInt()
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
                 }
-                return super.dispatchTouchEvent(ev)
             }
-        }.apply {
-            addView(composeView)
 
-            // Requerido para Compose en un Service/AccessibilityService
-            setViewTreeLifecycleOwner(this@IslandAccessibilityService)
-            setViewTreeViewModelStoreOwner(this@IslandAccessibilityService)
-            setViewTreeSavedStateRegistryOwner(this@IslandAccessibilityService)
-        }
+        composeView =
+            ComposeView(this).apply {
+                setContent {
+                    val currentConfig by floatingWidgetManager.config.collectAsState()
+                    FloatingWidgetContent(
+                        manager = floatingWidgetManager,
+                        config = currentConfig,
+                        onToggleMenu = { floatingWidgetManager.toggleMenu() },
+                        onSelectCategory = {
+                            floatingWidgetManager.selectCategory(it)
+                        },
+                        onSetAimbotTarget = {
+                            floatingWidgetManager.setAimbotTarget(it)
+                        },
+                    )
+                }
+            }
+
+        rootContainer =
+            FrameLayout(this).apply {
+                // Listener para cerrar al tocar fuera
+                setOnTouchListener { _, event ->
+                    if (event.action == MotionEvent.ACTION_OUTSIDE) {
+                        if (floatingWidgetManager.config.value.isMenuVisible) {
+                            floatingWidgetManager.toggleMenu()
+                        }
+                    }
+                    false
+                }
+
+                addView(composeView)
+
+                // Requerido para Compose en un Service/AccessibilityService
+                setViewTreeLifecycleOwner(this@IslandAccessibilityService)
+                setViewTreeViewModelStoreOwner(this@IslandAccessibilityService)
+                setViewTreeSavedStateRegistryOwner(this@IslandAccessibilityService)
+            }
 
         try {
             windowManager.addView(rootContainer, params)

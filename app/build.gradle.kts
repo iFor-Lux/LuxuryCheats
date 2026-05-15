@@ -22,9 +22,8 @@ android {
         applicationId = "com.luxury.cheats"
         minSdk = 29
         targetSdk = 35
-        versionCode = 7
-        versionName = "2.2.1"
-
+        versionCode = 9
+        versionName = "2.2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -141,6 +140,7 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.database)
+    implementation(libs.firebase.messaging)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     // Networking

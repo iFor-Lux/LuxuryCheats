@@ -770,3 +770,28 @@
   - **Campos Visibles**: Nombre de Usuario, ID, Días Restantes y Menú de Acciones.
   - **UX**: Eliminación de `-webkit-tap-highlight-color` y aplicación de hover sutil en filas móviles.
 - **Resultado**: Interfaz móvil 100% funcional y estéticamente superior, optimizada para la gestión rápida de licencias desde smartphones.
+
+### Registro de Device Tokens para Notificaciones Push (Mayo 2026)
+**Fecha**: Mayo 2026
+
+- **Contexto**: Necesidad de capturar los tokens de FCM de los dispositivos para permitir el envío de notificaciones push desde el Dashboard externo.
+- **Decisión**: Implementar un flujo de registro automático del token de Firebase Cloud Messaging en el nodo `device_tokens` de Realtime Database tras cada inicio de sesión exitoso.
+- **Razón**: 
+  - Centralizar la gestión de dispositivos en la base de datos para facilitar el envío de notificaciones masivas o dirigidas desde el Dashboard.
+  - Asegurar que el token esté siempre actualizado vinculándolo al evento de login.
+- **Implementación**:
+  - `FirebaseService.kt`: Agregado método `registerDeviceToken(token)` que guarda `{active: true, plataform: "android", timestamp: ISO_8601}`.
+  - `LoginPantallaViewModel.kt`: Captura el token usando `FirebaseMessaging.getInstance().token.await()` y llama al servicio inmediatamente después de un login exitoso (credenciales o licencia).
+- **Resultado**: Los tokens de los dispositivos ahora se almacenan de forma estructurada en Firebase, permitiendo la integración futura con el sistema de notificaciones push del Dashboard.
+### Implementación de Nivel de Acceso "Plus" (Monster) (Mayo 2026)
+**Fecha**: Mayo 2026
+
+- **Contexto**: Introducción de un tercer nivel de suscripción ("plus") intermedio/superior entre "free" y "vip", según la jerarquía definida en `Luxury.md`.
+- **Decisión**: Refactorizar la lógica de tiers en toda la aplicación para reconocer "plus" como un nivel con acceso total (equivalente a VIP en privilegios de herramientas).
+- **Implementación**:
+  - **AuthService & Login**: Se actualizó el reconocimiento del tier desde Firebase. Los usuarios que inician con usuario/contraseña asumen "vip" por defecto, pero el sistema ahora mapea correctamente el valor "plus" si existe en la base de datos.
+  - **Lógica de Espera**: Se aseguró que solo los usuarios "free" pasen por el protocolo de espera artificial de 45s. Los usuarios "plus" acceden instantáneamente.
+  - **Tools & Inicio**: Las restricciones de seguridad y potencia de Aimbot (límite del 10% para free) se desactivan automáticamente para usuarios "plus".
+  - **Perfil**: Se rediseñó `InfoTierTag` para mostrar la etiqueta dinámica ("Free", "Vip", "Plus") con iconos y colores diferenciados (`AutoAwesome` para Plus).
+  - **Archivo Plus**: Se extendió la validación de acceso premium para permitir que usuarios "plus" gestionen archivos comprimidos (ZIP/RAR).
+- **Resultado**: Integración fluida del nuevo tier que permite una segmentación de mercado más flexible sin comprometer la experiencia de usuario premium.

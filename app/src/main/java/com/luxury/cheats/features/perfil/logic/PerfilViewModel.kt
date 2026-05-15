@@ -22,6 +22,7 @@ class PerfilViewModel(
     private val authService: com.luxury.cheats.services.firebase.AuthService,
     private val context: android.content.Context,
     private val fileService: com.luxury.cheats.services.storage.FileService,
+    private val firebaseService: com.luxury.cheats.services.firebase.FirebaseService,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PerfilState())
     val uiState: StateFlow<PerfilState> = _uiState.asStateFlow()
@@ -34,6 +35,7 @@ class PerfilViewModel(
         private const val YEAR_CHARS = 4
         private const val TIME_CHARS = 5
         private const val SHORT_DATE_CHARS = 10
+        private const val BITMAP_QUALITY = 100
     }
 
     init {
@@ -52,12 +54,14 @@ class PerfilViewModel(
 
             _uiState.update { state ->
                 val images = preferencesService.accessImages()
+                val remote = preferencesService.accessRemoteUrls()
                 state.copy(
                     username = username,
                     userId = cache?.get("id") ?: username,
                     tier = cache?.get("tier") ?: if (isLicenseMode) "free" else "vip",
-                    profileImageUri = images.first,
-                    bannerImageUri = images.second,
+                    profileImageUri = images.first ?: remote.first,
+                    bannerImageUri = images.second ?: remote.second,
+                    creatorProfileUrl = preferencesService.accessCreatorUrl(),
                     androidVersion = android.os.Build.VERSION.RELEASE,
                     targetSdk = android.os.Build.VERSION.SDK_INT.toString(),
                     architecture = (android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "").uppercase(),
@@ -67,6 +71,35 @@ class PerfilViewModel(
                 )
             }
 
+            // Actualizar imágenes desde Firebase en segundo plano para futuros inicios
+            @Suppress("TooGenericExceptionCaught")
+            viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val remoteIcon = firebaseService.fetchImageUrl("IconoPerfil")
+                    val remoteBanner = firebaseService.fetchImageUrl("FondoPerfil")
+
+                    if (remoteIcon != null || remoteBanner != null) {
+                        preferencesService.accessRemoteUrls(profile = remoteIcon, banner = remoteBanner)
+
+                        _uiState.update { state ->
+                            val currentImages = preferencesService.accessImages()
+                            state.copy(
+                                profileImageUri = currentImages.first ?: remoteIcon ?: state.profileImageUri,
+                                bannerImageUri = currentImages.second ?: remoteBanner ?: state.bannerImageUri,
+                            )
+                        }
+                    }
+
+                    // Actualizar imagen del creador
+                    val creatorUrl = firebaseService.fetchImageUrl("Perfil")
+                    if (creatorUrl != null) {
+                        preferencesService.accessCreatorUrl(creatorUrl)
+                        _uiState.update { it.copy(creatorProfileUrl = creatorUrl) }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("PerfilViewModel", "Error updating remote profile images", e)
+                }
+            }
 
             if (cache != null) {
                 processUserData(
@@ -89,8 +122,6 @@ class PerfilViewModel(
         }
     }
 
-
-
     private fun getRamInfo(): String {
         return try {
             val service = context.getSystemService(android.content.Context.ACTIVITY_SERVICE)
@@ -104,6 +135,7 @@ class PerfilViewModel(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun fetchRemoteUserData(username: String) {
         viewModelScope.launch {
             try {
@@ -114,7 +146,8 @@ class PerfilViewModel(
                             json.put(child.key ?: "", child.value)
                         }
                         json.put("_key", snapshot.key)
-                        json.put("tier", json.optString("tier", "vip"))
+                        val tier = json.optString("tier").takeIf { it.isNotEmpty() } ?: "vip"
+                        json.put("tier", tier)
                         processUserData(json)
                     }
                 }
@@ -124,6 +157,7 @@ class PerfilViewModel(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun fetchRemoteLicenseData(key: String) {
         viewModelScope.launch {
             try {
@@ -134,7 +168,8 @@ class PerfilViewModel(
                             json.put(child.key ?: "", child.value)
                         }
                         json.put("_key", snapshot.key)
-                        json.put("tier", json.optString("tier", "free"))
+                        val tier = json.optString("tier").takeIf { it.isNotEmpty() } ?: "free"
+                        json.put("tier", tier)
                         processUserData(json)
                     }
                 }
@@ -143,7 +178,6 @@ class PerfilViewModel(
             }
         }
     }
-
 
     private fun processUserData(
         userData: JSONObject,
@@ -183,7 +217,6 @@ class PerfilViewModel(
             )
         }
     }
-
 
     private fun parseCreationDate(createdAt: String): Pair<String, String> {
         if (createdAt.isEmpty()) return "" to ""
@@ -242,7 +275,60 @@ class PerfilViewModel(
             PerfilAction.LogoutClicked -> preferencesService.accessCredentials(clear = true)
             is PerfilAction.ProfileImageSelected -> updateProfileImage(action.uri)
             is PerfilAction.BannerImageSelected -> updateBannerImage(action.uri)
+            is PerfilAction.SaveProfileClicked -> saveProfileToGallery(action.bitmap)
             else -> {}
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun saveProfileToGallery(bitmap: android.graphics.Bitmap) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val filename = "Luxury_Profile_${System.currentTimeMillis()}.png"
+                val contentValues =
+                    android.content.ContentValues().apply {
+                        put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                        put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                            val path = android.os.Environment.DIRECTORY_PICTURES + "/LuxuryCheats"
+                            put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, path)
+                            put(android.provider.MediaStore.MediaColumns.IS_PENDING, 1)
+                        }
+                    }
+
+                val resolver = context.contentResolver
+                val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+                uri?.let {
+                    resolver.openOutputStream(it)?.use { stream ->
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, BITMAP_QUALITY, stream)
+                    }
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                        contentValues.clear()
+                        contentValues.put(android.provider.MediaStore.MediaColumns.IS_PENDING, 0)
+                        resolver.update(it, contentValues, null, null)
+                    }
+
+                    // Notificar al usuario (usando Toast en Main Thread)
+                    viewModelScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                        android.widget.Toast.makeText(
+                            context,
+                            "Perfil guardado en Galería",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("PerfilViewModel", "Error saving profile to gallery", e)
+                viewModelScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                    android.widget.Toast.makeText(
+                        context,
+                        "Error al guardar perfil",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 

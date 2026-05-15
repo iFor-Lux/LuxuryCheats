@@ -50,5 +50,3 @@ sealed class LoginPantallaAction {
     /** Acción cuando cambia el campo enfocado. */
     data class OnFocusFieldChange(val field: LoginField) : LoginPantallaAction()
 }
-
-

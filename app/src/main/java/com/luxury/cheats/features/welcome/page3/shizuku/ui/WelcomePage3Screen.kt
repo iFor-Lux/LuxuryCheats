@@ -16,9 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.luxury.cheats.core.ui.WelcomeNavBarSection
 import com.luxury.cheats.features.welcome.page3.shizuku.logic.WelcomePage3ViewModel
 
@@ -33,7 +33,7 @@ import com.luxury.cheats.features.welcome.page3.shizuku.logic.WelcomePage3ViewMo
 fun WelcomePage3Screen(
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit,
-    viewModel: WelcomePage3ViewModel = viewModel(),
+    viewModel: WelcomePage3ViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -64,7 +64,7 @@ fun WelcomePage3Screen(
             WelcomePage3TextSection()
 
             Spacer(modifier = Modifier.height(24.dp))
-            WelcomePage3Imagen()
+            WelcomePage3Imagen(imageUrl = uiState.imageUrl)
 
             Spacer(modifier = Modifier.height(30.dp)) // Reducido para mejor ajuste
             WelcomePage3Mensaje()

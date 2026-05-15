@@ -32,6 +32,8 @@ import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -59,16 +62,17 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import com.luxury.cheats.features.home.logic.HomeAction
+import kotlin.math.abs
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
+import com.luxury.cheats.core.theme.LuxuryCheatsTheme
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -138,19 +142,66 @@ fun HomeOpcionesSection(
                 .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val isVip = uiState.tier.lowercase() in listOf("vip", "plus")
+        var showSurpriseDialog by remember { mutableStateOf(false) }
+
         HomeOptionsCarousel(
             options = options,
             uiState = uiState,
+            isVip = isVip,
             config =
                 CarouselConfig(
                     state = carouselState,
                     scope = scope,
                     screenCenterX = screenCenterX,
                 ),
-            onAction = onAction,
+            onAction = { action ->
+                if (action is HomeAction.ShowPremiumSurprise) {
+                    showSurpriseDialog = true
+                } else {
+                    onAction(action)
+                }
+            },
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (showSurpriseDialog) {
+            AlertDialog(
+                onDismissRequest = { showSurpriseDialog = false },
+                title = {
+                    Text(
+                        text = "¡OPCIÓN EXCLUSIVA!",
+                        fontWeight = FontWeight.Black,
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Esta función requiere nivel VIP o PLUS. ¡Mejora tu cuenta para desbloquear el poder total!",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showSurpriseDialog = false
+                            onAction(HomeAction.BuyVip)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.large,
+                    ) {
+                        Text("COMPRAR VIP", fontWeight = FontWeight.Bold)
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
+            )
+        }
     }
 }
 
@@ -159,6 +210,7 @@ fun HomeOpcionesSection(
 private fun HomeOptionsCarousel(
     options: List<CheatOption>,
     uiState: com.luxury.cheats.features.home.logic.HomeState,
+    isVip: Boolean,
     config: CarouselConfig,
     onAction: (HomeAction) -> Unit,
 ) {
@@ -184,6 +236,7 @@ private fun HomeOptionsCarousel(
         OptionCard(
             option = option,
             checked = uiState.cheatOptions[option.title] ?: option.initialValue,
+            isVip = isVip,
             screenCenterX = config.screenCenterX,
             onAction = onAction,
             modifier =
@@ -213,6 +266,7 @@ private data class CarouselConfig(
 fun OptionCard(
     option: CheatOption,
     checked: Boolean,
+    isVip: Boolean,
     screenCenterX: Float,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier,
@@ -257,10 +311,17 @@ fun OptionCard(
             option = option,
             checked = checked,
             alpha = alpha,
+            isVip = isVip,
             onCheckedChange = { isChecked ->
-                onAction(HomeAction.ToggleCheat(option.title, isChecked))
+                if (isVip) {
+                    onAction(HomeAction.ToggleCheat(option.title, isChecked))
+                } else {
+                    onAction(HomeAction.ShowPremiumSurprise)
+                }
             },
         )
+
+        // El overlay de bloqueo ha sido eliminado para que parezca disponible para todos.
     }
 }
 
@@ -271,6 +332,7 @@ private fun OptionCardLayout(
     option: CheatOption,
     checked: Boolean,
     alpha: Float,
+    isVip: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
@@ -291,6 +353,7 @@ private fun OptionCardLayout(
                     option = option,
                     checked = checked,
                     alpha = alpha,
+                    isVip = isVip,
                     onCheckedChange = onCheckedChange,
                 )
             }
@@ -327,6 +390,7 @@ private fun OptionCardHero(
     option: CheatOption,
     checked: Boolean,
     alpha: Float,
+    isVip: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Column(
@@ -336,7 +400,7 @@ private fun OptionCardHero(
                 .padding(8.dp)
                 .graphicsLayer { this.alpha = alpha },
     ) {
-        OptionCardHeader(option, checked, onCheckedChange)
+        OptionCardHeader(option, checked, isVip, onCheckedChange)
         Spacer(modifier = Modifier.weight(1f))
         OptionCardFooter(option.title, option.description)
     }
@@ -346,6 +410,7 @@ private fun OptionCardHero(
 private fun OptionCardHeader(
     option: CheatOption,
     checked: Boolean,
+    isVip: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
@@ -363,10 +428,13 @@ private fun OptionCardHeader(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            enabled = true,
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.primary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                    disabledCheckedThumbColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    disabledCheckedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                 ),
         )
     }
@@ -394,7 +462,6 @@ private fun OptionCardFooter(
         )
     }
 }
-
 
 /**
  * Fondo Topográfico Personalizado.
