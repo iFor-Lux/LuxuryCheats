@@ -81,14 +81,16 @@ class FloatingControlService : Service(), LifecycleOwner, ViewModelStoreOwner, S
         private const val WIDGET_OFFSET_Y_DP = 20
         private const val MENU_BASE_HEIGHT_DP = 64
 
-        private const val HEIGHT_CONFIG_DP = 175
+        private const val HEIGHT_CONFIG_DP = 200
         private const val HEIGHT_AIMBOT_DP = 270
         private const val HEIGHT_GLOO_DP = 260
+        private const val HEIGHT_AI_DP = 380
+        private const val HEIGHT_OPTIMIZER_DP = 380
         private const val HEIGHT_DEFAULT_DP = 240
 
-        private const val EXTRA_FOV_DP = 120
-        private const val EXTRA_DRAG_DP = 80
-        private const val EXTRA_POINT_DP = 280
+        private const val EXTRA_FOV_DP = 70
+        private const val EXTRA_DRAG_DP = 40
+        private const val EXTRA_POINT_DP = 190
 
         private const val CROSSHAIR_BOX_DIVISOR = 4
         private const val CROSSHAIR_DOT_DIVISOR = 6
@@ -165,15 +167,10 @@ class FloatingControlService : Service(), LifecycleOwner, ViewModelStoreOwner, S
                         // 1. DIBUJO DE FOV (SHAPE 1)
                         if (config.isFovEnabled) {
                             drawCircle(
-                                color = Color.White.copy(alpha = 0.15f),
-                                radius = config.fovRadius.dp.toPx(),
-                                center = center,
-                            )
-                            drawCircle(
                                 color = Color.White,
                                 radius = config.fovRadius.dp.toPx(),
                                 center = center,
-                                style = Stroke(width = 2.dp.toPx()),
+                                style = Stroke(width = 1.dp.toPx()),
                             )
                         }
 
@@ -411,6 +408,8 @@ class FloatingControlService : Service(), LifecycleOwner, ViewModelStoreOwner, S
                             "Config" -> HEIGHT_CONFIG_DP
                             "Aimbot" -> HEIGHT_AIMBOT_DP
                             "Gloo" -> HEIGHT_GLOO_DP
+                            "Ai" -> HEIGHT_AI_DP
+                            "Optimizar" -> HEIGHT_OPTIMIZER_DP
                             else -> HEIGHT_DEFAULT_DP
                         }
                     if (config.selectedCategory == "Config") {
@@ -510,6 +509,14 @@ class FloatingControlService : Service(), LifecycleOwner, ViewModelStoreOwner, S
                 setViewTreeLifecycleOwner(this@FloatingControlService)
                 setViewTreeViewModelStoreOwner(this@FloatingControlService)
                 setViewTreeSavedStateRegistryOwner(this@FloatingControlService)
+                setOnTouchListener { _, event ->
+                    if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
+                        if (floatingWidgetManager.config.value.isMenuVisible) {
+                            floatingWidgetManager.toggleMenu()
+                        }
+                    }
+                    false
+                }
             }
         windowManager.addView(rootContainer, params)
     }

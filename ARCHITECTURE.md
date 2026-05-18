@@ -62,8 +62,24 @@
     │       │   │       │   ├── AnalyticsService.kt
     │       │   │       │   ├── FreeFireApiService.kt
     │       │   │       │   ├── FreeFirePlayerModels.kt
-    │       │   │       │   └── UserPreferencesService.kt
-    │       │   │       ├── navigations
+    │       │   │       │   ├── UserPreferencesService.kt
+    │       │   │       │   └── floating
+    │       │   │       │       ├── logic
+    │       │   │       │       │   ├── FloatingControlService.kt
+    │       │   │       │       │   ├── FloatingWidgetManager.kt
+    │       │   │       │       │   └── IslandAccessibilityService.kt
+    │       │   │       │       └── ui
+    │       │   │       │           ├── FloatingWidgetUI.kt
+    │       │   │       │           ├── components
+    │       │   │       │           │   ├── CategoryItem.kt
+    │       │   │       │           │   └── LuxuryMenuButton.kt
+    │       │   │       │           └── sections
+    │       │   │       │               ├── AimbotSection.kt
+    │       │   │       │               ├── ConfigSection.kt
+    │       │   │       │               ├── GlooSection.kt
+    │       │   │       │               ├── AiSection.kt
+    │       │   │       │               └── OptimizerSection.kt
+    │       │   │       └── navigations
     │       │   │       │   ├── AppNavHost.kt
     │       │   │       │   └── NavRoutes.kt
     │       │   │       ├── features
@@ -116,7 +132,11 @@
     │       │   │       │   │   ├── page3
     │       │   │       │   │   │   └── shizuku
     │       │   │       │   │   │       ├── ui
-    │       │   │       │   │   │       │   └── WelcomePage3Screen.kt
+    │       │   │       │   │   │       │   ├── WelcomePage3Screen.kt
+    │       │   │       │   │   │       │   ├── WelcomePage3Button.kt
+    │       │   │       │   │   │       │   ├── WelcomePage3Imagen.kt
+    │       │   │       │   │   │       │   ├── WelcomePage3Mensaje.kt
+    │       │   │       │   │   │       │   └── Welcomepage3TextSection.kt
     │       │   │       │   │   │       └── logic
     │       │   │       │   │   │           ├── WelcomePage3ViewModel.kt
     │       │   │       │   │   │           ├── WelcomePage3State.kt

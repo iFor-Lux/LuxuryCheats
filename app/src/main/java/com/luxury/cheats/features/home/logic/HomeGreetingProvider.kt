@@ -74,6 +74,8 @@ object HomeGreetingProvider {
         sb.append("---------------------------------\n\n")
 
         data.clanInfo?.let { appendSectionClan(sb, it) }
+        data.petInfo?.let { appendSectionPet(sb, it) }
+        data.creditInfo?.let { appendSectionCredit(sb, it) }
         data.socialInfo?.let { appendSectionSocial(sb, it) }
 
         return sb.toString()
@@ -128,11 +130,43 @@ object HomeGreetingProvider {
         }
     }
 
+    private fun appendSectionPet(
+        sb: StringBuilder,
+        pet: com.luxury.cheats.services.freefireapi.PetInfo,
+    ) {
+        if (pet.name != null) {
+            sb.append("🐾 MASCOTA\n")
+            sb.append("• NOMBRE   : ${pet.name}\n")
+            sb.append("• NIVEL    : ${pet.level ?: 1}\n")
+            sb.append("• EXP      : ${pet.exp ?: 0}\n\n")
+            sb.append("---------------------------------\n\n")
+        }
+    }
+
+    private fun appendSectionCredit(
+        sb: StringBuilder,
+        credit: com.luxury.cheats.services.freefireapi.CreditInfo,
+    ) {
+        if (credit.creditScore != null) {
+            sb.append("📈 HONOR\n")
+            sb.append("• SCORE    : ${credit.creditScore}/100\n")
+            sb.append("• ESTADO   : ${credit.rewardState ?: "EXCELENTE"}\n\n")
+            sb.append("---------------------------------\n\n")
+        }
+    }
+
     private fun appendSectionSocial(
         sb: StringBuilder,
         social: com.luxury.cheats.services.freefireapi.SocialInfo,
     ) {
         sb.append("🌐 SOCIAL\n")
+        val genderStr = when (social.gender?.lowercase()) {
+            "male" -> "Masculino"
+            "female" -> "Femenino"
+            else -> social.gender ?: "N/A"
+        }
+        sb.append("• GÉNERO   : $genderStr\n")
+        sb.append("• IDIOMA   : ${social.language ?: "N/A"}\n")
         sb.append("• FIRMA    : ${social.signature ?: "Sin firma"}\n")
     }
 }

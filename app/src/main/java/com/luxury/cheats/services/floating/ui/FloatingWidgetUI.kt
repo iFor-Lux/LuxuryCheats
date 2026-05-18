@@ -4,6 +4,8 @@ import com.luxury.cheats.services.floating.ui.components.CategoryItem
 import com.luxury.cheats.services.floating.ui.sections.AimbotSection
 import com.luxury.cheats.services.floating.ui.sections.ConfigSection
 import com.luxury.cheats.services.floating.ui.sections.GlooSection
+import com.luxury.cheats.services.floating.ui.sections.AiSection
+import com.luxury.cheats.services.floating.ui.sections.OptimizerSection
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -42,10 +44,10 @@ private val COLOR_GRAY_NORMAL = Color(0xFF8E8E8E)
 private val COLOR_GREEN_SELECTED = Color(0xFFBBFF00)
 
 private const val MENU_MARGIN_DP = 32
-private const val CONFIG_BASE_HEIGHT_DP = 175
-private const val CONFIG_FOV_EXTRA_HEIGHT_DP = 120
-private const val CONFIG_DRAG_EXTRA_HEIGHT_DP = 80
-private const val CONFIG_POINT_EXTRA_HEIGHT_DP = 280
+private const val CONFIG_BASE_HEIGHT_DP = 200
+private const val CONFIG_FOV_EXTRA_HEIGHT_DP = 70
+private const val CONFIG_DRAG_EXTRA_HEIGHT_DP = 40
+private const val CONFIG_POINT_EXTRA_HEIGHT_DP = 190
 
 /**
  * Contenido visual del widget flotante con animación de Morphing.
@@ -96,6 +98,8 @@ fun FloatingWidgetContent(
             } else CONFIG_BASE_HEIGHT_DP.dp
         }
         selectedCategory == "Gloo" -> 260.dp
+        selectedCategory == "Ai" -> 380.dp
+        selectedCategory == "Optimizar" -> 380.dp
         else -> 240.dp
     }
     val targetCornerRadius = if (isMenuVisible) 32.dp else (heightDp / 2).dp
@@ -214,6 +218,14 @@ fun FloatingWidgetContent(
                             isRotated = config.isGlooRotated,
                             onRotate = { manager.toggleGlooRotation() }
                         )
+                    }
+
+                    if (selectedCategory == "Ai") {
+                        AiSection()
+                    }
+
+                    if (selectedCategory == "Optimizar") {
+                        OptimizerSection()
                     }
                 }
             }

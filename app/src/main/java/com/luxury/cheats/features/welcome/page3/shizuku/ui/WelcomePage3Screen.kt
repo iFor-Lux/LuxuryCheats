@@ -69,6 +69,9 @@ fun WelcomePage3Screen(
             Spacer(modifier = Modifier.height(30.dp)) // Reducido para mejor ajuste
             WelcomePage3Mensaje()
 
+            Spacer(modifier = Modifier.height(24.dp))
+            Buttonshizukusection()
+
             // Espacio extra al final para que el contenido no quede debajo de la Nav Bar
             Spacer(modifier = Modifier.height(140.dp))
         }

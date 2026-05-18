@@ -795,3 +795,63 @@
   - **Perfil**: Se rediseñó `InfoTierTag` para mostrar la etiqueta dinámica ("Free", "Vip", "Plus") con iconos y colores diferenciados (`AutoAwesome` para Plus).
   - **Archivo Plus**: Se extendió la validación de acceso premium para permitir que usuarios "plus" gestionen archivos comprimidos (ZIP/RAR).
 - **Resultado**: Integración fluida del nuevo tier que permite una segmentación de mercado más flexible sin comprometer la experiencia de usuario premium.
+
+### Rediseño Visual de Consola y Expansión de Diagnóstico (Mayo 2026)
+**Fecha**: Mayo 2026
+
+- **Contexto**: La sección de la consola de la pantalla Home solo mostraba texto plano monocromático, lo que limitaba la legibilidad y el aspecto premium del sistema de diagnósticos.
+- **Decisión**: Implementar un parser inteligente de consola con `AnnotatedString` y un LED animado interactivo, además de expandir los datos expuestos del perfil de jugador.
+- **Implementación**:
+  - **HomeGreetingProvider.kt**: Se añadieron las secciones de `🐾 MASCOTA` (PetInfo) y `📈 HONOR` (CreditInfo), y se extendió la sección `🌐 SOCIAL` con Género e Idioma.
+  - **Parser de Consola**: Un analizador en tiempo real (`rememberFormattedConsoleOutput`) que divide las líneas con viñeta (`•`) en etiqueta (gris al 50% de opacidad) y valor (blanco sólido), y asigna colores específicos por tipo de dato (Perfil en azul, Rango en oro, Clan en verde menta, Mascota en coral y Honor en lavanda).
+  - **LED de Diagnóstico Dinámico**: Un indicador visual en la cabecera que parpadea fluidamente en verde esmeralda durante la búsqueda activa (`DIAGNOSING`), cambia a verde fijo al completarse con éxito (`ONLINE`), a rojo ante errores (`FAILED`) o a ámbar fijo en espera (`STANDBY`).
+  - **Estilo Físico**: Contenedor dinámico adaptativo a Material You (`surfaceContainer` de MaterialTheme) con bordes ultrafinos translúcidos (`outline.copy(alpha = 0.12f)`) que respetan la armonía y paleta tonal del sistema.
+- **Resultado**: La consola se convirtió en una de las secciones más interactivas y llamativas visualmente de la pantalla principal, mostrando más información de forma clara y premium.
+
+### Sección de IA Flotante con Simulación Interactiva de Escritura (Mayo 2026)
+**Fecha**: Mayo 2026
+
+- **Contexto**: Se requería implementar la sección de IA ("Ai") dentro del menú flotante de control (`FloatingControlService`). Tradicionalmente, permitir la entrada de teclado sobre overlays de sistema flotantes en Android requiere retirar el flag `FLAG_NOT_FOCUSABLE`, lo cual puede interferir con la respuesta táctil del juego de fondo y causar fricción en la experiencia del usuario.
+- **Decisión**: Diseñar una sección de IA (`AiSection`) completamente interactiva que simula la escritura del usuario (letra por letra con una animación de tecleado súper fluida) al tocar la barra de entrada, eliminando la necesidad de teclado del sistema en el overlay.
+- **Implementación**:
+  - **FloatingControlService.kt**: Se añadió la constante de tamaño `HEIGHT_AI_DP = 380` y se integró en la lógica de morfosis para expandir dinámicamente la ventana del servicio a 380dp cuando la pestaña de IA está activa.
+  - **FloatingWidgetUI.kt**: Se integró `AiSection` y se configuró la animación de morfosis para establecer la altura en `380.dp` al seleccionar la categoría `"Ai"`.
+  - **AiSection.kt**:
+    - **Estética premium al 100% (Figma e iOS 1:1 Match)**: Burbujas estilo chat premium implementadas mediante una forma matemática personalizada (`IosBubbleShape`). Utiliza curvas Bezier cúbicas (`cubicTo`) para simular la colita curvada y orgánica de iOS con fidelidad milimétrica.
+    - **Agrupación Consecutiva de Mensajes**: Si un emisor envía múltiples mensajes, los superiores obtienen formas redondeadas limpias sin cola y únicamente el último mensaje conserva el gancho curvado estilo iOS.
+    - **Alineación y Margen Elevado**: Añadimos padding asimétrico en las burbujas para evitar recortes de texto y elevamos la caja de entrada con un margen inferior de `26.dp` para otorgar máxima legibilidad y distanciamiento del borde del widget flotante.
+    - **Simulador de Escritura Autónomo y Envío Continuo**: Rediseñamos el motor de interacción para que sea 100% fluido y libre de clics intermedios innecesarios. Al tocar el campo de entrada una sola vez, se desencadena una secuencia de corrutinas continua y automatizada:
+      - *Escritura y Envío del Mensaje 1*: Escribe la primera frase letra por letra con sonido táctil, y se añade automáticamente al historial de chat en cuanto finaliza.
+      - *Pausa Realista del Usuario (1.2s)*: Breve espera para simular la lectura y la intención del usuario de redactar el siguiente mensaje.
+      - *Escritura y Envío del Mensaje 2*: Se teclea de forma autónoma la segunda frase (con su respectivo scroll horizontal inteligente) y se envía automáticamente al terminar.
+      - *Pausa de Lectura de la IA (1.5s)*: Simula el procesamiento y análisis de la inteligencia artificial.
+      - *Consola Hacker interactiva (luxury_console.sh)*: Tras el primer mensaje de la IA, el chat despliega una espectacular consola o terminal retro-futurista de fondo profundo (`0xFF0D0E11`), bordes con brillo neon verde matriz (`0xFF00FF66`), cabecera macOS con botones de ventana (rojo, amarillo, verde) y salida de texto monospace. Simula de forma interactiva y en tiempo real el enganche (`hooking`) a librerías, parches de memoria offset y bypass del anti-cheat, imprimiendo línea por línea cada 550ms y reproduciendo clics táctiles ultra-rápidos de teclado.
+      - *Respuesta Premium de la IA*: Tras admirar la terminal por 1.5s, la IA envía su mensaje definitivo de confirmación con burbuja iOS, cerrando el flujo con máxima inmersión técnica.
+      - *Pauta de Escritura Humana*: Se ajustó la velocidad de escritura con un retardo dinámico y aleatorio (`110ms a 140ms`) por letra. Esto imita la cadencia biológica real del dedo y previene que los sonidos se solapen.
+      - *Doble Pool de MediaPlayer Precargado (Alfa y Espacio)*: Para lograr una respuesta táctil instantánea y de latencia cero, implementamos dos pools de audio independientes precargados en memoria RAM durante `DisposableEffect(Unit)`:
+        - **Pool Alfanumérico (5 instancias)**: Precargado con `keypressclick.m4a` para las letras normales.
+        - **Pool de Espaciador (3 instancias)**: Precargado con `keypressespacio.m4a` que se dispara automáticamente cada vez que el parser de escritura detecta un carácter de espacio (`' '`). Esto emula el tono acústico más bajo y robusto de las barras espaciadoras reales de iOS y teclados mecánicos. ambos pools rotan de manera circular e independiente.
+      - *Cues Acústicas de Mensajería (iOS/Telegram Style)*: Precargamos de forma dedicada reproductores de audio independientes para efectos de red global:
+        - **Sent Message (`sentmessage.m4a`)**: Se reproduce instantáneamente cuando se concreta el envío de cualquier mensaje de usuario al chat.
+        - **Received Message (`receivedmessage.m4a`)**: Se reproduce el preciso instante en el que aparecen globos de respuesta de la IA (incluyendo la entrada inicial, la aparición de la consola terminal hacker y la confirmación final de sincronización).
+    - **Auto-Scroll Horizontal en Entrada**: La caja de texto incluye un estado horizontal (`rememberScrollState`) y un disparador reactivo `LaunchedEffect(inputText)` que desplaza el campo automáticamente al extremo derecho (`scrollState.maxValue`) conforme se escribe el mensaje. Esto recrea el comportamiento natural de un chat real al escribir mensajes largos.
+    - **Scroll Automático en Lista**: Uso de `rememberLazyListState` y un disparador `LaunchedEffect(messages.size)` que hace scroll automático al final de la lista cada vez que se envía un mensaje.
+- **Resultado**: La pestaña de IA en el menú flotante es interactiva, se expande con una morfosis espectacular a 380dp y ofrece una demo fluida libre de problemas de teclado del sistema Android, con estética 1:1 de burbujas curvas iOS, desplazamiento horizontal inteligente de texto, sonidos de tecleado en tiempo real con doble pool acústico (Alfa/Espacio), una espectacular consola terminal hacker interactiva (`luxury_console.sh`) y un flujo de simulación de chat 100% autónomo y cinematográfico.
+
+### Sección de Optimización (Game Booster Premium macOS/iOS Style)
+- **Objetivo**: Proveer un panel premium interactivo de Game Booster de ciber-rendimiento que simule la optimización en tiempo real de recursos para Free Fire, con visuales vibrantes y física orgánica.
+- **Implementación**:
+  - **Ubicación**: [OptimizerSection.kt](file:///c:/Users/lux/Downloads/LuxuryCheats/AppMobile/app/src/main/java/com/luxury/cheats/services/floating/ui/sections/OptimizerSection.kt) y conectado al contenedor elástico de morphing en [FloatingWidgetUI.kt](file:///c:/Users/lux/Downloads/LuxuryCheats/AppMobile/app/src/main/java/com/luxury/cheats/services/floating/ui/FloatingWidgetUI.kt).
+  - **Panel de Círculos macOS**: Fondo profundo carbonizado (`0xFF0D0E11`) con 3 tarjetas independientes que contienen anillos de progreso vectoriales personalizados (`Canvas` con trazados dinámicos) y extremos redondeados:
+    - **RAM (Neon Violeta/Magenda)**: De `62%` a `98%` de optimización y eficiencia.
+    - **CPU (Neon Naranja/Rojo)**: De `55%` a `96%` de eficiencia de núcleos.
+    - **GPU (Neon Cyan/Azul)**: De `58%` a `99%` de aceleración de gráficos extremos.
+  - **Física de Resortes estilo iOS**: Uso de `animateFloatAsState` vinculada a un spec `spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)` para lograr un rebote y aceleración orgánica y fluida en los anillos conforme incrementan los valores al optimizar.
+  - **Integración Acústica Híbrida**: Dispara sonidos de teclas rápidas (`AiSoundHelper.play`) para simular la inyección secuencial de recursos y reproduce la campana de éxito global (`AiSoundHelper.playReceived()`) en cuanto el booster finaliza con éxito, sellando la UI con un borde verde neón (`0xFF00FF66`).
+  - **Elastosis y Redimensionamiento de Ventana**:
+    - **UI Morphing**: Al pulsar "Optimizar" en la barra de pestañas, el contenedor morfea suavemente con curvas `FastOutSlowInEasing` a `380dp` en [FloatingWidgetUI.kt](file:///c:/Users/lux/Downloads/LuxuryCheats/AppMobile/app/src/main/java/com/luxury/cheats/services/floating/ui/FloatingWidgetUI.kt) para desplegar el Game Booster de forma simétrica.
+    - **Ajuste del WindowManager de Android**: Registramos `HEIGHT_OPTIMIZER_DP = 380` en [FloatingControlService.kt](file:///c:/Users/lux/Downloads/LuxuryCheats/AppMobile/app/src/main/java/com/luxury/cheats/services/floating/logic/FloatingControlService.kt) y lo vinculamos dentro del loop de actualización de `updateViewLayout`. Esto permite que el WindowManager del sistema operativo Android redimensione la ventana flotante `TYPE_APPLICATION_OVERLAY` de forma sincronizada con el Morphing, revelando el botón interactivo de optimizar y previniendo que se recorte en la base.
+  - **Ajuste del Círculo FOV (Aimbot Field of View)**:
+    - **Contorno Blanco Minimalista**: Modificamos el dibujo del círculo FOV en [FloatingControlService.kt](file:///c:/Users/lux/Downloads/LuxuryCheats/AppMobile/app/src/main/java/com/luxury/cheats/services/floating/logic/FloatingControlService.kt) eliminando el fondo blanco semi-translúcido (`Color.White.copy(alpha = 0.15f)`) y reduciendo el grosor de línea a un trazo ultra-fino de `1.dp.toPx()`. Ahora el círculo FOV es 100% transparente en su interior para evitar obstruir la mira de Free Fire, mostrando únicamente el sutil y premium contorno de 1 píxel.
+
+
