@@ -35,4 +35,7 @@ data class HomeState(
     val tier: String = "free",
     val showFreeSecurityDialog: Boolean = false,
     val showLotteryInfoDialog: Boolean = false,
+    val giftDaysPending: Int = 0,
+    val showGiftDialog: Boolean = false,
+    val showConfetti: Boolean = false,
 )

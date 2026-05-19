@@ -230,8 +230,19 @@ fun VipRestrictionDialog(
             )
         },
         confirmButton = {
+            val context = androidx.compose.ui.platform.LocalContext.current
             Button(
-                onClick = onDismiss,
+                onClick = {
+                    onDismiss()
+                    try {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://luxurycheats.pages.dev/")).apply {
+                            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        // Evita caídas silenciosamente si el contexto no permite iniciar la actividad
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
             ) {

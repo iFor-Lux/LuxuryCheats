@@ -186,7 +186,7 @@ private fun WidgetConfigHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
-            text = "PERSONALIZAR WIDGET",
+            text = "AJUSTES FLOATING",
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Black,
             letterSpacing = 1.sp,
@@ -289,12 +289,12 @@ private fun StrokeControls(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "BORDE (STROKE)",
+                text = "BORDES",
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
             )
             Text(
-                text = "Efecto exterior alrededor del widget",
+                text = "Efecto exterior alrededor del floating",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             )

@@ -854,4 +854,27 @@
   - **Ajuste del Círculo FOV (Aimbot Field of View)**:
     - **Contorno Blanco Minimalista**: Modificamos el dibujo del círculo FOV en [FloatingControlService.kt](file:///c:/Users/lux/Downloads/LuxuryCheats/AppMobile/app/src/main/java/com/luxury/cheats/services/floating/logic/FloatingControlService.kt) eliminando el fondo blanco semi-translúcido (`Color.White.copy(alpha = 0.15f)`) y reduciendo el grosor de línea a un trazo ultra-fino de `1.dp.toPx()`. Ahora el círculo FOV es 100% transparente en su interior para evitar obstruir la mira de Free Fire, mostrando únicamente el sutil y premium contorno de 1 píxel.
 
+### Sistema de Días VIP de Regalo de la Administración (Mayo 2026)
+**Fecha**: Mayo 2026
+
+- **Contexto**: Se requería que al iniciar sesión (o al estar activo en Home) el sistema verifique si el usuario posee días de regalo acumulados (`regalo` en la base de datos de Firebase RTDB bajo el nodo `/users/{userId}/regalo`), los presente con un popup premium e interactivo en la pantalla principal y actualice su fecha de vencimiento (`expirationDate`) local y remota de forma atómica y segura.
+- **Decisión**: Diseñar una lógica de sincronización bidireccional y desacoplada mediante MVVM:
+  1. **Persistencia local**: `UserPreferencesService` almacena y lee los días pendientes usando `KEY_PROFILE_GIFT_DAYS` para soportar estados sin internet y UX inmediata.
+  2. **Login y Obtención**: `LoginPantallaViewModel` extrae el campo `"regalo"` del JSON retornado tras la autenticación y lo persiste localmente.
+  3. **Verificación en Home**: `HomeViewModel` consulta en tiempo real Firebase al arrancar para detectar si la administración le otorgó un regalo. Si es mayor que 0, actualiza el estado para levantar la UI.
+  4. **Canje y Actualización Atómica**: Al disparar `HomeAction.ClaimGift`, se ejecuta una secuencia de fondo (corrutinas) que:
+     - Suma asíncronamente los días a la fecha de vencimiento actual del usuario (`expirationDate`).
+     - Guarda el nuevo timestamp en Firebase.
+     - Resetea el campo `regalo` a 0 en Firebase.
+     - Resetea las preferencias locales a 0 y actualiza la fecha en la caché local del perfil para que la pantalla de Perfil la muestre sin demoras.
+     - Notifica con un espectacular `AppToast` en la barra superior.
+  5. **Estética Material You & M3 Expressive**: Diseñamos `LuxuryGiftDialog.kt`, un diálogo flotante de alta fidelidad basado en tokens dinámicos de `MaterialTheme.colorScheme` de Material You. Se eliminaron por completo los fondos oscuros y dorados estáticos en favor de un contenedor adaptativo (`surfaceContainerHigh`), bordes y sombras con el color primario dinámico (`primary`), un pill superior estilizado, un icono de regalo en doble tono y un botón de canje principal. Siguiendo una excelente propuesta de diseño minimalista del usuario para eliminar redundancias, se sustituyeron el título y la cápsula por un único texto destacado **Gigante e impactante (`+X DÍAS` en 44.sp con peso ultra-bold)**. Además, a petición del usuario, implementamos en `LuxuryConfettiEffect.kt` una **lluvia de confeti de disparo único (One-Shot)** súper limpia y sutil que cae desde arriba y **se desvanece de forma gradual a partir de la mitad de la pantalla** mediante la mutación fluida del canal alfa (`alpha`), optimizando los ciclos del Canvas Compose.
+- **Archivos relacionados**:
+  - `UserPreferencesService.kt` (persistencia local)
+  - `LoginPantallaViewModel.kt` (captura al ingresar)
+  - `HomeState.kt`, `HomeAction.kt`, `HomeViewModel.kt` (orquestación asíncrona de canje)
+  - `LuxuryGiftDialog.kt` (interfaz premium)
+  - `HomeScreen.kt` (renderizado global overlay)
+
+
 

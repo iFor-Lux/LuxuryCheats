@@ -383,6 +383,12 @@ class LoginPantallaViewModel(
                                 "tier" to data.optString("tier"),
                             ),
                         )
+                        val regalo = data.optInt("regalo", 0)
+                        if (regalo > 0) {
+                            preferencesService.accessGiftDays(regalo)
+                        } else {
+                            preferencesService.accessGiftDays(0)
+                        }
                     }
                     preferencesService.accessLicenseMode(false) // Desactivar modo licencia
 

@@ -218,7 +218,9 @@
     │       │   │       │   ├── widgets
     │       │   │       │   │   ├── InfoMessageDialog.kt
     │       │   │       │   │   ├── InfoMessageSection.kt
-    │       │   │       │   │   └── InfoActivationSection.kt
+    │       │   │       │   │   ├── InfoActivationSection.kt
+    │       │   │       │   │   ├── LuxuryGiftDialog.kt
+    │       │   │       │   │   └── LuxuryConfettiEffect.kt
     │       │   │       │   └── settings
     │       │   │       │       ├── ui
     │       │   │       │       │   ├── SettingsRoute.kt

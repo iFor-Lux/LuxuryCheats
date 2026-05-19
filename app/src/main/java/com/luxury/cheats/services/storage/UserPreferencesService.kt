@@ -50,6 +50,7 @@ class UserPreferencesService
             private const val KEY_REMOTE_PROFILE_URL = "remote_profile_url"
             private const val KEY_REMOTE_BANNER_URL = "remote_banner_url"
             private const val KEY_CREATOR_PROFILE_URL = "creator_profile_url"
+            private const val KEY_PROFILE_GIFT_DAYS = "profile_gift_days"
             
             // Claves para Floating Preview Widget (Tools)
 
@@ -68,7 +69,7 @@ class UserPreferencesService
             private const val DEFAULT_FLOATING_X = 200
             private const val DEFAULT_FLOATING_Y = 400
             private const val DEFAULT_STROKE_COLOR = 0xFFFFFFFF
-            private const val DEFAULT_AIMBOT_STRENGTH = 50
+            private const val DEFAULT_AIMBOT_STRENGTH = 0
 
             private const val XOR_SEED = 0x55
         }
@@ -285,7 +286,14 @@ class UserPreferencesService
             strength?.let {
                 update { putInt(KEY_AIMBOT_STRENGTH, it) }
             }
-            return prefs.getInt(KEY_AIMBOT_STRENGTH, DEFAULT_AIMBOT_STRENGTH) // 50% por defecto
+            return prefs.getInt(KEY_AIMBOT_STRENGTH, DEFAULT_AIMBOT_STRENGTH) // 0% por defecto
+        }
+
+        fun accessGiftDays(days: Int? = null): Int {
+            days?.let {
+                update { putInt(KEY_PROFILE_GIFT_DAYS, it) }
+            }
+            return prefs.getInt(KEY_PROFILE_GIFT_DAYS, 0)
         }
 
         private object PreferenceHelper {

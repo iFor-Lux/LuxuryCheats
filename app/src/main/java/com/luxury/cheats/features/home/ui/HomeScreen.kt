@@ -103,6 +103,11 @@ fun HomeScreenContent(
             navController = navController,
             backdrop = backdrop,
         )
+
+        // Espectacular efecto de confeti animado al canjear regalos
+        com.luxury.cheats.features.widgets.LuxuryConfettiEffect(
+            visible = uiState.showConfetti
+        )
     }
 }
 
@@ -173,6 +178,14 @@ private fun HomeOverlays(
                 )
             }
         }
+    }
+
+    if (uiState.showGiftDialog) {
+        com.luxury.cheats.features.widgets.LuxuryGiftDialog(
+            giftDays = uiState.giftDaysPending,
+            onClaim = { onAction(HomeAction.ClaimGift) },
+            onDismiss = { onAction(HomeAction.DismissGiftDialog) }
+        )
     }
 }
 

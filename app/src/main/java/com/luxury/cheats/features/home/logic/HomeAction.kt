@@ -69,4 +69,10 @@ sealed class HomeAction {
 
     /** Acción para mostrar el diálogo de sorpresa premium para usuarios Free. */
     object ShowPremiumSurprise : HomeAction()
+
+    /** Acción para cerrar el diálogo de regalo. */
+    object DismissGiftDialog : HomeAction()
+
+    /** Acción para reclamar el regalo y guardarlo en Firebase/Local. */
+    object ClaimGift : HomeAction()
 }

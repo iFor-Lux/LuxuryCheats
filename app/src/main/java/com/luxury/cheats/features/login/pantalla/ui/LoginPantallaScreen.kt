@@ -95,6 +95,7 @@ private fun LoginScreenContent(
     clearFocus: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     Box(
         modifier =
             modifier.fillMaxSize().clickable(
@@ -198,7 +199,8 @@ private fun LoginScreenContent(
                     Spacer(modifier = Modifier.height(24.dp))
                     androidx.compose.material3.Button(
                         onClick = {
-                            // Abre canal de pago o similar
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://luxurycheats.pages.dev/"))
+                            context.startActivity(intent)
                         },
                         colors =
                             androidx.compose.material3.ButtonDefaults.buttonColors(
@@ -207,7 +209,7 @@ private fun LoginScreenContent(
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.width(200.dp),
                     ) {
-                        androidx.compose.material3.Text("ADQUIRIR VIP")
+                        androidx.compose.material3.Text("COMPRAR VIP")
                     }
                 }
             }
